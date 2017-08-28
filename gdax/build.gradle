@@ -1,0 +1,48 @@
+apply plugin : 'com.google.protobuf'
+apply plugin : 'application'
+
+buildscript {
+    repositories {
+        jcenter()
+        mavenCentral()
+    }
+    dependencies {
+        classpath 'com.google.protobuf:protobuf-gradle-plugin:0.8.3'
+    }
+}
+
+mainClassName = 'com.blokaly.ceres.gdax.Main'
+
+protobuf {
+    protoc {
+        artifact = 'com.google.protobuf:protoc:3.0.0'
+    }
+    generatedFilesBaseDir = "$projectDir/src/generated"
+}
+
+clean {
+    delete protobuf.generatedFilesBaseDir
+}
+
+idea {
+    module {
+        sourceDirs += file("${protobuf.generatedFilesBaseDir}/main/java");
+    }
+}
+
+dependencies {
+
+    compile "javax.websocket:javax.websocket-client-api:1.1"
+    compile "org.glassfish.tyrus:tyrus-client:1.12"
+    compile "org.glassfish.tyrus:tyrus-container-grizzly-client:1.12"
+    compile "com.lmax:disruptor:3.3.6"
+    compile "ch.qos.logback:logback-classic:1.2.3"
+    compile "org.slf4j:slf4j-api:1.7.25"
+    compile "com.google.guava:guava:23.0"
+    compile "org.apache.httpcomponents:httpclient:4.5.3"
+    compile "com.google.code.gson:gson:2.8.0"
+    compile "com.google.protobuf:protobuf-java:3.3.1"
+    compile "com.sparkjava:spark-core:2.6.0"
+}
+
+

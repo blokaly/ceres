@@ -1,0 +1,14 @@
+syntax = "proto3";
+option java_package = "com.blokaly.ceres.proto";
+option java_outer_classname = "OrderBookProto";
+
+message OrderBookMessage {
+    string symbol = 1;
+    repeated Level bids = 2;
+    repeated Level asks = 3;
+}
+
+message Level {
+    string price = 1;
+    string size = 2;
+}

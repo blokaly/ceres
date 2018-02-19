@@ -10,7 +10,7 @@ import org.slf4j.LoggerFactory;
 import java.net.URI;
 
 @Singleton
-public class BitfinexClient extends WebSocketClient implements Service {
+public class BitfinexClient extends WebSocketClient {
 
     private static Logger LOGGER = LoggerFactory.getLogger(BitfinexClient.class);
 
@@ -42,15 +42,5 @@ public class BitfinexClient extends WebSocketClient implements Service {
     @Override
     public void onError(Exception ex) {
         LOGGER.error("ws error", ex);
-    }
-
-    @Override
-    public void start() throws Exception {
-        connect();
-    }
-
-    @Override
-    public void stop() {
-        close();
     }
 }

@@ -1,6 +1,8 @@
 package com.blokaly.ceres.data;
 
-public interface MarketDataIncremental {
+import java.util.Collection;
+
+public interface MarketDataIncremental<T extends OrderInfo> {
 
     enum Type {UNKNOWN, NEW, UPDATE, DONE;}
 
@@ -8,6 +10,6 @@ public interface MarketDataIncremental {
 
     long getSequence();
 
-    OrderInfo orderInfo();
+    Collection<T> orderInfos();
 
 }

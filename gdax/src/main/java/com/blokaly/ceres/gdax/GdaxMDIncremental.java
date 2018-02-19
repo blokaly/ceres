@@ -1,6 +1,7 @@
 package com.blokaly.ceres.gdax;
 
 import com.blokaly.ceres.common.DecimalNumber;
+import com.blokaly.ceres.data.IdBasedOrderInfo;
 import com.blokaly.ceres.data.MarketDataIncremental;
 import com.blokaly.ceres.data.OrderInfo;
 import com.blokaly.ceres.data.OrderInfo.Side;
@@ -8,9 +9,13 @@ import com.google.common.base.Strings;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
+import java.util.Collection;
+import java.util.Collections;
+import java.util.stream.Collectors;
+
 import static com.blokaly.ceres.data.MarketDataIncremental.Type.*;
 
-public class GdaxMDIncremental implements MarketDataIncremental {
+public class GdaxMDIncremental implements MarketDataIncremental<IdBasedOrderInfo> {
 
     private static final String ID_FIELD = "order_id";
     private static final String TYPE_FIELD = "type";
@@ -25,7 +30,7 @@ public class GdaxMDIncremental implements MarketDataIncremental {
     private final JsonObject message;
     private final long sequence;
     private final Type type;
-    private final OrderInfo orderInfo;
+    private final IdBasedOrderInfo orderInfo;
 
     private GdaxMDIncremental(JsonObject message, long sequence) {
         this.message = message;
@@ -34,7 +39,7 @@ public class GdaxMDIncremental implements MarketDataIncremental {
         this.orderInfo = initOrderInfo();
     }
 
-    private OrderInfo initOrderInfo() {
+    private IdBasedOrderInfo initOrderInfo() {
         switch (type) {
             case NEW: return new NewOrderInfo();
             case DONE: return new DoneOrderInfo();
@@ -60,8 +65,8 @@ public class GdaxMDIncremental implements MarketDataIncremental {
     }
 
     @Override
-    public OrderInfo orderInfo() {
-        return orderInfo;
+    public Collection<IdBasedOrderInfo> orderInfos() {
+        return Collections.singletonList(orderInfo);
     }
 
     public String toString() {
@@ -108,7 +113,7 @@ public class GdaxMDIncremental implements MarketDataIncremental {
         }
     }
 
-    private class MDIncrementalOrderInfo implements OrderInfo {
+    private class MDIncrementalOrderInfo implements IdBasedOrderInfo {
         @Override
         public DecimalNumber getPrice() {
             return parseDecimal(message, PRICE_FIELD);

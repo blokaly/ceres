@@ -10,17 +10,16 @@ import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 import javax.websocket.Session;
 import java.util.Base64;
-import java.util.Queue;
 import java.util.concurrent.ExecutorService;
 
-public class FeedHandler {
-    private static final Logger LOGGER = LoggerFactory.getLogger(FeedHandler.class);
+public class GdaxFeedHandler implements FeedHandler {
+    private static final Logger LOGGER = LoggerFactory.getLogger(GdaxFeedHandler.class);
     private final ExecutorService executor;
     private final JsonObj jsonObj;
     private final OrderBasedOrderBook orderBook;
     private volatile Session currentSession;
 
-    public FeedHandler(ExecutorService executor, OrderBasedOrderBook book) {
+    public GdaxFeedHandler(ExecutorService executor, OrderBasedOrderBook book) {
         this.executor = executor;
         this.orderBook = book;
         jsonObj = new JsonObj(new String[]{book.getSymbol()});

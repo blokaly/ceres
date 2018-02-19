@@ -1,12 +1,11 @@
 package com.blokaly.ceres.orderbook;
 
 import com.blokaly.ceres.common.DecimalNumber;
+import com.blokaly.ceres.data.IdBasedOrderInfo;
 import com.blokaly.ceres.data.MarketDataIncremental;
 import com.blokaly.ceres.data.MarketDataSnapshot;
 import com.blokaly.ceres.data.OrderInfo;
-import com.blokaly.ceres.gdax.GdaxMDSnapshot;
 import com.blokaly.ceres.proto.OrderBookProto;
-import com.blokaly.ceres.web.RestClient;
 import com.google.common.collect.Maps;
 import com.lmax.disruptor.EventTranslator;
 import org.slf4j.Logger;
@@ -15,7 +14,7 @@ import org.slf4j.LoggerFactory;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class OrderBasedOrderBook implements OrderBook, EventTranslator<OrderBookProto.OrderBookMessage.Builder> {
+public class OrderBasedOrderBook implements OrderBook<IdBasedOrderInfo>, EventTranslator<OrderBookProto.OrderBookMessage.Builder> {
     private static final Logger LOGGER = LoggerFactory.getLogger(OrderBasedOrderBook.class);
     private final String symbol;
     private final NavigableMap<DecimalNumber, PriceLevel> bids = Maps.newTreeMap(Comparator.<DecimalNumber>reverseOrder());
@@ -50,8 +49,9 @@ public class OrderBasedOrderBook implements OrderBook, EventTranslator<OrderBook
         lastSequence = 0;
     }
 
+
     @Override
-    public void processSnapshot(MarketDataSnapshot snapshot) {
+    public void processSnapshot(MarketDataSnapshot<IdBasedOrderInfo> snapshot) {
         LOGGER.debug("processing snapshot");
         clear();
         snapshot.getBids().forEach(this::processNewOrder);
@@ -60,15 +60,10 @@ public class OrderBasedOrderBook implements OrderBook, EventTranslator<OrderBook
     }
 
     @Override
-    public void processIncrementalUpdate(MarketDataIncremental incremental) {
+    public void processIncrementalUpdate(MarketDataIncremental<IdBasedOrderInfo> incremental) {
 
         if (lastSequence == 0) {
-            try {
-                GdaxMDSnapshot snapshot = RestClient.orderBookSnapshot(symbol);
-                processSnapshot(snapshot);
-            } catch (Exception e) {
-                LOGGER.error("Failed to get/process snapshot", e);
-            }
+            initSnapshot();
             return;
         }
 
@@ -80,13 +75,13 @@ public class OrderBasedOrderBook implements OrderBook, EventTranslator<OrderBook
         LOGGER.debug("processing market data: {}", incremental);
         switch (incremental.type()) {
             case NEW:
-                processNewOrder(incremental.orderInfo());
+                incremental.orderInfos().forEach(this::processNewOrder);
                 break;
             case UPDATE:
-                processUpdateOrder(incremental.orderInfo());
+                incremental.orderInfos().forEach(this::processUpdateOrder);
                 break;
             case DONE:
-                processDoneOrder(incremental.orderInfo());
+                incremental.orderInfos().forEach(this::processDoneOrder);
                 break;
             default:
                 LOGGER.debug("Unknown type of market data: {}", incremental);
@@ -106,6 +101,20 @@ public class OrderBasedOrderBook implements OrderBook, EventTranslator<OrderBook
         return sb.toString();
     }
 
+    public String tob() {
+        StringBuilder sb = new StringBuilder("OrderBook{");
+        if (!bids.isEmpty()) {
+            sb.append(symbol).append(", bid=").append(bids.firstEntry().getValue());
+        }
+        if (!asks.isEmpty()) {
+            sb.append(", ask=").append(asks.firstEntry().getValue());
+        }
+        sb.append("}");
+        return sb.toString();
+    }
+
+    protected void initSnapshot() { }
+
     private NavigableMap<DecimalNumber, PriceLevel> sidedLevels(OrderInfo.Side side) {
         if (side == null || side == OrderInfo.Side.UNKNOWN) {
             return null;
@@ -114,7 +123,7 @@ public class OrderBasedOrderBook implements OrderBook, EventTranslator<OrderBook
         return side== OrderInfo.Side.BUY ? bids : asks;
     }
 
-    private void processNewOrder(OrderInfo order) {
+    private void processNewOrder(IdBasedOrderInfo order) {
         NavigableMap<DecimalNumber, PriceLevel> levels = sidedLevels(order.side());
         DecimalNumber price = order.getPrice();
         String orderId = order.getId();
@@ -127,7 +136,7 @@ public class OrderBasedOrderBook implements OrderBook, EventTranslator<OrderBook
         levelByOrderId.put(orderId, level);
     }
 
-    private void processDoneOrder(OrderInfo order) {
+    private void processDoneOrder(IdBasedOrderInfo order) {
         String orderId = order.getId();
         PriceLevel level = levelByOrderId.remove(orderId);
         if (level == null) {
@@ -141,7 +150,7 @@ public class OrderBasedOrderBook implements OrderBook, EventTranslator<OrderBook
         }
     }
 
-    private void processUpdateOrder(OrderInfo order) {
+    private void processUpdateOrder(IdBasedOrderInfo order) {
         String orderId = order.getId();
         PriceLevel level = levelByOrderId.get(orderId);
         if (level == null) {
@@ -211,7 +220,16 @@ public class OrderBasedOrderBook implements OrderBook, EventTranslator<OrderBook
                 total = total.minus(current);
             }
 
-            return quantityByOrderId.size()==0 || total.isZero();
+            if (quantityByOrderId.isEmpty()) {
+                return true;
+            } else {
+                if (total.signum() <= 0) {
+                    quantityByOrderId.clear();
+                    return true;
+                } else {
+                    return false;
+                }
+            }
         }
     }
 }

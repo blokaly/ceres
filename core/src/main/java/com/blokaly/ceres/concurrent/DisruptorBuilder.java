@@ -1,4 +1,4 @@
-package com.blokaly.ceres.disruptor;
+package com.blokaly.ceres.concurrent;
 
 import com.blokaly.ceres.concurrent.ExecutorServiceBuilder;
 import com.lmax.disruptor.EventFactory;

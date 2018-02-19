@@ -7,7 +7,7 @@ buildscript {
     }
 }
 
-mainClassName = 'com.blokaly.ceres.gdax.Main'
+mainClassName = 'com.blokaly.ceres.cex.Main'
 
 dependencies {
     compile project(':core')

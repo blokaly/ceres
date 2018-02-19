@@ -6,8 +6,6 @@ public interface OrderInfo {
 
     enum Side {UNKNOWN, BUY, SELL}
 
-    String getId();
-
     Side side();
 
     DecimalNumber getPrice();

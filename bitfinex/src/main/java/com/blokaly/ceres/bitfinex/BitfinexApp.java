@@ -14,8 +14,6 @@ import com.google.inject.multibindings.MapBinder;
 import com.netflix.governator.InjectorBuilder;
 import com.netflix.governator.LifecycleInjector;
 import com.netflix.governator.ShutdownHookModule;
-import org.java_websocket.WebSocket;
-import sun.plugin2.message.Message;
 
 import java.net.URI;
 import java.util.Map;

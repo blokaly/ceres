@@ -11,17 +11,12 @@ public class MockModule extends AbstractModule {
 
     @Override
     protected void configure() {
-
+        bind(OutgoingMessageQueue.class);
     }
 
     @Provides
-    public MessageSender provideMessageSender() {
-        return new MessageSender() {
-            @Override
-            public void send(String message) {
-
-            }
-        };
+    public MessageSender provideMessageSender(OutgoingMessageQueue queue) {
+        return queue::send;
     }
 
     @Provides

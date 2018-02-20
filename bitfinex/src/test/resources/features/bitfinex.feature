@@ -1,14 +1,9 @@
 Feature: Test Bitfinex
 
   Background:
-    Given Open http://en.wikipedia.org
-    And Do login
+    Given System started and connected to Bitfinex
 
-  Scenario: direct search article
-    Given a web browser is on the Google page
-    When the search phrase "test" is entered
-    And User enters Credentials to LogIn
-      | name       | value |
-      | testuser_1 | 123   |
-      | testuser_2 | 54    |
-    Then results for "test" are shown
+  Scenario: Subscribe to raw order book
+    When System received the following Info message:
+      | version | 1.1 |
+    Then The Subscribe to Channel message for BTCUSD should be sent out

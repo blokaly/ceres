@@ -8,6 +8,14 @@ public class SubscribedEvent extends AbstractEvent {
     private String len;
     private String pair;
 
+    public int getChanId() {
+        return chanId;
+    }
+
+    public String getPair() {
+        return pair;
+    }
+
     @Override
     public String toString() {
         return "SubscribedEvent{" +

@@ -1,9 +1,6 @@
 package com.blokaly.ceres.bitfinex;
 
-import com.blokaly.ceres.bitfinex.event.AbstractEvent;
-import com.blokaly.ceres.bitfinex.event.InfoEvent;
-import com.blokaly.ceres.bitfinex.event.RefreshEvent;
-import com.blokaly.ceres.bitfinex.event.SnapshotEvent;
+import com.blokaly.ceres.bitfinex.event.*;
 import com.blokaly.ceres.orderbook.OrderBasedOrderBook;
 import com.google.gson.Gson;
 import com.google.inject.Inject;
@@ -18,7 +15,6 @@ public class JsonCracker {
     private static Logger LOGGER = LoggerFactory.getLogger(JsonCracker.class);
     private final Gson gson;
 
-    private final OrderBasedOrderBook orderBook = new OrderBasedOrderBook("BTCUSD");
     private final Provider<MessageHandler> messageHandlerProvider;
 
     @Inject
@@ -29,16 +25,22 @@ public class JsonCracker {
 
     public void crack(String json) {
         AbstractEvent event = gson.fromJson(json, AbstractEvent.class);
-        LOGGER.info("event: {}", event);
+        LOGGER.debug("event: {}", event);
 
-        if (event instanceof InfoEvent) {
-            messageHandlerProvider.get().onMessage((InfoEvent)event);
-        } else if (event instanceof SnapshotEvent) {
-            orderBook.processSnapshot((SnapshotEvent)event);
-        } else if (event instanceof RefreshEvent) {
-            orderBook.processIncrementalUpdate((RefreshEvent)event);
+        switch (event.getEvent()) {
+            case "info":
+                messageHandlerProvider.get().onMessage((InfoEvent)event);
+                break;
+            case "subscribed":
+                messageHandlerProvider.get().onMessage((SubscribedEvent)event);
+                break;
+            case "snapshot":
+                messageHandlerProvider.get().onMessage((SnapshotEvent)event);
+                break;
+            case "refresh":
+                messageHandlerProvider.get().onMessage((RefreshEvent)event);
+                break;
+
         }
-
-        LOGGER.info("ob: {}", orderBook.tob());
     }
 }

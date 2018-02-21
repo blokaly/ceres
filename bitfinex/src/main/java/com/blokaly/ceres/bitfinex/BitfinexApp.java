@@ -50,8 +50,8 @@ public class BitfinexApp {
 
         @Provides
         @Singleton
-        public MessageHandler provideMessageHandler(Gson gson, MessageSender sender) {
-            return new MessageHandlerImpl(gson, sender);
+        public MessageHandler provideMessageHandler(Gson gson, MessageSender sender, OrderBookKeeper keeper) {
+            return new MessageHandlerImpl(gson, sender, keeper);
         }
 
         @Provides

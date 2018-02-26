@@ -50,6 +50,6 @@ public class MessageHandlerImpl implements MessageHandler {
             throw new IllegalStateException("No order book for channel id " + event.getChannelId());
         }
         orderBook.processIncrementalUpdate(event);
-        producer.send(orderBook.tob());
+        producer.publish(orderBook);
     }
 }

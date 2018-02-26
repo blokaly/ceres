@@ -22,3 +22,4 @@ http://cloudurable.com/blog/kafka-architecture-producers/index.html
 http://cloudurable.com/blog/kafka-architecture-consumers/index.html 
 http://cloudurable.com/blog/kafka-tutorial-kafka-producer/index.html
 http://cloudurable.com/blog/kafka-tutorial-kafka-producer-advanced-java-examples/index.html
+https://www.confluent.io/blog/stream-data-platform-2/

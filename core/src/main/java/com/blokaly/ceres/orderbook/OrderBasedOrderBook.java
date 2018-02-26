@@ -101,16 +101,16 @@ public class OrderBasedOrderBook implements OrderBook<IdBasedOrderInfo>, EventTr
         return sb.toString();
     }
 
-    public String tob() {
-        StringBuilder sb = new StringBuilder("OrderBook{");
-        if (!bids.isEmpty()) {
-            sb.append(symbol).append(", bid=").append(bids.firstEntry().getValue());
-        }
-        if (!asks.isEmpty()) {
-            sb.append(", ask=").append(asks.firstEntry().getValue());
-        }
-        sb.append("}");
-        return sb.toString();
+    public List<String[]> topOfBids(int level) {
+        return bids.values().stream().limit(level).map(this::wrapPriceLevel).collect(Collectors.toList());
+    }
+
+    public List<String[]> topOfAsks(int level) {
+        return asks.values().stream().limit(level).map(this::wrapPriceLevel).collect(Collectors.toList());
+    }
+
+    private String[] wrapPriceLevel(PriceLevel level) {
+        return new String[]{level.getPrice().toString(), level.getQuantity().toString()};
     }
 
     protected void initSnapshot() { }
@@ -179,7 +179,7 @@ public class OrderBasedOrderBook implements OrderBook<IdBasedOrderInfo>, EventTr
         }).collect(Collectors.toList());
     }
 
-    private final class PriceLevel implements OrderBook.Level {
+    public static final class PriceLevel implements OrderBook.Level {
 
         private final DecimalNumber price;
         private final Map<String, DecimalNumber> quantityByOrderId = Maps.newHashMap();

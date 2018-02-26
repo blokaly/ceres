@@ -14,3 +14,11 @@
 4. Start consumer
     
     `$ bin/kafka-console-consumer.sh --bootstrap-server localhost:9092 --topic bitfinex --from-beginning --formatter kafka.tools.DefaultMessageFormatter --property print.key=true --property print.value=true --property key.deserializer=org.apache.kafka.common.serialization.StringDeserializer --property value.deserializer=org.apache.kafka.common.serialization.StringDeserializer`
+    
+## References:
+http://cloudurable.com/blog/kafka-architecture/index.html
+http://cloudurable.com/blog/kafka-architecture-topics/index.html
+http://cloudurable.com/blog/kafka-architecture-producers/index.html   
+http://cloudurable.com/blog/kafka-architecture-consumers/index.html 
+http://cloudurable.com/blog/kafka-tutorial-kafka-producer/index.html
+http://cloudurable.com/blog/kafka-tutorial-kafka-producer-advanced-java-examples/index.html

@@ -2,25 +2,22 @@ package com.blokaly.ceres.bitfinex;
 
 import com.blokaly.ceres.bitfinex.event.*;
 import com.blokaly.ceres.orderbook.OrderBasedOrderBook;
-import com.blokaly.ceres.orderbook.OrderBook;
 import com.google.gson.Gson;
-import com.google.inject.Inject;
-import com.google.inject.Singleton;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-@Singleton
 public class MessageHandlerImpl implements MessageHandler {
     private static Logger LOGGER = LoggerFactory.getLogger(MessageHandlerImpl.class);
     private final Gson gson;
     private final MessageSender sender;
     private final OrderBookKeeper bookKeeper;
+    private final BitfinexKafkaProducer producer;
 
-    @Inject
-    public MessageHandlerImpl(Gson gson, MessageSender sender, OrderBookKeeper bookKeeper) {
+    public MessageHandlerImpl(Gson gson, MessageSender sender, OrderBookKeeper bookKeeper, BitfinexKafkaProducer producer) {
         this.gson = gson;
         this.sender = sender;
         this.bookKeeper = bookKeeper;
+        this.producer = producer;
     }
 
     @Override
@@ -53,5 +50,6 @@ public class MessageHandlerImpl implements MessageHandler {
             throw new IllegalStateException("No order book for channel id " + event.getChannelId());
         }
         orderBook.processIncrementalUpdate(event);
+        producer.send(orderBook.tob());
     }
 }

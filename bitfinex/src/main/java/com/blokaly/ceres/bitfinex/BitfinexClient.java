@@ -7,6 +7,7 @@ import org.java_websocket.handshake.ServerHandshake;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.PreDestroy;
 import java.net.URI;
 
 @Singleton
@@ -30,7 +31,7 @@ public class BitfinexClient extends WebSocketClient {
 
     @Override
     public void onMessage(String message) {
-        LOGGER.info("ws message: {}", message);
+        LOGGER.debug("ws message: {}", message);
         cracker.crack(message);
     }
 
@@ -42,5 +43,10 @@ public class BitfinexClient extends WebSocketClient {
     @Override
     public void onError(Exception ex) {
         LOGGER.error("ws error", ex);
+    }
+
+    @PreDestroy
+    public void stop() {
+        super.close();
     }
 }

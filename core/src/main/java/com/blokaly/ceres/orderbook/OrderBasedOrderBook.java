@@ -46,6 +46,7 @@ public class OrderBasedOrderBook implements OrderBook<IdBasedOrderInfo>, EventTr
     public void clear() {
         bids.clear();
         asks.clear();
+        levelByOrderId.clear();
         lastSequence = 0;
     }
 

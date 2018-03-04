@@ -1,0 +1,23 @@
+apply plugin : 'application'
+
+buildscript {
+    repositories {
+        jcenter()
+        mavenCentral()
+    }
+}
+
+mainClassName = 'com.blokaly.ceres.bitstamp.Main'
+
+dependencies {
+    compile project(':core')
+    compile "com.pusher:pusher-java-client:1.8.0"
+    compile "ch.qos.logback:logback-classic:1.2.3"
+    compile "org.slf4j:slf4j-api:1.7.25"
+    compile "com.google.code.gson:gson:2.8.2"
+    compile "com.netflix.governator:governator-core:1.17.4"
+    compile 'org.apache.kafka:kafka-clients:1.0.0'
+
+    testCompile "info.cukes:cucumber-java8:1.2.5"
+    testCompile "info.cukes:cucumber-junit:1.2.5"
+}

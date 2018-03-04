@@ -75,7 +75,6 @@ public class BitfinexApp {
         LifecycleInjector injector = InjectorBuilder
                 .fromModules(new ShutdownHookModule(), new BitfinexModule())
                 .createInjector();
-        Service service = injector.getInstance(Service.class);
-        service.start();
+        injector.getInstance(Service.class).start();
     }
 }

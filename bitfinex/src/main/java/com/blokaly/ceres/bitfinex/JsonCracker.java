@@ -1,7 +1,6 @@
 package com.blokaly.ceres.bitfinex;
 
 import com.blokaly.ceres.bitfinex.event.*;
-import com.blokaly.ceres.orderbook.OrderBasedOrderBook;
 import com.google.gson.Gson;
 import com.google.inject.Inject;
 import com.google.inject.Provider;

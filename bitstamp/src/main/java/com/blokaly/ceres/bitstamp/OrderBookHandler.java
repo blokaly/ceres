@@ -4,35 +4,35 @@ import com.blokaly.ceres.bitstamp.event.DiffBookEvent;
 import com.blokaly.ceres.bitstamp.event.OrderBookEvent;
 import com.blokaly.ceres.orderbook.PriceBasedOrderBook;
 import com.google.gson.Gson;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Spliterator;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.function.Consumer;
 import java.util.stream.StreamSupport;
 
 public class OrderBookHandler {
-
+    private static final Logger LOGGER = LoggerFactory.getLogger(OrderBookHandler.class);
     private final PriceBasedOrderBook orderBook;
     private final Gson gson;
     private final BlockingQueue<DiffBookEvent> cache;
-    private final ExecutorService es = Executors.newSingleThreadExecutor();
+    private final ExecutorService executorService;
     private final Spliterator<DiffBookEvent> splitter;
 
-    public OrderBookHandler(PriceBasedOrderBook orderBook, Gson gson) {
+    public OrderBookHandler(PriceBasedOrderBook orderBook, Gson gson, ExecutorService executorService) {
         this.orderBook = orderBook;
         this.gson = gson;
+        this.executorService = executorService;
         cache = new ArrayBlockingQueue<>(128);
         splitter = new QSpliterator<>(cache);
     }
 
     public void start() {
-        es.execute(() -> {
+        executorService.execute(() -> {
             StreamSupport.stream(splitter, false).forEach(event -> {
                     if (orderBook.isInitialized()) {
                         orderBook.processIncrementalUpdate(event.getDeletion());
@@ -43,10 +43,13 @@ public class OrderBookHandler {
                         while (snapshot.getSequence() <= event.getSequence()) {
                             try {
                                 Thread.sleep(1000L);
+                                snapshot = gson.fromJson(requester.request(), OrderBookEvent.class);
                             } catch (InterruptedException e) {
-                                e.printStackTrace();
+                                if (Thread.currentThread().isInterrupted()) {
+                                    LOGGER.info("Retrieving snapshot interrupted, quitting...");
+                                    break;
+                                }
                             }
-                            snapshot = gson.fromJson(requester.request(), OrderBookEvent.class);
                         }
                         orderBook.processSnapshot(snapshot);
                     }
@@ -66,7 +69,7 @@ public class OrderBookHandler {
 
         private final BlockingQueue<T> queue;
 
-        public QSpliterator(BlockingQueue<T> queue) {
+        private QSpliterator(BlockingQueue<T> queue) {
             this.queue = queue;
         }
 
@@ -76,7 +79,6 @@ public class OrderBookHandler {
                 action.accept(queue.take());
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
-                throw new IllegalStateException("Take interrupted.", e);
             }
             return true;
         }

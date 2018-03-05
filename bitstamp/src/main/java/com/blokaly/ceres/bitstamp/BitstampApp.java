@@ -2,6 +2,9 @@ package com.blokaly.ceres.bitstamp;
 
 import com.blokaly.ceres.bitstamp.event.DiffBookEvent;
 import com.blokaly.ceres.bitstamp.event.OrderBookEvent;
+import com.blokaly.ceres.common.CommonModule;
+import com.blokaly.ceres.common.ExceptionLoggingHandler;
+import com.google.common.util.concurrent.Service;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.inject.AbstractModule;
@@ -12,6 +15,7 @@ import com.netflix.governator.LifecycleInjector;
 import com.netflix.governator.ShutdownHookModule;
 import com.pusher.client.Client;
 import com.pusher.client.Pusher;
+import com.typesafe.config.Config;
 
 public class BitstampApp {
 
@@ -25,8 +29,8 @@ public class BitstampApp {
 
         @Provides
         @Singleton
-        public Client providePusherClient() {
-            return new Pusher("de504dc5763aeef9ff52");
+        public Client providePusherClient(Config config) {
+            return new Pusher(config.getString("app.key"));
         }
 
         @Provides
@@ -41,10 +45,10 @@ public class BitstampApp {
     }
 
     public static void main(String[] args) throws Exception {
+        Thread.setDefaultUncaughtExceptionHandler(new ExceptionLoggingHandler());
         LifecycleInjector injector = InjectorBuilder
-                .fromModules(new ShutdownHookModule(), new BitstampModule())
+                .fromModules(new ShutdownHookModule(), new CommonModule(), new BitstampModule())
                 .createInjector();
-        injector.getInstance(Service.class).start();
-        injector.awaitTermination();
+        injector.getInstance(Service.class).startAsync().awaitTerminated();
     }
 }

@@ -1,8 +1,8 @@
 package com.blokaly.ceres.bitstamp;
 
 import com.blokaly.ceres.bitstamp.event.DiffBookEvent;
-import com.blokaly.ceres.bitstamp.event.OrderBookEvent;
 import com.blokaly.ceres.orderbook.PriceBasedOrderBook;
+import com.google.common.util.concurrent.AbstractService;
 import com.google.gson.Gson;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
@@ -14,8 +14,11 @@ import com.pusher.client.connection.ConnectionStateChange;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.PreDestroy;
+import java.util.concurrent.ExecutorService;
+
 @Singleton
-public class PusherClient implements ConnectionEventListener, ChannelEventListener, Service {
+public class PusherClient extends AbstractService implements ConnectionEventListener, ChannelEventListener {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PusherClient.class);
 
@@ -25,19 +28,10 @@ public class PusherClient implements ConnectionEventListener, ChannelEventListen
     private final OrderBookHandler handler;
 
     @Inject
-    public PusherClient(Client pusher, Gson gson) {
+    public PusherClient(Client pusher, Gson gson, ExecutorService ses) {
         this.pusher = pusher;
         this.gson = gson;
-        handler = new OrderBookHandler(new PriceBasedOrderBook("btcusd"), gson);
-    }
-
-    public void start() {
-        pusher.connect(this, ConnectionState.ALL);
-    }
-
-    @Override
-    public void stop() {
-        pusher.disconnect();
+        handler = new OrderBookHandler(new PriceBasedOrderBook("btcusd"), gson, ses);
     }
 
     @Override
@@ -53,7 +47,7 @@ public class PusherClient implements ConnectionEventListener, ChannelEventListen
         LOGGER.error("Pusher connection error: " + message, e);
     }
 
-    public void subscribe() {
+    private void subscribe() {
         pusher.subscribe("diff_order_book", this, "data");
     }
 
@@ -68,5 +62,16 @@ public class PusherClient implements ConnectionEventListener, ChannelEventListen
         LOGGER.info("{}:{} - {}", channelName, eventName, data);
         DiffBookEvent diffBookEvent = gson.fromJson(data, DiffBookEvent.class);
         handler.handle(diffBookEvent);
+    }
+
+    @Override
+    protected void doStart() {
+        pusher.connect(this, ConnectionState.ALL);
+    }
+
+    @Override
+    @PreDestroy
+    protected void doStop() {
+        pusher.disconnect();
     }
 }

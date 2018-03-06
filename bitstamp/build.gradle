@@ -23,6 +23,7 @@ dependencies {
     testCompile "info.cukes:cucumber-junit:1.2.5"
 }
 
+// conf files should be under src/conf folder, avoid duplication
 sourceSets {
     main {
         resources {
@@ -33,9 +34,7 @@ sourceSets {
 
 applicationDefaultJvmArgs = ["-Dlog.root=MY_APP_HOME/logs", "-Dlog.name=${applicationName}"]
 
-applicationDistribution.from("src/conf") {
-    into "conf"
-}
+applicationDistribution.from("src/conf") { into "conf" }
 
 startScripts {
     doLast {

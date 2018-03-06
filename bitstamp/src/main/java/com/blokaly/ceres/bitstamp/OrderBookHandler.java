@@ -54,8 +54,7 @@ public class OrderBookHandler {
                         orderBook.processSnapshot(snapshot);
                     }
 
-                System.out.println(Arrays.toString(orderBook.topOfBids(1).get(0)));
-                System.out.println(Arrays.toString(orderBook.topOfAsks(1).get(0)));
+                LOGGER.info("{} {}", Arrays.toString(orderBook.topOfBids(1).get(0)), Arrays.toString(orderBook.topOfAsks(1).get(0)));
                 });
         });
     }

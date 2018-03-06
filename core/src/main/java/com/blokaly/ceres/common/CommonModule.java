@@ -11,28 +11,29 @@ import com.typesafe.config.ConfigFactory;
 import java.util.concurrent.*;
 
 public class CommonModule extends AbstractModule {
+
     @Override
     protected void configure() {
         bind(Thread.UncaughtExceptionHandler.class).to(ExceptionLoggingHandler.class).in(Singleton.class);
     }
 
     @Provides
+    @Singleton
     public ThreadFactory provideThreadFactory(Thread.UncaughtExceptionHandler uncaughtExceptionHandler) {
         ThreadFactoryBuilder builder = new ThreadFactoryBuilder();
+        builder.setNameFormat("ceres-%d");
         builder.setDaemon(true).setUncaughtExceptionHandler(uncaughtExceptionHandler);
         return builder.build();
     }
 
-    @Provides
-    @Singleton
-    public ScheduledExecutorService provideScheduledExecutorService(ThreadFactory factory) {
+    @Provides @SingleThread
+    public ScheduledExecutorService provideSingleScheduledExecutorService(ThreadFactory factory) {
         ScheduledExecutorService service = Executors.newSingleThreadScheduledExecutor(factory);
         MoreExecutors.addDelayedShutdownHook(service, 5, TimeUnit.SECONDS);
         return service;
     }
 
-    @Provides
-    @Singleton
+    @Provides @SingleThread
     public ExecutorService provideSingleExecutorService(ThreadFactory factory) {
         ExecutorService service = Executors.newSingleThreadExecutor(factory);
         MoreExecutors.addDelayedShutdownHook(service, 5, TimeUnit.SECONDS);

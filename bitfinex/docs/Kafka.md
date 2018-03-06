@@ -9,11 +9,11 @@
 
 3. Create a topic
     
-    `$ bin/kafka-topics.sh --create --zookeeper localhost:2181 --replication-factor 1 --partitions 1 --topic bitfinex`
+    `$ bin/kafka-topics.sh --create --zookeeper localhost:2181 --replication-factor 1 --partitions 1 --topic md.bitfinex`
     
 4. Start consumer
     
-    `$ bin/kafka-console-consumer.sh --bootstrap-server localhost:9092 --topic bitfinex --from-beginning --formatter kafka.tools.DefaultMessageFormatter --property print.key=true --property print.value=true --property key.deserializer=org.apache.kafka.common.serialization.StringDeserializer --property value.deserializer=org.apache.kafka.common.serialization.StringDeserializer`
+    `$ bin/kafka-console-consumer.sh --bootstrap-server localhost:9092 --from-beginning --formatter kafka.tools.DefaultMessageFormatter --property print.key=true --property print.value=true --property key.deserializer=org.apache.kafka.common.serialization.StringDeserializer --property value.deserializer=org.apache.kafka.common.serialization.StringDeserializer --topic md.bitfinex`
     
 ## References:
 http://cloudurable.com/blog/kafka-architecture/index.html

@@ -22,12 +22,12 @@ public class PusherClient implements ConnectionEventListener, ChannelEventListen
 
     private final OrderBookHandler handler;
 
-    public PusherClient(String symbol, Client pusher, Gson gson, ExecutorService ses) {
+    public PusherClient(String symbol, Client pusher, BitstampKafkaProducer producer, Gson gson, ExecutorService ses) {
         this.symbol = symbol;
         this.pusher = pusher;
         this.gson = gson;
         logger = LoggerFactory.getLogger(getClass().getName() + "[" + symbol + "]");
-        handler = new OrderBookHandler(new PriceBasedOrderBook(symbol), gson, ses);
+        handler = new OrderBookHandler(new PriceBasedOrderBook(symbol), producer, gson, ses);
     }
 
     @Override

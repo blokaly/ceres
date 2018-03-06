@@ -16,9 +16,14 @@ import com.netflix.governator.ShutdownHookModule;
 import com.pusher.client.Pusher;
 import com.pusher.client.PusherOptions;
 import com.typesafe.config.Config;
+import org.apache.kafka.clients.producer.KafkaProducer;
+import org.apache.kafka.clients.producer.Producer;
+import org.apache.kafka.clients.producer.ProducerConfig;
+import org.apache.kafka.common.serialization.StringSerializer;
 
 import javax.annotation.PreDestroy;
 import java.util.List;
+import java.util.Properties;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
@@ -55,11 +60,11 @@ public class BitstampApp extends AbstractService {
 
         @Provides
         @Singleton
-        public List<PusherClient> providePusherClients(Config config, Gson gson, @SingleThread Provider<ExecutorService> provider) {
+        public List<PusherClient> providePusherClients(Config config, Gson gson, BitstampKafkaProducer producer, @SingleThread Provider<ExecutorService> provider) {
             PusherOptions options = new PusherOptions();
 
             return config.getConfig("symbols").entrySet().stream()
-                    .map(item -> new PusherClient(item.getKey(), new Pusher((String)item.getValue().unwrapped(), options), gson, provider.get()))
+                    .map(item -> new PusherClient(item.getKey(), new Pusher((String)item.getValue().unwrapped(), options), producer, gson, provider.get()))
                     .collect(Collectors.toList());
         }
 
@@ -70,6 +75,18 @@ public class BitstampApp extends AbstractService {
             builder.registerTypeAdapter(OrderBookEvent.class, new OrderBookEventAdapter());
             builder.registerTypeAdapter(DiffBookEvent.class, new DiffBookEventAdapter());
             return builder.create();
+        }
+
+        @Provides
+        @Singleton
+        public Producer<String, String> provideKafakaProducer(Config config) {
+            Config kafka = config.getConfig("kafka");
+            Properties props = new Properties();
+            props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, kafka.getString(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG));
+            props.put(ProducerConfig.CLIENT_ID_CONFIG, kafka.getString(ProducerConfig.CLIENT_ID_CONFIG));
+            props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
+            props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
+            return new KafkaProducer<>(props);
         }
 
     }

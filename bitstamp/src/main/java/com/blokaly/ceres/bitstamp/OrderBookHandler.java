@@ -18,13 +18,15 @@ import java.util.stream.StreamSupport;
 public class OrderBookHandler {
     private static final Logger LOGGER = LoggerFactory.getLogger(OrderBookHandler.class);
     private final PriceBasedOrderBook orderBook;
+    private final BitstampKafkaProducer producer;
     private final Gson gson;
     private final BlockingQueue<DiffBookEvent> cache;
     private final ExecutorService executorService;
     private final Spliterator<DiffBookEvent> splitter;
 
-    public OrderBookHandler(PriceBasedOrderBook orderBook, Gson gson, ExecutorService executorService) {
+    public OrderBookHandler(PriceBasedOrderBook orderBook, BitstampKafkaProducer producer, Gson gson, ExecutorService executorService) {
         this.orderBook = orderBook;
+        this.producer = producer;
         this.gson = gson;
         this.executorService = executorService;
         cache = new ArrayBlockingQueue<>(128);
@@ -53,8 +55,7 @@ public class OrderBookHandler {
                         }
                         orderBook.processSnapshot(snapshot);
                     }
-
-                LOGGER.info("{} {}", Arrays.toString(orderBook.topOfBids(1).get(0)), Arrays.toString(orderBook.topOfAsks(1).get(0)));
+                producer.publish(orderBook);
                 });
         });
     }

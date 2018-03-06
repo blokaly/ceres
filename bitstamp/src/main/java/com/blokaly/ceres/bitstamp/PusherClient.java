@@ -56,7 +56,7 @@ public class PusherClient implements ConnectionEventListener, ChannelEventListen
 
     @Override
     public void onEvent(String channelName, String eventName, String data) {
-        logger.info("{}:{} - {}", channelName, eventName, data);
+        logger.debug("{}:{} - {}", channelName, eventName, data);
         DiffBookEvent diffBookEvent = gson.fromJson(data, DiffBookEvent.class);
         handler.handle(diffBookEvent);
     }

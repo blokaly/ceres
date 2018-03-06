@@ -7,7 +7,9 @@ buildscript {
     }
 }
 
-mainClassName = 'com.blokaly.ceres.bitstamp.Main'
+mainClassName = 'com.blokaly.ceres.bitstamp.BitstampApp'
+applicationName = "bitstampfh"
+version = 1.0
 
 dependencies {
     compile project(':core')
@@ -19,4 +21,27 @@ dependencies {
 
     testCompile "info.cukes:cucumber-java8:1.2.5"
     testCompile "info.cukes:cucumber-junit:1.2.5"
+}
+
+sourceSets {
+    main {
+        resources {
+            exclude '**/*'
+        }
+    }
+}
+
+applicationDefaultJvmArgs = ["-Dlog.root=MY_APP_HOME/logs", "-Dlog.name=${applicationName}"]
+
+applicationDistribution.from("src/conf") {
+    into "conf"
+}
+
+startScripts {
+    doLast {
+        unixScript.text = unixScript.text.replace('MY_APP_HOME', '\$APP_HOME')
+        unixScript.text = unixScript.text.replace('CLASSPATH=$APP_HOME/lib', 'CLASSPATH=$APP_HOME/conf/:$APP_HOME/lib')
+        windowsScript.text = windowsScript.text.replace('MY_APP_HOME', '%~dp0..')
+        windowsScript.text = windowsScript.text.replace('CLASSPATH=$APP_HOME/lib', 'CLASSPATH=$APP_HOME/conf/:$APP_HOME/lib')
+    }
 }

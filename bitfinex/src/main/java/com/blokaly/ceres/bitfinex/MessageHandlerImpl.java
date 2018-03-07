@@ -6,6 +6,8 @@ import com.google.gson.Gson;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.function.Consumer;
+
 public class MessageHandlerImpl implements MessageHandler {
     private static Logger LOGGER = LoggerFactory.getLogger(MessageHandlerImpl.class);
     private final Gson gson;
@@ -22,9 +24,12 @@ public class MessageHandlerImpl implements MessageHandler {
 
     @Override
     public void onMessage(InfoEvent event) {
-        String jsonString = gson.toJson(new OrderBookEvent("BTCUSD"));
-        LOGGER.info("subscribe: {}", jsonString);
-        sender.send(jsonString);
+        bookKeeper.getSymbols().forEach(symbol -> {
+            String jsonString = gson.toJson(new OrderBookEvent(symbol));
+            LOGGER.info("subscribe: {}", jsonString);
+            sender.send(jsonString);
+        });
+
     }
 
     @Override

@@ -1,18 +1,18 @@
 package com.blokaly.ceres.bitfinex;
 
 import com.blokaly.ceres.orderbook.OrderBasedOrderBook;
+import com.blokaly.ceres.orderbook.PriceBasedOrderBook;
 import com.google.gson.Gson;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import com.typesafe.config.Config;
 import org.apache.kafka.clients.producer.*;
-import org.apache.kafka.common.serialization.StringSerializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.PreDestroy;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Properties;
 
 @Singleton
 public class BitfinexKafkaProducer {
@@ -20,18 +20,14 @@ public class BitfinexKafkaProducer {
     private static Logger LOGGER = LoggerFactory.getLogger(BitfinexKafkaProducer.class);
     private final Producer<String, String> producer;
     private final Gson gson;
+    private final String topic;
     private volatile boolean closing = false;
 
     @Inject
-    public BitfinexKafkaProducer(Gson gson) {
+    public BitfinexKafkaProducer(Producer<String, String> producer, Gson gson, Config config) {
+        this.producer = producer;
         this.gson = gson;
-
-        Properties props = new Properties();
-        props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
-        props.put(ProducerConfig.CLIENT_ID_CONFIG, "BitfinexProducer");
-        props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
-        props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
-        producer = new KafkaProducer<>(props);
+        topic = config.getString("kafka.topic");
     }
 
     @PreDestroy
@@ -55,8 +51,7 @@ public class BitfinexKafkaProducer {
     }
 
     private void send(String symbol, String message) {
-
-        ProducerRecord<String, String> record = new ProducerRecord<>("md.bitfinex", symbol.toLowerCase(), message);
+        ProducerRecord<String, String> record = new ProducerRecord<>(topic, symbol.toLowerCase(), message);
         producer.send(record, (metadata, exception) -> {
             if (exception != null) {
                 LOGGER.error("Error sending Kafka message", exception);

@@ -32,9 +32,32 @@ sourceSets {
     }
 }
 
-applicationDefaultJvmArgs = ["-Dlog.root=MY_APP_HOME/logs", "-Dlog.name=${applicationName}"]
-
 applicationDistribution.from("src/conf") { into "conf" }
+
+applicationDefaultJvmArgs = [
+        "-Dlog.root=MY_APP_HOME/logs",
+        "-Dlog.name=${applicationName}",
+        "-server", "-showversion", "-Xms512m", "-Xmx512m",
+        "-XX:-OmitStackTraceInFastThrow",
+        "-XX:+HeapDumpOnOutOfMemoryError",
+        "-XX:HeapDumpPath=MY_APP_HOME/logs/gc.hprof",
+        "-XX:+DisableExplicitGC",
+        "-XX:+PrintGCDetails",
+        "-XX:+PrintGCApplicationStoppedTime",
+        "-XX:+PrintGCApplicationConcurrentTime",
+        "-XX:+PrintGCDateStamps",
+        "-XX:+UseConcMarkSweepGC",
+        "-XX:+ScavengeBeforeFullGC",
+        "-XX:CMSInitiatingOccupancyFraction=55",
+        "-XX:+CMSScavengeBeforeRemark",
+        "-XX:-CMSIncrementalMode",
+        "-XX:-CMSClassUnloadingEnabled",
+        "-XX:+CMSConcurrentMTEnabled",
+        "-XX:+CMSParallelRemarkEnabled",
+        "-XX:+UseStringCache",
+        "-XX:+OptimizeStringConcat",
+        "-Xloggc:MY_APP_HOME/logs/gc.log"
+]
 
 startScripts {
     doLast {

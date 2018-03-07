@@ -3,6 +3,7 @@ package com.blokaly.ceres.bitstamp;
 import com.blokaly.ceres.bitstamp.event.DiffBookEvent;
 import com.blokaly.ceres.bitstamp.event.OrderBookEvent;
 import com.blokaly.ceres.common.CommonModule;
+import com.blokaly.ceres.common.DumpAndShutdownModule;
 import com.blokaly.ceres.common.ExceptionLoggingHandler;
 import com.blokaly.ceres.common.SingleThread;
 import com.google.common.util.concurrent.AbstractService;
@@ -93,7 +94,7 @@ public class BitstampApp extends AbstractService {
 
     public static void main(String[] args) throws Exception {
         Thread.setDefaultUncaughtExceptionHandler(new ExceptionLoggingHandler());
-        InjectorBuilder.fromModules(new ShutdownHookModule(), new CommonModule(), new BitstampModule())
+        InjectorBuilder.fromModules(new DumpAndShutdownModule(), new CommonModule(), new BitstampModule())
                 .createInjector()
                 .getInstance(Service.class)
                 .startAsync().awaitTerminated();

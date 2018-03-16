@@ -3,8 +3,6 @@ package com.blokaly.ceres.bitfinex;
 import com.blokaly.ceres.bitfinex.callback.CommandCallbackHandler;
 import com.blokaly.ceres.bitfinex.event.AbstractEvent;
 import com.blokaly.ceres.bitfinex.event.NoOpEvent;
-import com.blokaly.ceres.bitfinex.event.RefreshEvent;
-import com.blokaly.ceres.bitfinex.event.SnapshotEvent;
 import com.google.gson.*;
 import com.google.inject.Inject;
 import org.slf4j.Logger;

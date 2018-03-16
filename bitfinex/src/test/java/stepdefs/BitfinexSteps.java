@@ -4,6 +4,7 @@ import com.blokaly.ceres.bitfinex.*;
 import com.blokaly.ceres.common.DecimalNumber;
 import com.blokaly.ceres.orderbook.OrderBasedOrderBook;
 import com.blokaly.ceres.orderbook.OrderBook;
+import com.google.common.util.concurrent.Service;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.netflix.governator.InjectorBuilder;
@@ -53,7 +54,7 @@ public class BitfinexSteps implements En {
 
             Service service = injector.getInstance(Service.class);
             try {
-                service.start();
+                service.awaitRunning();
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }

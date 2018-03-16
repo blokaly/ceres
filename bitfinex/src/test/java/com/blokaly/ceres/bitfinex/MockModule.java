@@ -1,5 +1,6 @@
 package com.blokaly.ceres.bitfinex;
 
+import com.google.common.util.concurrent.AbstractService;
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
 import org.slf4j.Logger;
@@ -20,15 +21,15 @@ public class MockModule extends AbstractModule {
     }
 
     @Provides
-    public Service provideService() {
-        return new Service() {
+    public AbstractService provideService() {
+        return new AbstractService() {
             @Override
-            public void start() throws Exception {
+            protected void doStart() {
                 LOGGER.info("Mock service started");
             }
 
             @Override
-            public void stop() {
+            protected void doStop() {
                 LOGGER.info("Mock service stopped");
             }
         };

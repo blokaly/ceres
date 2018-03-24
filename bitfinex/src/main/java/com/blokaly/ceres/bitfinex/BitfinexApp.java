@@ -23,6 +23,7 @@ import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringSerializer;
 
+import javax.annotation.PreDestroy;
 import java.net.URI;
 import java.util.Map;
 import java.util.Properties;
@@ -42,6 +43,7 @@ public class BitfinexApp extends AbstractService {
     }
 
     @Override
+    @PreDestroy
     protected void doStop() {
         client.close();
     }

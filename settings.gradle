@@ -2,6 +2,6 @@ rootProject.name = 'ceres'
 
 include 'core'
 include 'gdax'
-include 'cex'
 include 'bitfinex'
 include 'bitstamp'
+include 'anxpro'

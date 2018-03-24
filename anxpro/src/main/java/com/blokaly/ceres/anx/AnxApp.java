@@ -1,10 +1,11 @@
-package com.blokaly.ceres.gdax;
+package com.blokaly.ceres.anx;
 
+import com.blokaly.ceres.anx.callback.CommandCallbackHandler;
+import com.blokaly.ceres.anx.callback.SnapshotCallbackHandler;
+import com.blokaly.ceres.anx.event.AbstractEvent;
+import com.blokaly.ceres.anx.event.EventType;
 import com.blokaly.ceres.common.CommonModule;
 import com.blokaly.ceres.common.DumpAndShutdownModule;
-import com.blokaly.ceres.gdax.callback.*;
-import com.blokaly.ceres.gdax.event.AbstractEvent;
-import com.blokaly.ceres.gdax.event.EventType;
 import com.blokaly.ceres.orderbook.PriceBasedOrderBook;
 import com.google.common.util.concurrent.AbstractService;
 import com.google.common.util.concurrent.Service;
@@ -23,21 +24,19 @@ import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringSerializer;
 
 import javax.annotation.PreDestroy;
-import java.net.URI;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.stream.Collectors;
 
-import static com.blokaly.ceres.gdax.event.EventType.*;
+import static com.blokaly.ceres.anx.event.EventType.SNAPSHOT;
 
-public class GdaxApp extends AbstractService {
+public class AnxApp extends AbstractService {
 
-  private final GdaxClient client;
+  private final AnxSocketIOClient client;
 
   @Inject
-  public GdaxApp(GdaxClient client) {
+  public AnxApp(AnxSocketIOClient client) {
     this.client = client;
   }
 
@@ -52,29 +51,15 @@ public class GdaxApp extends AbstractService {
     client.close();
   }
 
-  public static class GdaxModule extends AbstractModule {
+  public static class AnxModule extends AbstractModule {
 
     @Override
     protected void configure() {
       MapBinder<EventType, CommandCallbackHandler> binder = MapBinder.newMapBinder(binder(), EventType.class, CommandCallbackHandler.class);
-      binder.addBinding(OPEN).to(OpenCallbackHandler.class);
-      binder.addBinding(HB).to(HeartbeatCallbackHandler.class);
-      binder.addBinding(SUBS).to(SubscribedCallbackHandler.class);
       binder.addBinding(SNAPSHOT).to(SnapshotCallbackHandler.class);
-      binder.addBinding(L2U).to(RefreshCallbackHandler.class);
-
-      bind(Service.class).to(GdaxApp.class);
+      bind(Service.class).to(AnxApp.class);
     }
 
-    @Provides
-    public URI provideUri(Config config) throws Exception {
-      return new URI(config.getString("app.ws.url"));
-    }
-
-    @Provides
-    public MessageSender provideMessageSender(final GdaxClient client) {
-      return client::send;
-    }
 
     @Provides
     @Singleton
@@ -86,8 +71,8 @@ public class GdaxApp extends AbstractService {
 
     @Provides
     @Singleton
-    public MessageHandler provideMessageHandler(Gson gson, MessageSender sender, OrderBookKeeper keeper, GdaxKafkaProducer producer) {
-      return new MessageHandlerImpl(gson, sender, keeper, producer);
+    public MessageHandler provideMessageHandler(OrderBookKeeper keeper, AnxKafkaProducer producer) {
+      return new MessageHandlerImpl(keeper, producer);
     }
 
     @Provides
@@ -108,10 +93,11 @@ public class GdaxApp extends AbstractService {
       props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
       return new KafkaProducer<>(props);
     }
+
   }
 
   public static void main(String[] args) throws Exception {
-    InjectorBuilder.fromModules(new DumpAndShutdownModule(), new CommonModule(), new GdaxModule())
+    InjectorBuilder.fromModules(new DumpAndShutdownModule(), new CommonModule(), new AnxModule())
         .createInjector()
         .getInstance(Service.class)
         .startAsync().awaitTerminated();

@@ -6,6 +6,7 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.typesafe.config.Config;
 import org.apache.kafka.clients.producer.Producer;
+import org.apache.kafka.clients.producer.ProducerRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,12 +51,11 @@ public class AnxKafkaProducer {
 
   private void send(String symbol, String message) {
 
-    LOGGER.info("{}: {}", symbol, message);
-//    ProducerRecord<String, String> record = new ProducerRecord<>(topic, symbol.toLowerCase(), message);
-//    producer.send(record, (metadata, exception) -> {
-//      if (exception != null) {
-//        LOGGER.error("Error sending Kafka message", exception);
-//      }
-//    });
+    ProducerRecord<String, String> record = new ProducerRecord<>(topic, symbol.toLowerCase(), message);
+    producer.send(record, (metadata, exception) -> {
+      if (exception != null) {
+        LOGGER.error("Error sending Kafka message", exception);
+      }
+    });
   }
 }

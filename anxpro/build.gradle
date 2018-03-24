@@ -19,7 +19,7 @@ dependencies {
     testCompile "info.cukes:cucumber-junit:1.2.5"
 }
 
-mainClassName = 'com.blokaly.ceres.anx.AnxProApp'
+mainClassName = 'com.blokaly.ceres.anx.AnxApp'
 applicationName = "anxfh"
 version = 1.0
 

@@ -30,7 +30,7 @@ public class MessageHandlerImpl implements MessageHandler {
 
   @Override
   public void onMessage(HbEvent event) {
-    LOGGER.info("hb: {}", event);
+    LOGGER.debug("hb: {}", event);
   }
 
   @Override

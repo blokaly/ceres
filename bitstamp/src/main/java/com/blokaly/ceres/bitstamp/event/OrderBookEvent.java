@@ -21,7 +21,7 @@ public class OrderBookEvent implements MarketDataSnapshot<OrderInfo> {
         return new OrderBookEvent(sequence, bids, asks);
     }
 
-    public OrderBookEvent(long sequence, Collection<OrderInfo> bids, Collection<OrderInfo> asks) {
+    private OrderBookEvent(long sequence, Collection<OrderInfo> bids, Collection<OrderInfo> asks) {
         this.sequence = sequence;
         this.bids = bids;
         this.asks = asks;

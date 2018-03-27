@@ -18,11 +18,11 @@ import java.util.function.Consumer;
 @Singleton
 public class ToBMapper implements KeyValueMapper<String, String, KeyValue<String, String>> {
   private static final Logger LOGGER = LoggerFactory.getLogger(ToBMapper.class);
-  private final Map<String, BestTopOfBook> books;
+  private final Map<String, AggregatedTopOfBook> books;
   private final Gson gson;
 
   @Inject
-  public ToBMapper(Map<String, BestTopOfBook> books, Gson gson) {
+  public ToBMapper(Map<String, AggregatedTopOfBook> books, Gson gson) {
     this.books = books;
     this.gson = gson;
   }
@@ -35,12 +35,12 @@ public class ToBMapper implements KeyValueMapper<String, String, KeyValue<String
     JsonArray bids = tob.get(0).getAsJsonArray();
     JsonArray asks = tob.get(1).getAsJsonArray();
     JsonOrderBook book = JsonOrderBook.parse(symex[1], bids, asks);
-    BestTopOfBook topOfBook = books.get(symex[0]);
-    topOfBook.processSnapshot(book);
+    AggregatedTopOfBook aggregatedBook = books.get(symex[0]);
+    aggregatedBook.processSnapshot(book);
     ArrayList<List<String[]>> message = new ArrayList<>();
-    message.add(Collections.singletonList(topOfBook.topOfBids()));
-    message.add(Collections.singletonList(topOfBook.topOfAsks()));
-    return KeyValue.pair(topOfBook.getKey(), gson.toJson(message));
+    message.add(Collections.singletonList(aggregatedBook.topOfBids()));
+    message.add(Collections.singletonList(aggregatedBook.topOfAsks()));
+    return KeyValue.pair(aggregatedBook.getKey(), gson.toJson(message));
   }
 
   public synchronized void remove(List<String> staled) {

@@ -64,9 +64,9 @@ public class SmartQuote extends AbstractService {
 
     @Provides
     @Singleton
-    public Map<String, BestTopOfBook> AggregatedOrderBooks(Config config) {
+    public Map<String, AggregatedTopOfBook> AggregatedOrderBooks(Config config) {
       List<String> symbols = config.getStringList("symbols");
-      return symbols.stream().collect(Collectors.toMap(sym -> sym, BestTopOfBook::new));
+      return symbols.stream().collect(Collectors.toMap(sym -> sym, AggregatedTopOfBook::new));
     }
 
     @Provides

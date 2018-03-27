@@ -97,19 +97,33 @@ public class BestTopOfBook implements OrderBook<IdBasedOrderInfo>, TopOfBook {
     return wrapPriceLevel(ask);
   }
 
+  public void remove(List<String> staled) {
+    for (String id : staled) {
+      bid.remove(id);
+      ask.remove(id);
+    }
+  }
+
   private String[] wrapPriceLevel(PriceLevel level) {
-    return new String[]{level.getPrice().toString(), level.getQuantity().toString()};
+    DecimalNumber quantity = level.getQuantity();
+    if (quantity.isZero()) {
+      return new String[]{};
+    } {
+      return new String[]{level.getPrice().toString(), quantity.toString()};
+    }
   }
 
   public static final class PriceLevel implements Level {
 
     private final Map<String, DecimalNumber> quantityByOrderId = Maps.newHashMap();
     private final Comparator<DecimalNumber> comparator;
+    private DecimalNumber initial;
     private DecimalNumber price;
     private DecimalNumber total;
 
     public PriceLevel(DecimalNumber initial, Comparator<DecimalNumber> comparator) {
       this.comparator = comparator;
+      this.initial = initial;
       this.price = initial;
       this.total = DecimalNumber.ZERO;
     }
@@ -130,7 +144,7 @@ public class BestTopOfBook implements OrderBook<IdBasedOrderInfo>, TopOfBook {
     }
 
     private void reset() {
-      price = DecimalNumber.ZERO;
+      price = initial;
       total = DecimalNumber.ZERO;
       quantityByOrderId.clear();
 
@@ -169,6 +183,19 @@ public class BestTopOfBook implements OrderBook<IdBasedOrderInfo>, TopOfBook {
       } else if (result == 0) {
         total = total.plus(quantity).minus(quantityByOrderId.getOrDefault(ordId, DecimalNumber.ZERO));
         quantityByOrderId.put(ordId, quantity);
+      } else {
+        remove(ordId);
+      }
+    }
+
+    private void remove(String id) {
+      if (quantityByOrderId.containsKey(id)) {
+        DecimalNumber quantity = quantityByOrderId.remove(id);
+        if (quantityByOrderId.isEmpty()) {
+          reset();
+        } else {
+          total = total.minus(quantity);
+        }
       }
     }
   }

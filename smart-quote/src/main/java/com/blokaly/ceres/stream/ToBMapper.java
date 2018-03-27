@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 
 @Singleton
 public class ToBMapper implements KeyValueMapper<String, String, KeyValue<String, String>> {
@@ -27,7 +28,7 @@ public class ToBMapper implements KeyValueMapper<String, String, KeyValue<String
   }
 
   @Override
-  public KeyValue<String, String> apply(String key, String value) {
+  public synchronized KeyValue<String, String> apply(String key, String value) {
     LOGGER.debug("mapping {} -> {}", key, value);
     String[] symex = key.split("\\.");
     JsonArray tob = gson.fromJson(value, JsonArray.class);
@@ -40,5 +41,9 @@ public class ToBMapper implements KeyValueMapper<String, String, KeyValue<String
     message.add(Collections.singletonList(topOfBook.topOfBids()));
     message.add(Collections.singletonList(topOfBook.topOfAsks()));
     return KeyValue.pair(topOfBook.getKey(), gson.toJson(message));
+  }
+
+  public synchronized void remove(List<String> staled) {
+    books.values().forEach(bestTopOfBook -> bestTopOfBook.remove(staled));
   }
 }

@@ -1,6 +1,7 @@
 package com.blokaly.ceres.gdax;
 
 import com.blokaly.ceres.gdax.event.*;
+import com.blokaly.ceres.kafka.ToBProducer;
 import com.blokaly.ceres.orderbook.PriceBasedOrderBook;
 import com.google.gson.Gson;
 import org.slf4j.Logger;
@@ -12,9 +13,9 @@ public class MessageHandlerImpl implements MessageHandler {
   private final Gson gson;
   private final MessageSender sender;
   private final OrderBookKeeper bookKeeper;
-  private final GdaxKafkaProducer producer;
+  private final ToBProducer producer;
 
-  public MessageHandlerImpl(Gson gson, MessageSender sender, OrderBookKeeper bookKeeper, GdaxKafkaProducer producer) {
+  public MessageHandlerImpl(Gson gson, MessageSender sender, OrderBookKeeper bookKeeper, ToBProducer producer) {
     this.gson = gson;
     this.sender = sender;
     this.bookKeeper = bookKeeper;

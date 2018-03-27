@@ -2,12 +2,12 @@ package com.blokaly.ceres.bitstamp;
 
 import com.blokaly.ceres.bitstamp.event.DiffBookEvent;
 import com.blokaly.ceres.bitstamp.event.OrderBookEvent;
+import com.blokaly.ceres.kafka.ToBProducer;
 import com.blokaly.ceres.orderbook.PriceBasedOrderBook;
 import com.google.gson.Gson;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Arrays;
 import java.util.Spliterator;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
@@ -18,19 +18,23 @@ import java.util.stream.StreamSupport;
 public class OrderBookHandler {
     private static final Logger LOGGER = LoggerFactory.getLogger(OrderBookHandler.class);
     private final PriceBasedOrderBook orderBook;
-    private final BitstampKafkaProducer producer;
+    private final ToBProducer producer;
     private final Gson gson;
     private final BlockingQueue<DiffBookEvent> cache;
     private final ExecutorService executorService;
     private final Spliterator<DiffBookEvent> splitter;
 
-    public OrderBookHandler(PriceBasedOrderBook orderBook, BitstampKafkaProducer producer, Gson gson, ExecutorService executorService) {
+    public OrderBookHandler(PriceBasedOrderBook orderBook, ToBProducer producer, Gson gson, ExecutorService executorService) {
         this.orderBook = orderBook;
         this.producer = producer;
         this.gson = gson;
         this.executorService = executorService;
         cache = new ArrayBlockingQueue<>(128);
         splitter = new QSpliterator<>(cache);
+    }
+
+    public String getSymbol() {
+        return orderBook.getSymbol();
     }
 
     public void start() {

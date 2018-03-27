@@ -4,28 +4,26 @@ import com.blokaly.ceres.common.DecimalNumber;
 import com.blokaly.ceres.data.MarketDataIncremental;
 import com.blokaly.ceres.data.MarketDataSnapshot;
 import com.blokaly.ceres.data.OrderInfo;
-import com.blokaly.ceres.proto.OrderBookProto;
 import com.google.common.collect.Maps;
-import com.lmax.disruptor.EventTranslator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
 import java.util.Comparator;
-import java.util.List;
 import java.util.NavigableMap;
-import java.util.stream.Collectors;
 
-public class PriceBasedOrderBook implements OrderBook<OrderInfo>, EventTranslator<OrderBookProto.OrderBookMessage.Builder> {
+public class PriceBasedOrderBook implements OrderBook<OrderInfo>, TopOfBook {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PriceBasedOrderBook.class);
     private final String symbol;
+    private final String key;
     private final NavigableMap<DecimalNumber, PriceLevel> bids = Maps.newTreeMap(Comparator.<DecimalNumber>reverseOrder());
     private final NavigableMap<DecimalNumber, PriceLevel> asks = Maps.newTreeMap();
     private long lastSequence;
 
-    public PriceBasedOrderBook(String symbol) {
+    public PriceBasedOrderBook(String symbol, String key) {
         this.symbol = symbol;
+        this.key = key;
         this.lastSequence = 0;
     }
 
@@ -107,16 +105,18 @@ public class PriceBasedOrderBook implements OrderBook<OrderInfo>, EventTranslato
     }
 
     @Override
-    public void translateTo(OrderBookProto.OrderBookMessage.Builder event, long sequence) {
-
+    public String getKey() {
+        return key;
     }
 
-    public List<String[]> topOfBids(int level) {
-        return bids.values().stream().limit(level).map(this::wrapPriceLevel).collect(Collectors.toList());
+    @Override
+    public String[] topOfBids() {
+        return wrapPriceLevel(bids.firstEntry().getValue());
     }
 
-    public List<String[]> topOfAsks(int level) {
-        return asks.values().stream().limit(level).map(this::wrapPriceLevel).collect(Collectors.toList());
+    @Override
+    public String[] topOfAsks() {
+        return wrapPriceLevel(asks.firstEntry().getValue());
     }
 
     private String[] wrapPriceLevel(PriceLevel level) {

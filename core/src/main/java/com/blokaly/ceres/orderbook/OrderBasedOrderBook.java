@@ -7,14 +7,13 @@ import com.blokaly.ceres.data.MarketDataSnapshot;
 import com.blokaly.ceres.data.OrderInfo;
 import com.blokaly.ceres.proto.OrderBookProto;
 import com.google.common.collect.Maps;
-import com.lmax.disruptor.EventTranslator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class OrderBasedOrderBook implements OrderBook<IdBasedOrderInfo>, EventTranslator<OrderBookProto.OrderBookMessage.Builder> {
+public class OrderBasedOrderBook implements OrderBook<IdBasedOrderInfo> {
     private static final Logger LOGGER = LoggerFactory.getLogger(OrderBasedOrderBook.class);
     private final String symbol;
     private final NavigableMap<DecimalNumber, PriceLevel> bids = Maps.newTreeMap(Comparator.<DecimalNumber>reverseOrder());
@@ -162,14 +161,6 @@ public class OrderBasedOrderBook implements OrderBook<IdBasedOrderInfo>, EventTr
 
     }
 
-    @Override
-    public void translateTo(OrderBookProto.OrderBookMessage.Builder event, long sequence) {
-        event.clear();
-        event.setSymbol(symbol);
-        event.addAllBids(translateSide(OrderInfo.Side.BUY, 5));
-        event.addAllAsks(translateSide(OrderInfo.Side.SELL, 5));
-    }
-
     private List<OrderBookProto.Level> translateSide(OrderInfo.Side side, int depth) {
         NavigableMap<DecimalNumber, PriceLevel> levels = sidedLevels(side);
         return levels.values().stream().limit(depth).map(level -> {
@@ -208,11 +199,8 @@ public class OrderBasedOrderBook implements OrderBook<IdBasedOrderInfo>, EventTr
         }
 
         private void addOrChange(String orderId, DecimalNumber quantity) {
-            DecimalNumber current = quantityByOrderId.getOrDefault(orderId, DecimalNumber.ZERO);
-            if (current.isZero()) {
-                quantityByOrderId.put(orderId, quantity);
-            }
-            total = total.plus(quantity).minus(current);
+            total = total.plus(quantity).minus(quantityByOrderId.getOrDefault(orderId, DecimalNumber.ZERO));
+            quantityByOrderId.put(orderId, quantity);
         }
 
         private boolean remove(String orderId) {

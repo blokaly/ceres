@@ -79,7 +79,7 @@ public class AnxApp extends AbstractService {
     @Singleton
     public Map<String, PriceBasedOrderBook> provideOrderBooks(Config config) {
       List<String> symbols = config.getStringList("symbols");
-      return symbols.stream().collect(Collectors.toMap(sym->sym, PriceBasedOrderBook::new));
+      return symbols.stream().collect(Collectors.toMap(sym->sym, symbol -> new PriceBasedOrderBook(symbol, key)));
     }
 
     @Provides

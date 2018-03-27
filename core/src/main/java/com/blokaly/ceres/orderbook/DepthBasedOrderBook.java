@@ -6,7 +6,6 @@ import com.blokaly.ceres.data.MarketDataIncremental;
 import com.blokaly.ceres.data.MarketDataSnapshot;
 import com.blokaly.ceres.data.OrderInfo;
 import com.blokaly.ceres.proto.OrderBookProto;
-import com.lmax.disruptor.EventTranslator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -15,7 +14,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class DepthBasedOrderBook implements OrderBook<DepthBasedOrderInfo>, EventTranslator<OrderBookProto.OrderBookMessage.Builder> {
+public class DepthBasedOrderBook implements OrderBook<DepthBasedOrderInfo> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(OrderBasedOrderBook.class);
     private final String symbol;
@@ -129,14 +128,6 @@ public class DepthBasedOrderBook implements OrderBook<DepthBasedOrderInfo>, Even
             DecimalNumber quantity = level.getQuantity();
             side[level.getDepth()] = new PriceLevel(price, quantity);
         }
-    }
-
-    @Override
-    public void translateTo(OrderBookProto.OrderBookMessage.Builder event, long sequence) {
-        event.clear();
-        event.setSymbol(symbol);
-        event.addAllBids(translateSide(OrderInfo.Side.BUY));
-        event.addAllAsks(translateSide(OrderInfo.Side.SELL));
     }
 
     private List<OrderBookProto.Level> translateSide(OrderInfo.Side side) {

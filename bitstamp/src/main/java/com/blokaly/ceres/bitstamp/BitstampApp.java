@@ -6,6 +6,10 @@ import com.blokaly.ceres.common.CommonModule;
 import com.blokaly.ceres.common.DumpAndShutdownModule;
 import com.blokaly.ceres.common.ExceptionLoggingHandler;
 import com.blokaly.ceres.common.SingleThread;
+import com.blokaly.ceres.data.SymbolFormatter;
+import com.blokaly.ceres.kafka.KafkaModule;
+import com.blokaly.ceres.kafka.ToBProducer;
+import com.blokaly.ceres.orderbook.PriceBasedOrderBook;
 import com.google.common.util.concurrent.AbstractService;
 import com.google.common.util.concurrent.Service;
 import com.google.gson.Gson;
@@ -55,17 +59,21 @@ public class BitstampApp extends AbstractService {
 
         @Override
         protected void configure() {
-            bind(MessageHandler.class).to(MessageHandlerImpl.class);
             bind(Service.class).to(BitstampApp.class);
         }
 
         @Provides
         @Singleton
-        public List<PusherClient> providePusherClients(Config config, Gson gson, BitstampKafkaProducer producer, @SingleThread Provider<ExecutorService> provider) {
+        public List<PusherClient> providePusherClients(Config config, Gson gson, ToBProducer producer, @SingleThread Provider<ExecutorService> provider) {
             PusherOptions options = new PusherOptions();
 
             return config.getConfig("symbols").entrySet().stream()
-                    .map(item -> new PusherClient(item.getKey(), new Pusher((String)item.getValue().unwrapped(), options), producer, gson, provider.get()))
+                    .map(item -> {
+                        String symbol = SymbolFormatter.normalise(item.getKey());
+                        OrderBookHandler handler = new OrderBookHandler(new PriceBasedOrderBook(symbol, symbol + ".bitstamp"), producer, gson, provider.get());
+                        String subId = (String) item.getValue().unwrapped();
+                        return new PusherClient(new Pusher(subId, options), handler, gson);
+                    })
                     .collect(Collectors.toList());
         }
 
@@ -78,22 +86,10 @@ public class BitstampApp extends AbstractService {
             return builder.create();
         }
 
-        @Provides
-        @Singleton
-        public Producer<String, String> provideKafakaProducer(Config config) {
-            Config kafka = config.getConfig("kafka");
-            Properties props = new Properties();
-            props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, kafka.getString(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG));
-            props.put(ProducerConfig.CLIENT_ID_CONFIG, kafka.getString(ProducerConfig.CLIENT_ID_CONFIG));
-            props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
-            props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
-            return new KafkaProducer<>(props);
-        }
-
     }
 
     public static void main(String[] args) throws Exception {
-        InjectorBuilder.fromModules(new DumpAndShutdownModule(), new CommonModule(), new BitstampModule())
+        InjectorBuilder.fromModules(new DumpAndShutdownModule(), new CommonModule(), new KafkaModule(), new BitstampModule())
                 .createInjector()
                 .getInstance(Service.class)
                 .startAsync().awaitTerminated();

@@ -15,6 +15,7 @@ import java.util.concurrent.ExecutorService;
 
 public class PusherClient implements ConnectionEventListener, ChannelEventListener {
 
+    private static final String BTCUSD = "btcusd";
     private final Logger logger;
     private final String symbol;
     private final Client pusher;
@@ -22,12 +23,12 @@ public class PusherClient implements ConnectionEventListener, ChannelEventListen
 
     private final OrderBookHandler handler;
 
-    public PusherClient(String symbol, Client pusher, BitstampKafkaProducer producer, Gson gson, ExecutorService ses) {
-        this.symbol = symbol;
+    public PusherClient(Client pusher, OrderBookHandler handler, Gson gson) {
         this.pusher = pusher;
+        this.handler = handler;
         this.gson = gson;
+        symbol = handler.getSymbol();
         logger = LoggerFactory.getLogger(getClass().getName() + "[" + symbol + "]");
-        handler = new OrderBookHandler(new PriceBasedOrderBook(symbol), producer, gson, ses);
     }
 
     @Override
@@ -44,7 +45,7 @@ public class PusherClient implements ConnectionEventListener, ChannelEventListen
     }
 
     private void subscribe() {
-        String channel = "diff_order_book" + ("btcusd".equals(symbol) ? "" : "_" + symbol);
+        String channel = "diff_order_book" + (BTCUSD.equals(symbol) ? "" : "_" + symbol);
         pusher.subscribe(channel, this, "data");
     }
 

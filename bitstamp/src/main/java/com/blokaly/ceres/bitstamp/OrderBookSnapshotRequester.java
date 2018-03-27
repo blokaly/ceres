@@ -1,19 +1,21 @@
 package com.blokaly.ceres.bitstamp;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import com.blokaly.ceres.web.HttpReader;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 
 public class OrderBookSnapshotRequester {
-
+    private static Logger LOGGER = LoggerFactory.getLogger(OrderBookSnapshotRequester.class);
+    private static final String ORDER_BOOK_URL = "https://www.bitstamp.net/api/v2/order_book/";
     private final URL url;
 
     public OrderBookSnapshotRequester(String symbol) {
         try {
-            url = new URL("https://www.bitstamp.net/api/v2/order_book/" + symbol);
+            url = new URL(ORDER_BOOK_URL + symbol);
         } catch (MalformedURLException e) {
             throw new IllegalArgumentException(e);
         }
@@ -21,51 +23,14 @@ public class OrderBookSnapshotRequester {
 
     public String request() {
 
-        try (JsonReader reader = new JsonReader()) {
-            reader.open();
-            return reader.read();
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            return null;
-        }
-    }
-
-    private class JsonReader implements AutoCloseable {
-
-        private HttpURLConnection conn;
-        private BufferedReader reader;
-
-        private void open() throws IOException {
-            conn = (HttpURLConnection) url.openConnection();
+        try (HttpReader reader = new HttpReader((HttpURLConnection)url.openConnection())) {
+            HttpURLConnection conn = reader.getConnection();
             conn.setRequestMethod("GET");
             conn.setRequestProperty("Accept", "application/json");
-
-            if (conn.getResponseCode() != 200) {
-                throw new RuntimeException("Failed : HTTP error code : "
-                        + conn.getResponseCode());
-            }
-        }
-
-        private String read() throws IOException {
-            BufferedReader br = new BufferedReader(new InputStreamReader(
-                    (conn.getInputStream())));
-
-            StringBuilder sb = new StringBuilder();
-            String output;
-            while ((output = br.readLine()) != null) {
-                sb.append(output);
-            }
-            return sb.toString();
-        }
-
-        @Override
-        public void close() throws Exception {
-            if (reader != null) {
-                reader.close();
-            }
-            if (conn != null) {
-                conn.disconnect();
-            }
+            return reader.read();
+        } catch (Exception ex) {
+            LOGGER.error("Error requesting snapshot", ex);
+            return null;
         }
     }
 }

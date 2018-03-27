@@ -1,6 +1,7 @@
-package com.blokaly.ceres.sqs.event;
+package com.blokaly.ceres.stream;
 
 import com.blokaly.ceres.common.DecimalNumber;
+import com.blokaly.ceres.data.IdBasedOrderInfo;
 import com.blokaly.ceres.data.MarketDataSnapshot;
 import com.blokaly.ceres.data.OrderInfo;
 import com.google.gson.JsonArray;
@@ -10,21 +11,21 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
-public class SimpleOrderBook implements MarketDataSnapshot<OrderInfo> {
+public class JsonOrderBook implements MarketDataSnapshot<IdBasedOrderInfo> {
 
   private String symbol;
   private long sequence;
-  private final Collection<OrderInfo> bids;
-  private final Collection<OrderInfo> asks;
+  private final Collection<IdBasedOrderInfo> bids;
+  private final Collection<IdBasedOrderInfo> asks;
 
-  public static SimpleOrderBook parse(JsonArray bidArray, JsonArray askArray) {
+  public static JsonOrderBook parse(String id, JsonArray bidArray, JsonArray askArray) {
 
-    List<OrderInfo> bids = StreamSupport.stream(bidArray.spliterator(), false).map(elm -> new JsonArrayOrderInfo(OrderInfo.Side.BUY, elm.getAsJsonArray())).collect(Collectors.toList());
-    List<OrderInfo> asks = StreamSupport.stream(askArray.spliterator(), false).map(elm -> new JsonArrayOrderInfo(OrderInfo.Side.SELL, elm.getAsJsonArray())).collect(Collectors.toList());
-    return new SimpleOrderBook(bids, asks);
+    List<IdBasedOrderInfo> bids = StreamSupport.stream(bidArray.spliterator(), false).map(elm -> new JsonArrayOrderInfo(id, OrderInfo.Side.BUY, elm.getAsJsonArray())).collect(Collectors.toList());
+    List<IdBasedOrderInfo> asks = StreamSupport.stream(askArray.spliterator(), false).map(elm -> new JsonArrayOrderInfo(id, OrderInfo.Side.SELL, elm.getAsJsonArray())).collect(Collectors.toList());
+    return new JsonOrderBook(bids, asks);
   }
 
-  private SimpleOrderBook(Collection<OrderInfo> bids, Collection<OrderInfo> asks) {
+  private JsonOrderBook(Collection<IdBasedOrderInfo> bids, Collection<IdBasedOrderInfo> asks) {
     this.bids = bids;
     this.asks = asks;
   }
@@ -47,31 +48,33 @@ public class SimpleOrderBook implements MarketDataSnapshot<OrderInfo> {
   }
 
   @Override
-  public Collection<OrderInfo> getBids() {
+  public Collection<IdBasedOrderInfo> getBids() {
     return bids;
   }
 
   @Override
-  public Collection<OrderInfo> getAsks() {
+  public Collection<IdBasedOrderInfo> getAsks() {
     return asks;
   }
 
   @Override
   public String toString() {
-    return "SimpleOrderBook{" +
-        "symbol=" + symbol +
-        ", sequence=" + sequence +
+    return "JsonOrderBook{" +
+        "sym=" + symbol +
+        ", seq=" + sequence +
         ", bids=" + bids +
         ", asks=" + asks +
         '}';
   }
 
-  private static class JsonArrayOrderInfo implements OrderInfo {
+  private static class JsonArrayOrderInfo implements IdBasedOrderInfo {
 
+    private final String id;
     private final Side side;
     private final JsonArray jsonArray;
 
-    private JsonArrayOrderInfo(Side side, JsonArray jsonArray) {
+    private JsonArrayOrderInfo(String id, Side side, JsonArray jsonArray) {
+      this.id = id;
       this.side = side;
       this.jsonArray = jsonArray;
     }
@@ -94,6 +97,11 @@ public class SimpleOrderBook implements MarketDataSnapshot<OrderInfo> {
     @Override
     public String toString() {
       return jsonArray.toString();
+    }
+
+    @Override
+    public String getId() {
+      return id;
     }
   }
 }

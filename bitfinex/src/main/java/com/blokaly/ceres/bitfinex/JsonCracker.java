@@ -33,6 +33,12 @@ public class JsonCracker {
             case HB:
                 messageHandlerProvider.get().onMessage((HbEvent) event);
                 break;
+            case PING:
+                messageHandlerProvider.get().onMessage((PingEvent) event);
+                break;
+            case PONG:
+                messageHandlerProvider.get().onMessage((PongEvent) event);
+                break;
             case INFO:
                 messageHandlerProvider.get().onMessage((InfoEvent)event);
                 break;

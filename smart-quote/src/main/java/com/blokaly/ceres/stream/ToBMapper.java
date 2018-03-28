@@ -13,16 +13,15 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Consumer;
 
 @Singleton
 public class ToBMapper implements KeyValueMapper<String, String, KeyValue<String, String>> {
   private static final Logger LOGGER = LoggerFactory.getLogger(ToBMapper.class);
-  private final Map<String, AggregatedTopOfBook> books;
+  private final Map<String, BestTopOfBook> books;
   private final Gson gson;
 
   @Inject
-  public ToBMapper(Map<String, AggregatedTopOfBook> books, Gson gson) {
+  public ToBMapper(Map<String, BestTopOfBook> books, Gson gson) {
     this.books = books;
     this.gson = gson;
   }
@@ -35,7 +34,7 @@ public class ToBMapper implements KeyValueMapper<String, String, KeyValue<String
     JsonArray bids = tob.get(0).getAsJsonArray();
     JsonArray asks = tob.get(1).getAsJsonArray();
     JsonOrderBook book = JsonOrderBook.parse(symex[1], bids, asks);
-    AggregatedTopOfBook aggregatedBook = books.get(symex[0]);
+    BestTopOfBook aggregatedBook = books.get(symex[0]);
     aggregatedBook.processSnapshot(book);
     ArrayList<List<String[]>> message = new ArrayList<>();
     message.add(Collections.singletonList(aggregatedBook.topOfBids()));

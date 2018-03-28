@@ -102,8 +102,13 @@ public class OrderBasedOrderBook implements OrderBook<IdBasedOrderInfo>, TopOfBo
         return sb.toString();
     }
 
-    private String[] wrapPriceLevel(PriceLevel level) {
-        return new String[]{level.getPrice().toString(), level.getQuantity().toString()};
+    private String[] wrapPriceLevel(Map.Entry<DecimalNumber, PriceLevel> entry) {
+        if (entry == null) {
+            return new String[] {};
+        } else {
+            PriceLevel level = entry.getValue();
+            return new String[]{level.getPrice().toString(), level.getQuantity().toString()};
+        }
     }
 
     @Override
@@ -113,12 +118,14 @@ public class OrderBasedOrderBook implements OrderBook<IdBasedOrderInfo>, TopOfBo
 
     @Override
     public String[] topOfBids() {
-        return wrapPriceLevel(bids.firstEntry().getValue());
+        Map.Entry<DecimalNumber, PriceLevel> entry = bids.firstEntry();
+        return wrapPriceLevel(entry);
     }
 
     @Override
     public String[] topOfAsks() {
-        return wrapPriceLevel(asks.firstEntry().getValue());
+        Map.Entry<DecimalNumber, PriceLevel> entry = asks.firstEntry();
+        return wrapPriceLevel(entry);
     }
 
     private NavigableMap<DecimalNumber, PriceLevel> sidedLevels(OrderInfo.Side side) {

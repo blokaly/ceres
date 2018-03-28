@@ -13,7 +13,7 @@ public class ChannelCallbackHandler implements CommandCallbackHandler<ChannelEve
     private static long sequence = 0;
 
     @Override
-    public ChannelEvent handleChannelData(JsonElement json, JsonDeserializationContext context) {
+    public ChannelEvent handleEvent(JsonElement json, JsonDeserializationContext context) {
         JsonArray data = json.getAsJsonArray();
         int channelId = data.get(0).getAsInt();
         JsonElement element = data.get(1);

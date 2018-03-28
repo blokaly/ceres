@@ -1,9 +1,6 @@
 package com.blokaly.ceres.bitfinex;
 
-import com.blokaly.ceres.bitfinex.callback.ChannelCallbackHandler;
-import com.blokaly.ceres.bitfinex.callback.CommandCallbackHandler;
-import com.blokaly.ceres.bitfinex.callback.InfoCallbackHandler;
-import com.blokaly.ceres.bitfinex.callback.SubscribedCallbackHandler;
+import com.blokaly.ceres.bitfinex.callback.*;
 import com.blokaly.ceres.bitfinex.event.AbstractEvent;
 import com.blokaly.ceres.bitfinex.event.EventType;
 import com.blokaly.ceres.common.CommonModule;
@@ -56,6 +53,8 @@ public class BitfinexApp extends AbstractService {
             binder.addBinding(INFO).to(InfoCallbackHandler.class);
             binder.addBinding(SUBSCRIBED).to(SubscribedCallbackHandler.class);
             binder.addBinding(CHANNEL).to(ChannelCallbackHandler.class);
+            binder.addBinding(PING).to(PingPongHandler.class);
+            binder.addBinding(PONG).to(PingPongHandler.class);
             bind(Service.class).to(BitfinexApp.class);
         }
 

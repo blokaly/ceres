@@ -5,5 +5,5 @@ import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonElement;
 
 public interface CommandCallbackHandler <T extends AbstractEvent>{
-    T handleChannelData(JsonElement json, JsonDeserializationContext context);
+    T handleEvent(JsonElement json, JsonDeserializationContext context);
 }

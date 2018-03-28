@@ -14,9 +14,10 @@ import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
-public class AggregatedTopOfBook implements OrderBook<IdBasedOrderInfo>, TopOfBook {
+public class BestTopOfBook implements OrderBook<IdBasedOrderInfo>, TopOfBook {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(AggregatedTopOfBook.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(BestTopOfBook.class);
+  private static final String SUFFIX = ".best";
   private final String symbol;
   private final String key;
   private final NavigableMap<DecimalNumber, List<OrderInfoLevel>> bids = Maps.newTreeMap(Comparator.<DecimalNumber>reverseOrder());
@@ -26,9 +27,9 @@ public class AggregatedTopOfBook implements OrderBook<IdBasedOrderInfo>, TopOfBo
   private long lastSequence;
 
   @Inject
-  public AggregatedTopOfBook(String symbol) {
+  public BestTopOfBook(String symbol) {
     this.symbol = symbol;
-    this.key = symbol + ".top";
+    this.key = symbol + SUFFIX;
     this.lastSequence = 0;
   }
 

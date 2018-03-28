@@ -29,6 +29,16 @@ public class MessageHandlerImpl implements MessageHandler {
     }
 
     @Override
+    public void onMessage(PingEvent event) {
+        LOGGER.info("PING");
+    }
+
+    @Override
+    public void onMessage(PongEvent event) {
+        LOGGER.info("PONG");
+    }
+
+    @Override
     public void onMessage(InfoEvent event) {
         String version = event.getVersion();
         if (version != null) {

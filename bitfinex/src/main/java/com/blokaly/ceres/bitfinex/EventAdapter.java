@@ -18,6 +18,7 @@ public class EventAdapter implements JsonDeserializer<AbstractEvent>{
     private final Map<EventType, CommandCallbackHandler> handlers;
 
     private final NoOpEvent noOpEvent = new NoOpEvent();
+
     @Inject
     public EventAdapter(Map<EventType, CommandCallbackHandler> handlers) {
         this.handlers = handlers;
@@ -45,7 +46,7 @@ public class EventAdapter implements JsonDeserializer<AbstractEvent>{
             LOGGER.error("unknown event: {}", json);
             return noOpEvent;
         } else {
-            return handler.handleChannelData(json, context);
+            return handler.handleEvent(json, context);
         }
 
 

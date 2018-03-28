@@ -6,7 +6,7 @@ import com.google.gson.JsonElement;
 
 public class SubscribedCallbackHandler implements CommandCallbackHandler<SubscribedEvent> {
     @Override
-    public SubscribedEvent handleChannelData(JsonElement json, JsonDeserializationContext context) {
+    public SubscribedEvent handleEvent(JsonElement json, JsonDeserializationContext context) {
         return context.deserialize(json, SubscribedEvent.class);
     }
 }

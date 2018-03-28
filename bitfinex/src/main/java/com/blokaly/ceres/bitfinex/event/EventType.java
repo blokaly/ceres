@@ -4,7 +4,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 public enum EventType {
-  HB("hb"), INFO("info"), CHANNEL("channel"), SUBSCRIBED("subscribed"), SNAPSHOT("snapshot"), REFRESH("refresh");
+  HB("hb"), INFO("info"), CHANNEL("channel"), SUBSCRIBED("subscribed"), SNAPSHOT("snapshot"), REFRESH("refresh"),
+  PING("ping"), PONG("pong");
 
   private static final Map<String, EventType> lookup = new HashMap<String, EventType>();
 

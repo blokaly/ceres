@@ -2,7 +2,6 @@ package com.blokaly.ceres.stream;
 
 import com.blokaly.ceres.common.CommonModule;
 import com.blokaly.ceres.common.DumpAndShutdownModule;
-import com.blokaly.ceres.common.SingleThread;
 import com.google.common.util.concurrent.AbstractService;
 import com.google.common.util.concurrent.Service;
 import com.google.gson.Gson;
@@ -15,7 +14,6 @@ import com.netflix.governator.InjectorBuilder;
 import com.typesafe.config.Config;
 import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.streams.*;
-import org.apache.kafka.streams.kstream.ForeachAction;
 import org.apache.kafka.streams.kstream.KStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,7 +22,6 @@ import javax.annotation.PreDestroy;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-import java.util.concurrent.ScheduledExecutorService;
 import java.util.stream.Collectors;
 
 public class SmartQuote extends AbstractService {
@@ -64,9 +61,9 @@ public class SmartQuote extends AbstractService {
 
     @Provides
     @Singleton
-    public Map<String, AggregatedTopOfBook> AggregatedOrderBooks(Config config) {
+    public Map<String, BestTopOfBook> AggregatedOrderBooks(Config config) {
       List<String> symbols = config.getStringList("symbols");
-      return symbols.stream().collect(Collectors.toMap(sym -> sym, AggregatedTopOfBook::new));
+      return symbols.stream().collect(Collectors.toMap(sym -> sym, BestTopOfBook::new));
     }
 
     @Provides

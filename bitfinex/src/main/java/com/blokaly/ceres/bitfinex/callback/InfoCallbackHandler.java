@@ -8,7 +8,7 @@ public class InfoCallbackHandler implements CommandCallbackHandler<InfoEvent> {
 
 
     @Override
-    public InfoEvent handleChannelData(JsonElement json, JsonDeserializationContext context) {
+    public InfoEvent handleEvent(JsonElement json, JsonDeserializationContext context) {
         return context.deserialize(json, InfoEvent.class);
     }
 }

@@ -13,4 +13,8 @@ public interface MessageHandler {
     void onMessage(RefreshEvent event);
 
     void onMessage(SubscribedEvent event);
+
+    void onMessage(PingEvent event);
+
+    void onMessage(PongEvent event);
 }

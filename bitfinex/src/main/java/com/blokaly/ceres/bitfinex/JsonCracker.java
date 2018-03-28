@@ -24,12 +24,15 @@ public class JsonCracker {
 
     public void crack(String json) {
         AbstractEvent event = gson.fromJson(json, AbstractEvent.class);
-        LOGGER.info("event: {}", event);
+        LOGGER.debug("event: {}", event);
         EventType type = EventType.get(event.getEvent());
         if (type == null) {
             return;
         }
         switch (type) {
+            case HB:
+                messageHandlerProvider.get().onMessage((HbEvent) event);
+                break;
             case INFO:
                 messageHandlerProvider.get().onMessage((InfoEvent)event);
                 break;

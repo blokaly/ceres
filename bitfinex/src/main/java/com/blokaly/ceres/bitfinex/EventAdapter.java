@@ -32,9 +32,7 @@ public class EventAdapter implements JsonDeserializer<AbstractEvent>{
             eventType = EventType.get(jsonObject.get("event").getAsString());
         } else if (json.isJsonArray()) {
             int channelId = json.getAsJsonArray().get(0).getAsInt();
-            if (channelId <= 0) {
-                eventType = null;
-            }
+            if (channelId <= 0) { eventType = null; }
         }
 
         if (eventType == null) {

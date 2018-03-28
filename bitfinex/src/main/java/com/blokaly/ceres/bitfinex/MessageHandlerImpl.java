@@ -24,6 +24,11 @@ public class MessageHandlerImpl implements MessageHandler {
     }
 
     @Override
+    public void onMessage(HbEvent event) {
+        LOGGER.debug("HB[{}]", bookKeeper.getSymbol(event.getChannelId()));
+    }
+
+    @Override
     public void onMessage(InfoEvent event) {
         String version = event.getVersion();
         if (version != null) {
@@ -32,13 +37,14 @@ public class MessageHandlerImpl implements MessageHandler {
                 LOGGER.error("Unsupported version: {}, only v1 supported.", version);
                 return;
             }
+            bookKeeper.getSymbols().forEach(symbol -> {
+                String jsonString = gson.toJson(new OrderBookEvent(symbol));
+                LOGGER.info("subscribe: {}", jsonString);
+                sender.send(jsonString);
+            });
+        } else {
+            LOGGER.info("Received info {}", event);
         }
-
-        bookKeeper.getSymbols().forEach(symbol -> {
-            String jsonString = gson.toJson(new OrderBookEvent(symbol));
-            LOGGER.info("subscribe: {}", jsonString);
-            sender.send(jsonString);
-        });
 
     }
 

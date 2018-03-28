@@ -9,14 +9,8 @@ buildscript {
 
 dependencies {
     compile project(':core')
+    compile project(':kafka')
     compile "io.socket:socket.io-client:1.0.0"
-    compile "ch.qos.logback:logback-classic:1.2.3"
-    compile "org.slf4j:slf4j-api:1.7.25"
-    compile "com.google.code.gson:gson:2.8.2"
-    compile 'org.apache.kafka:kafka-clients:1.0.0'
-
-    testCompile "info.cukes:cucumber-java8:1.2.5"
-    testCompile "info.cukes:cucumber-junit:1.2.5"
 }
 
 mainClassName = 'com.blokaly.ceres.anx.AnxApp'

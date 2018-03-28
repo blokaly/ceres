@@ -6,6 +6,9 @@ import com.blokaly.ceres.anx.event.AbstractEvent;
 import com.blokaly.ceres.anx.event.EventType;
 import com.blokaly.ceres.common.CommonModule;
 import com.blokaly.ceres.common.DumpAndShutdownModule;
+import com.blokaly.ceres.data.SymbolFormatter;
+import com.blokaly.ceres.kafka.KafkaModule;
+import com.blokaly.ceres.kafka.ToBProducer;
 import com.blokaly.ceres.orderbook.PriceBasedOrderBook;
 import com.google.common.util.concurrent.AbstractService;
 import com.google.common.util.concurrent.Service;
@@ -27,6 +30,7 @@ import javax.annotation.PreDestroy;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static com.blokaly.ceres.anx.event.EventType.SNAPSHOT;
@@ -57,9 +61,9 @@ public class AnxApp extends AbstractService {
     protected void configure() {
       MapBinder<EventType, CommandCallbackHandler> binder = MapBinder.newMapBinder(binder(), EventType.class, CommandCallbackHandler.class);
       binder.addBinding(SNAPSHOT).to(SnapshotCallbackHandler.class);
+      bind(MessageHandler.class).to(MessageHandlerImpl.class);
       bind(Service.class).to(AnxApp.class);
     }
-
 
     @Provides
     @Singleton
@@ -71,33 +75,18 @@ public class AnxApp extends AbstractService {
 
     @Provides
     @Singleton
-    public MessageHandler provideMessageHandler(OrderBookKeeper keeper, AnxKafkaProducer producer) {
-      return new MessageHandlerImpl(keeper, producer);
-    }
-
-    @Provides
-    @Singleton
     public Map<String, PriceBasedOrderBook> provideOrderBooks(Config config) {
       List<String> symbols = config.getStringList("symbols");
-      return symbols.stream().collect(Collectors.toMap(sym->sym, symbol -> new PriceBasedOrderBook(symbol, key)));
+      String appName = config.getString("app.name");
+      return symbols.stream().collect(Collectors.toMap(sym -> sym, sym -> {
+        String symbol = SymbolFormatter.normalise(sym);
+        return new PriceBasedOrderBook(symbol, symbol + "." + appName);
+      }));
     }
-
-    @Provides
-    @Singleton
-    public Producer<String, String> provideKafakaProducer(Config config) {
-      Config kafka = config.getConfig("kafka");
-      Properties props = new Properties();
-      props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, kafka.getString(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG));
-      props.put(ProducerConfig.CLIENT_ID_CONFIG, kafka.getString(ProducerConfig.CLIENT_ID_CONFIG));
-      props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
-      props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
-      return new KafkaProducer<>(props);
-    }
-
   }
 
   public static void main(String[] args) throws Exception {
-    InjectorBuilder.fromModules(new DumpAndShutdownModule(), new CommonModule(), new AnxModule())
+    InjectorBuilder.fromModules(new DumpAndShutdownModule(), new CommonModule(), new KafkaModule(), new AnxModule())
         .createInjector()
         .getInstance(Service.class)
         .startAsync().awaitTerminated();

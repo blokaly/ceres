@@ -1,6 +1,7 @@
 package com.blokaly.ceres.bitfinex;
 
 import com.blokaly.ceres.bitfinex.event.*;
+import com.blokaly.ceres.kafka.ToBProducer;
 import com.blokaly.ceres.orderbook.OrderBasedOrderBook;
 import com.google.gson.Gson;
 import org.slf4j.Logger;
@@ -13,9 +14,9 @@ public class MessageHandlerImpl implements MessageHandler {
     private final Gson gson;
     private final MessageSender sender;
     private final OrderBookKeeper bookKeeper;
-    private final BitfinexKafkaProducer producer;
+    private final ToBProducer producer;
 
-    public MessageHandlerImpl(Gson gson, MessageSender sender, OrderBookKeeper bookKeeper, BitfinexKafkaProducer producer) {
+    public MessageHandlerImpl(Gson gson, MessageSender sender, OrderBookKeeper bookKeeper, ToBProducer producer) {
         this.gson = gson;
         this.sender = sender;
         this.bookKeeper = bookKeeper;
@@ -24,6 +25,15 @@ public class MessageHandlerImpl implements MessageHandler {
 
     @Override
     public void onMessage(InfoEvent event) {
+        String version = event.getVersion();
+        if (version != null) {
+            String[] vers = version.split("\\.");
+            if (!"1".equals(vers[0])) {
+                LOGGER.error("Unsupported version: {}, only v1 supported.", version);
+                return;
+            }
+        }
+
         bookKeeper.getSymbols().forEach(symbol -> {
             String jsonString = gson.toJson(new OrderBookEvent(symbol));
             LOGGER.info("subscribe: {}", jsonString);

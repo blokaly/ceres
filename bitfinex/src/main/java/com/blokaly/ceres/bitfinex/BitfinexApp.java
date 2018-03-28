@@ -5,8 +5,11 @@ import com.blokaly.ceres.bitfinex.callback.CommandCallbackHandler;
 import com.blokaly.ceres.bitfinex.callback.InfoCallbackHandler;
 import com.blokaly.ceres.bitfinex.callback.SubscribedCallbackHandler;
 import com.blokaly.ceres.bitfinex.event.AbstractEvent;
+import com.blokaly.ceres.bitfinex.event.EventType;
 import com.blokaly.ceres.common.CommonModule;
 import com.blokaly.ceres.common.DumpAndShutdownModule;
+import com.blokaly.ceres.kafka.KafkaModule;
+import com.blokaly.ceres.kafka.ToBProducer;
 import com.google.common.util.concurrent.AbstractService;
 import com.google.common.util.concurrent.Service;
 import com.google.gson.Gson;
@@ -18,15 +21,12 @@ import com.google.inject.Singleton;
 import com.google.inject.multibindings.MapBinder;
 import com.netflix.governator.InjectorBuilder;
 import com.typesafe.config.Config;
-import org.apache.kafka.clients.producer.KafkaProducer;
-import org.apache.kafka.clients.producer.Producer;
-import org.apache.kafka.clients.producer.ProducerConfig;
-import org.apache.kafka.common.serialization.StringSerializer;
 
 import javax.annotation.PreDestroy;
 import java.net.URI;
 import java.util.Map;
-import java.util.Properties;
+
+import static com.blokaly.ceres.bitfinex.event.EventType.*;
 
 public class BitfinexApp extends AbstractService {
 
@@ -52,10 +52,10 @@ public class BitfinexApp extends AbstractService {
 
         @Override
         protected void configure() {
-            MapBinder<String, CommandCallbackHandler> binder = MapBinder.newMapBinder(binder(), String.class, CommandCallbackHandler.class);
-            binder.addBinding("info").to(InfoCallbackHandler.class);
-            binder.addBinding("subscribed").to(SubscribedCallbackHandler.class);
-            binder.addBinding("channel").to(ChannelCallbackHandler.class);
+            MapBinder<EventType, CommandCallbackHandler> binder = MapBinder.newMapBinder(binder(), EventType.class, CommandCallbackHandler.class);
+            binder.addBinding(INFO).to(InfoCallbackHandler.class);
+            binder.addBinding(SUBSCRIBED).to(SubscribedCallbackHandler.class);
+            binder.addBinding(CHANNEL).to(ChannelCallbackHandler.class);
             bind(Service.class).to(BitfinexApp.class);
         }
 
@@ -71,7 +71,7 @@ public class BitfinexApp extends AbstractService {
 
         @Provides
         @Singleton
-        public Gson provideGson(Map<String, CommandCallbackHandler> handlers) {
+        public Gson provideGson(Map<EventType, CommandCallbackHandler> handlers) {
             GsonBuilder builder = new GsonBuilder();
             builder.registerTypeAdapter(AbstractEvent.class, new EventAdapter(handlers));
             return builder.create();
@@ -79,25 +79,14 @@ public class BitfinexApp extends AbstractService {
 
         @Provides
         @Singleton
-        public MessageHandler provideMessageHandler(Gson gson, MessageSender sender, OrderBookKeeper keeper, BitfinexKafkaProducer producer) {
+        public MessageHandler provideMessageHandler(Gson gson, MessageSender sender, OrderBookKeeper keeper, ToBProducer producer) {
             return new MessageHandlerImpl(gson, sender, keeper, producer);
         }
 
-        @Provides
-        @Singleton
-        public Producer<String, String> provideKafakaProducer(Config config) {
-            Config kafka = config.getConfig("kafka");
-            Properties props = new Properties();
-            props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, kafka.getString(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG));
-            props.put(ProducerConfig.CLIENT_ID_CONFIG, kafka.getString(ProducerConfig.CLIENT_ID_CONFIG));
-            props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
-            props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
-            return new KafkaProducer<>(props);
-        }
     }
 
     public static void main(String[] args) throws Exception {
-        InjectorBuilder.fromModules(new DumpAndShutdownModule(), new CommonModule(), new BitfinexModule())
+        InjectorBuilder.fromModules(new DumpAndShutdownModule(), new CommonModule(), new KafkaModule(), new BitfinexModule())
                 .createInjector()
                 .getInstance(Service.class)
                 .startAsync().awaitTerminated();

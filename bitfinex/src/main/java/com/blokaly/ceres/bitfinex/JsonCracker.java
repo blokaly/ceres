@@ -24,19 +24,22 @@ public class JsonCracker {
 
     public void crack(String json) {
         AbstractEvent event = gson.fromJson(json, AbstractEvent.class);
-        LOGGER.debug("event: {}", event);
-
-        switch (event.getEvent()) {
-            case "info":
+        LOGGER.info("event: {}", event);
+        EventType type = EventType.get(event.getEvent());
+        if (type == null) {
+            return;
+        }
+        switch (type) {
+            case INFO:
                 messageHandlerProvider.get().onMessage((InfoEvent)event);
                 break;
-            case "subscribed":
+            case SUBSCRIBED:
                 messageHandlerProvider.get().onMessage((SubscribedEvent)event);
                 break;
-            case "snapshot":
+            case SNAPSHOT:
                 messageHandlerProvider.get().onMessage((SnapshotEvent)event);
                 break;
-            case "refresh":
+            case REFRESH:
                 messageHandlerProvider.get().onMessage((RefreshEvent)event);
                 break;
 

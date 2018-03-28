@@ -26,7 +26,7 @@ public class BitfinexClient extends WebSocketClient {
 
     @Override
     public void onOpen(ServerHandshake handshakedata) {
-        LOGGER.info("ws open, status: {}:{}", handshakedata.getHttpStatus(), handshakedata.getHttpStatusMessage());
+        LOGGER.info("ws open, status - {}:{}", handshakedata.getHttpStatus(), handshakedata.getHttpStatusMessage());
     }
 
     @Override

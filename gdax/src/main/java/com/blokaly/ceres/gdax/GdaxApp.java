@@ -96,9 +96,10 @@ public class GdaxApp extends AbstractService {
     @Singleton
     public Map<String, PriceBasedOrderBook> provideOrderBooks(Config config) {
       List<String> symbols = config.getStringList("symbols");
+      String appName = config.getString("app.name");
       return symbols.stream().collect(Collectors.toMap(sym->sym, sym -> {
         String symbol = SymbolFormatter.normalise(sym);
-        return new PriceBasedOrderBook(symbol, symbol + ".gdax");
+        return new PriceBasedOrderBook(symbol, symbol + "." + appName);
       }));
     }
   }

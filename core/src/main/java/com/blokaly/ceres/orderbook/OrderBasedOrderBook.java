@@ -13,16 +13,18 @@ import org.slf4j.LoggerFactory;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class OrderBasedOrderBook implements OrderBook<IdBasedOrderInfo> {
+public class OrderBasedOrderBook implements OrderBook<IdBasedOrderInfo>, TopOfBook {
     private static final Logger LOGGER = LoggerFactory.getLogger(OrderBasedOrderBook.class);
     private final String symbol;
+    private final String key;
     private final NavigableMap<DecimalNumber, PriceLevel> bids = Maps.newTreeMap(Comparator.<DecimalNumber>reverseOrder());
     private final NavigableMap<DecimalNumber, PriceLevel> asks = Maps.newTreeMap();
     private final Map<String, PriceLevel> levelByOrderId = Maps.newHashMap();
     private long lastSequence;
 
-    public OrderBasedOrderBook(String symbol) {
+    public OrderBasedOrderBook(String symbol, String key) {
         this.symbol = symbol;
+        this.key = key;
         this.lastSequence = 0;
     }
 
@@ -63,7 +65,6 @@ public class OrderBasedOrderBook implements OrderBook<IdBasedOrderInfo> {
     public void processIncrementalUpdate(MarketDataIncremental<IdBasedOrderInfo> incremental) {
 
         if (lastSequence == 0) {
-            initSnapshot();
             return;
         }
 
@@ -101,19 +102,24 @@ public class OrderBasedOrderBook implements OrderBook<IdBasedOrderInfo> {
         return sb.toString();
     }
 
-    public List<String[]> topOfBids(int level) {
-        return bids.values().stream().limit(level).map(this::wrapPriceLevel).collect(Collectors.toList());
-    }
-
-    public List<String[]> topOfAsks(int level) {
-        return asks.values().stream().limit(level).map(this::wrapPriceLevel).collect(Collectors.toList());
-    }
-
     private String[] wrapPriceLevel(PriceLevel level) {
         return new String[]{level.getPrice().toString(), level.getQuantity().toString()};
     }
 
-    protected void initSnapshot() { }
+    @Override
+    public String getKey() {
+        return key;
+    }
+
+    @Override
+    public String[] topOfBids() {
+        return wrapPriceLevel(bids.firstEntry().getValue());
+    }
+
+    @Override
+    public String[] topOfAsks() {
+        return wrapPriceLevel(asks.firstEntry().getValue());
+    }
 
     private NavigableMap<DecimalNumber, PriceLevel> sidedLevels(OrderInfo.Side side) {
         if (side == null || side == OrderInfo.Side.UNKNOWN) {

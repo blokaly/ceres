@@ -66,11 +66,11 @@ public class BitstampApp extends AbstractService {
         @Singleton
         public List<PusherClient> providePusherClients(Config config, Gson gson, ToBProducer producer, @SingleThread Provider<ExecutorService> provider) {
             PusherOptions options = new PusherOptions();
-
+            String appName = config.getString("app.name");
             return config.getConfig("symbols").entrySet().stream()
                     .map(item -> {
                         String symbol = SymbolFormatter.normalise(item.getKey());
-                        OrderBookHandler handler = new OrderBookHandler(new PriceBasedOrderBook(symbol, symbol + ".bitstamp"), producer, gson, provider.get());
+                        OrderBookHandler handler = new OrderBookHandler(new PriceBasedOrderBook(symbol, symbol + "." + appName), producer, gson, provider.get());
                         String subId = (String) item.getValue().unwrapped();
                         return new PusherClient(new Pusher(subId, options), handler, gson);
                     })

@@ -7,6 +7,8 @@ import org.apache.kafka.streams.KeyValue;
 import org.apache.kafka.streams.kstream.KeyValueMapper;
 import org.joda.time.DateTimeUtils;
 
+import java.math.RoundingMode;
+
 public class MarginProcessor implements KeyValueMapper<String, String, KeyValue<String, String>> {
 
   private final IDSequencer sequencer;
@@ -34,8 +36,8 @@ public class MarginProcessor implements KeyValueMapper<String, String, KeyValue<
     if (!(bidPrice.isZero() || askPrice.isZero())) {
       if (bidPrice.compareTo(askPrice) > 0) {
         DecimalNumber mid = bidPrice.plus(askPrice).halve();
-        bidPrice = mid;
-        askPrice = mid;
+        bidPrice = mid.setScale(bidPrice.getScale(), RoundingMode.HALF_DOWN);
+        askPrice = mid.setScale(askPrice.getScale(), RoundingMode.HALF_UP);
       }
     }
     entry.add(DateTimeUtils.currentTimeMillis());

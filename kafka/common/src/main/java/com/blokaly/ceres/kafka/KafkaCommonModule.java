@@ -11,7 +11,7 @@ import org.apache.kafka.common.serialization.StringSerializer;
 
 import java.util.Properties;
 
-public class KafkaModule extends AbstractModule {
+public class KafkaCommonModule extends AbstractModule {
   @Override
   protected void configure() {
     bind(ToBProducer.class).in(Singleton.class);

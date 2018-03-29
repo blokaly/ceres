@@ -4,10 +4,9 @@ import com.blokaly.ceres.bitstamp.event.DiffBookEvent;
 import com.blokaly.ceres.bitstamp.event.OrderBookEvent;
 import com.blokaly.ceres.common.CommonModule;
 import com.blokaly.ceres.common.DumpAndShutdownModule;
-import com.blokaly.ceres.common.ExceptionLoggingHandler;
 import com.blokaly.ceres.common.SingleThread;
 import com.blokaly.ceres.data.SymbolFormatter;
-import com.blokaly.ceres.kafka.KafkaModule;
+import com.blokaly.ceres.kafka.KafkaCommonModule;
 import com.blokaly.ceres.kafka.ToBProducer;
 import com.blokaly.ceres.orderbook.PriceBasedOrderBook;
 import com.google.common.util.concurrent.AbstractService;
@@ -16,23 +15,13 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.inject.*;
 import com.netflix.governator.InjectorBuilder;
-import com.netflix.governator.LifecycleInjector;
-import com.netflix.governator.ShutdownHookModule;
 import com.pusher.client.Pusher;
 import com.pusher.client.PusherOptions;
 import com.typesafe.config.Config;
-import org.apache.kafka.clients.producer.KafkaProducer;
-import org.apache.kafka.clients.producer.Producer;
-import org.apache.kafka.clients.producer.ProducerConfig;
-import org.apache.kafka.common.serialization.StringSerializer;
 
 import javax.annotation.PreDestroy;
 import java.util.List;
-import java.util.Properties;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadFactory;
-import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 public class BitstampApp extends AbstractService {
@@ -89,7 +78,7 @@ public class BitstampApp extends AbstractService {
     }
 
     public static void main(String[] args) throws Exception {
-        InjectorBuilder.fromModules(new DumpAndShutdownModule(), new CommonModule(), new KafkaModule(), new BitstampModule())
+        InjectorBuilder.fromModules(new DumpAndShutdownModule(), new CommonModule(), new KafkaCommonModule(), new BitstampModule())
                 .createInjector()
                 .getInstance(Service.class)
                 .startAsync().awaitTerminated();

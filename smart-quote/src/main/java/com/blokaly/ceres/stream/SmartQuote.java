@@ -2,6 +2,7 @@ package com.blokaly.ceres.stream;
 
 import com.blokaly.ceres.common.CommonModule;
 import com.blokaly.ceres.common.DumpAndShutdownModule;
+import com.blokaly.ceres.kafka.KafkaStreamModule;
 import com.google.common.util.concurrent.AbstractService;
 import com.google.common.util.concurrent.Service;
 import com.google.gson.Gson;
@@ -84,25 +85,10 @@ public class SmartQuote extends AbstractService {
       }
       return builder;
     }
-
-    @Provides
-    @Singleton
-    public KafkaStreams provideKafkaStreams(StreamsBuilder builder, Config config, Thread.UncaughtExceptionHandler uncaughtExceptionHandler) {
-      Properties props = new Properties();
-      Config kafka = config.getConfig("kafka");
-      props.put(StreamsConfig.APPLICATION_ID_CONFIG, kafka.getString(StreamsConfig.APPLICATION_ID_CONFIG));
-      props.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, kafka.getString(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG));
-      props.put(StreamsConfig.DEFAULT_KEY_SERDE_CLASS_CONFIG, Serdes.String().getClass());
-      props.put(StreamsConfig.DEFAULT_VALUE_SERDE_CLASS_CONFIG, Serdes.String().getClass());
-      Topology topology = builder.build();
-      KafkaStreams streams = new KafkaStreams(topology, props);
-      streams.setUncaughtExceptionHandler(uncaughtExceptionHandler);
-      return streams;
-    }
   }
 
   public static void main(String[] args) throws Exception {
-    InjectorBuilder.fromModules(new DumpAndShutdownModule(), new CommonModule(), new SmartQuoteModule())
+    InjectorBuilder.fromModules(new DumpAndShutdownModule(), new CommonModule(), new KafkaStreamModule(), new SmartQuoteModule())
         .createInjector()
         .getInstance(Service.class)
         .startAsync().awaitTerminated();

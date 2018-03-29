@@ -5,8 +5,7 @@ import com.blokaly.ceres.bitfinex.event.AbstractEvent;
 import com.blokaly.ceres.bitfinex.event.EventType;
 import com.blokaly.ceres.common.CommonModule;
 import com.blokaly.ceres.common.DumpAndShutdownModule;
-import com.blokaly.ceres.kafka.KafkaModule;
-import com.blokaly.ceres.kafka.ToBProducer;
+import com.blokaly.ceres.kafka.KafkaCommonModule;
 import com.google.common.util.concurrent.AbstractService;
 import com.google.common.util.concurrent.Service;
 import com.google.gson.Gson;
@@ -76,7 +75,7 @@ public class BitfinexApp extends AbstractService {
     }
 
     public static void main(String[] args) throws Exception {
-        InjectorBuilder.fromModules(new DumpAndShutdownModule(), new CommonModule(), new KafkaModule(), new BitfinexModule())
+        InjectorBuilder.fromModules(new DumpAndShutdownModule(), new CommonModule(), new KafkaCommonModule(), new BitfinexModule())
                 .createInjector()
                 .getInstance(Service.class)
                 .startAsync().awaitTerminated();

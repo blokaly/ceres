@@ -1,0 +1,4 @@
+dependencies {
+    compile project(':kafka')
+    compile 'org.apache.kafka:kafka-streams:1.0.1'
+}

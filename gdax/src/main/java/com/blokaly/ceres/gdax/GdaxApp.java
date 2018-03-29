@@ -6,7 +6,7 @@ import com.blokaly.ceres.data.SymbolFormatter;
 import com.blokaly.ceres.gdax.callback.*;
 import com.blokaly.ceres.gdax.event.AbstractEvent;
 import com.blokaly.ceres.gdax.event.EventType;
-import com.blokaly.ceres.kafka.KafkaModule;
+import com.blokaly.ceres.kafka.KafkaCommonModule;
 import com.blokaly.ceres.kafka.ToBProducer;
 import com.blokaly.ceres.orderbook.PriceBasedOrderBook;
 import com.google.common.util.concurrent.AbstractService;
@@ -20,16 +20,11 @@ import com.google.inject.Singleton;
 import com.google.inject.multibindings.MapBinder;
 import com.netflix.governator.InjectorBuilder;
 import com.typesafe.config.Config;
-import org.apache.kafka.clients.producer.KafkaProducer;
-import org.apache.kafka.clients.producer.Producer;
-import org.apache.kafka.clients.producer.ProducerConfig;
-import org.apache.kafka.common.serialization.StringSerializer;
 
 import javax.annotation.PreDestroy;
 import java.net.URI;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 import java.util.stream.Collectors;
 
 import static com.blokaly.ceres.gdax.event.EventType.*;
@@ -105,7 +100,7 @@ public class GdaxApp extends AbstractService {
   }
 
   public static void main(String[] args) throws Exception {
-    InjectorBuilder.fromModules(new DumpAndShutdownModule(), new CommonModule(), new KafkaModule(), new GdaxModule())
+    InjectorBuilder.fromModules(new DumpAndShutdownModule(), new CommonModule(), new KafkaCommonModule(), new GdaxModule())
         .createInjector()
         .getInstance(Service.class)
         .startAsync().awaitTerminated();

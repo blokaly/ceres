@@ -1,10 +1,11 @@
 rootProject.name = 'ceres'
 
 include 'core'
-include 'kafka'
 include 'gdax'
 include 'bitfinex'
 include 'bitstamp'
 include 'anxpro'
+include ':kafka:common'
+include ':kafka:stream'
 include 'smart-quote'
 include 'marginer'

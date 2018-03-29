@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
 import java.util.Comparator;
+import java.util.Map;
 import java.util.NavigableMap;
 
 public class PriceBasedOrderBook implements OrderBook<OrderInfo>, TopOfBook {
@@ -110,17 +111,22 @@ public class PriceBasedOrderBook implements OrderBook<OrderInfo>, TopOfBook {
     }
 
     @Override
-    public String[] topOfBids() {
-        return wrapPriceLevel(bids.firstEntry().getValue());
+    public Entry topOfBids() {
+        return wrapPriceLevel(bids.firstEntry());
     }
 
     @Override
-    public String[] topOfAsks() {
-        return wrapPriceLevel(asks.firstEntry().getValue());
+    public Entry topOfAsks() {
+        return wrapPriceLevel(asks.firstEntry());
     }
 
-    private String[] wrapPriceLevel(PriceLevel level) {
-        return new String[]{level.getPrice().toString(), level.getQuantity().toString()};
+    private Entry wrapPriceLevel(Map.Entry<DecimalNumber, PriceLevel> entry) {
+        if (entry == null) {
+            return null;
+        } else {
+            PriceLevel level = entry.getValue();
+            return new Entry(level.getPrice().toString(), level.getQuantity().toString());
+        }
     }
 
     public static final class PriceLevel implements OrderBook.Level {

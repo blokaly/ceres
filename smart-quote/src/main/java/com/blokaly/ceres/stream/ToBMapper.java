@@ -1,5 +1,6 @@
 package com.blokaly.ceres.stream;
 
+import com.blokaly.ceres.orderbook.TopOfBook;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.inject.Inject;
@@ -31,14 +32,33 @@ public class ToBMapper implements KeyValueMapper<String, String, KeyValue<String
     LOGGER.debug("mapping {} -> {}", key, value);
     String[] symex = key.split("\\.");
     JsonArray tob = gson.fromJson(value, JsonArray.class);
-    JsonArray bids = tob.get(0).getAsJsonArray();
-    JsonArray asks = tob.get(1).getAsJsonArray();
-    JsonOrderBook book = JsonOrderBook.parse(symex[1], bids, asks);
+    JsonArray bid = tob.get(0).getAsJsonArray();
+    JsonArray ask = tob.get(1).getAsJsonArray();
+    JsonOrderBook book = JsonOrderBook.parse(symex[1], bid, ask);
     BestTopOfBook topOfBook = books.get(symex[0]);
     topOfBook.processSnapshot(book);
-    ArrayList<List<String[]>> message = new ArrayList<>();
-    message.add(Collections.singletonList(topOfBook.topOfBids()));
-    message.add(Collections.singletonList(topOfBook.topOfAsks()));
+
+    JsonArray message = new JsonArray();
+
+
+    TopOfBook.Entry entry = topOfBook.topOfBids();
+    JsonArray bidEntry = new JsonArray();
+    if (entry != null) {
+      bidEntry.add(entry.price);
+      bidEntry.add(entry.total);
+      bidEntry.add(gson.toJsonTree(entry.quantities));
+    }
+    message.add(bidEntry);
+
+    entry = topOfBook.topOfAsks();
+    JsonArray askEntry = new JsonArray();
+    if (entry != null) {
+      askEntry.add(entry.price);
+      askEntry.add(entry.total);
+      askEntry.add(gson.toJsonTree(entry.quantities));
+    }
+    message.add(askEntry);
+
     return KeyValue.pair(topOfBook.getKey(), gson.toJson(message));
   }
 

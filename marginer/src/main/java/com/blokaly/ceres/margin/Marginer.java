@@ -1,4 +1,4 @@
-package com.blokaly.ceres.stream;
+package com.blokaly.ceres.margin;
 
 import com.blokaly.ceres.common.CommonModule;
 import com.blokaly.ceres.common.DumpAndShutdownModule;
@@ -15,21 +15,21 @@ import com.typesafe.config.Config;
 import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.streams.*;
 import org.apache.kafka.streams.kstream.KStream;
+import org.apache.kafka.streams.kstream.KeyValueMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.PreDestroy;
 import java.util.List;
-import java.util.Map;
 import java.util.Properties;
 import java.util.stream.Collectors;
 
-public class SmartQuote extends AbstractService {
-  private static final Logger LOGGER = LoggerFactory.getLogger(SmartQuote.class);
+public class Marginer extends AbstractService {
+  private static final Logger LOGGER = LoggerFactory.getLogger(Marginer.class);
   private final KafkaStreams streams;
 
   @Inject
-  public SmartQuote(KafkaStreams streams) {
+  public Marginer(KafkaStreams streams) {
     this.streams = streams;
   }
 
@@ -46,11 +46,11 @@ public class SmartQuote extends AbstractService {
     streams.close();
   }
 
-  public static class SmartQuoteModule extends AbstractModule {
+  public static class MarginerModule extends AbstractModule {
 
     @Override
     protected void configure() {
-      bind(Service.class).to(SmartQuote.class);
+      bind(Service.class).to(Marginer.class);
     }
 
     @Provides
@@ -62,26 +62,17 @@ public class SmartQuote extends AbstractService {
 
     @Provides
     @Singleton
-    public Map<String, BestTopOfBook> provideTopOfBooks(Config config) {
-      List<String> symbols = config.getStringList("symbols");
-      return symbols.stream().collect(Collectors.toMap(sym -> sym, BestTopOfBook::new));
+    public KeyValueMapper<String, String, KeyValue<String, String>> provideMarginProcessor(IDSequencer sequencer) {
+      return new MarginProcessor(sequencer);
     }
 
     @Provides
     @Singleton
-    public StreamsBuilder provideStreamsBuilder(Config config, ToBMapper mapper, HBProcessor hbProcessor) {
-      Config kafka = config.getConfig("kafka");
+    public StreamsBuilder provideStreamsBuilder(Config config, KeyValueMapper<String, String, KeyValue<String, String>> marginProcessor) {
       StreamsBuilder builder = new StreamsBuilder();
-      KStream<String, String> stream = builder.stream(kafka.getStringList("topics"));
-      stream.filter((key, value) -> key.startsWith("hb")).foreach(hbProcessor::process);
       List<String> symbols = config.getStringList("symbols");
-      KStream<String, String>[] streams = stream.branch(symbols.stream().map(SymbolFilter::new).toArray(SymbolFilter[]::new));
-      for (int i = 0; i < streams.length; i++) {
-        String topic = "md." + symbols.get(i);
-        KStream<String, String> outStream = streams[i];
-        outStream.map(mapper).to(topic);
-        outStream.to(topic);
-      }
+      KStream<String, String> stream = builder.stream(symbols.stream().map(sym -> "md." + sym).collect(Collectors.toList()));
+      stream.filter((key, value) -> key.endsWith("best")).map(marginProcessor).to("md.finfabrik");
       return builder;
     }
 
@@ -102,10 +93,9 @@ public class SmartQuote extends AbstractService {
   }
 
   public static void main(String[] args) throws Exception {
-    InjectorBuilder.fromModules(new DumpAndShutdownModule(), new CommonModule(), new SmartQuoteModule())
+    InjectorBuilder.fromModules(new DumpAndShutdownModule(), new CommonModule(), new MarginerModule())
         .createInjector()
         .getInstance(Service.class)
         .startAsync().awaitTerminated();
   }
-
 }

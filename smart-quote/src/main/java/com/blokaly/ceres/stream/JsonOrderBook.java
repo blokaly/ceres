@@ -8,6 +8,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
@@ -19,10 +20,10 @@ public class JsonOrderBook implements MarketDataSnapshot<IdBasedOrderInfo> {
   private final Collection<IdBasedOrderInfo> bids;
   private final Collection<IdBasedOrderInfo> asks;
 
-  public static JsonOrderBook parse(String id, JsonArray bidArray, JsonArray askArray) {
+  public static JsonOrderBook parse(String id, JsonArray bid, JsonArray ask) {
 
-    List<IdBasedOrderInfo> bids = StreamSupport.stream(bidArray.spliterator(), false).map(elm -> new JsonArrayOrderInfo(id, OrderInfo.Side.BUY, elm.getAsJsonArray())).collect(Collectors.toList());
-    List<IdBasedOrderInfo> asks = StreamSupport.stream(askArray.spliterator(), false).map(elm -> new JsonArrayOrderInfo(id, OrderInfo.Side.SELL, elm.getAsJsonArray())).collect(Collectors.toList());
+    List<IdBasedOrderInfo> bids = Collections.singletonList(new JsonArrayOrderInfo(id, OrderInfo.Side.BUY, bid.getAsJsonArray()));
+    List<IdBasedOrderInfo> asks = Collections.singletonList(new JsonArrayOrderInfo(id, OrderInfo.Side.SELL, ask.getAsJsonArray()));
     return new JsonOrderBook(bids, asks);
   }
 

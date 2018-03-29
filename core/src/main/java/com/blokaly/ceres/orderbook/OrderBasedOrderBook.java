@@ -108,23 +108,23 @@ public class OrderBasedOrderBook implements OrderBook<IdBasedOrderInfo>, TopOfBo
     }
 
     @Override
-    public String[] topOfBids() {
+    public Entry topOfBids() {
         Map.Entry<DecimalNumber, PriceLevel> entry = bids.firstEntry();
         return wrapPriceLevel(entry);
     }
 
     @Override
-    public String[] topOfAsks() {
+    public Entry topOfAsks() {
         Map.Entry<DecimalNumber, PriceLevel> entry = asks.firstEntry();
         return wrapPriceLevel(entry);
     }
 
-    private String[] wrapPriceLevel(Map.Entry<DecimalNumber, PriceLevel> entry) {
+    private Entry wrapPriceLevel(Map.Entry<DecimalNumber, PriceLevel> entry) {
         if (entry == null) {
-            return new String[] {};
+            return null;
         } else {
             PriceLevel level = entry.getValue();
-            return new String[]{level.getPrice().toString(), level.getQuantity().toString()};
+            return new Entry(level.getPrice().toString(), level.getQuantity().toString());
         }
     }
 

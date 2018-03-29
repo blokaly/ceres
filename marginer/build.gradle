@@ -13,8 +13,8 @@ dependencies {
     compile 'org.apache.kafka:kafka-streams:1.0.1'
 }
 
-mainClassName = 'com.blokaly.ceres.stream.SmartQuote'
-applicationName = "smart-quote"
+mainClassName = 'com.blokaly.ceres.margin.Marginer'
+applicationName = "marginer"
 version = 1.0
 
 // conf files should be under src/conf folder, avoid duplication

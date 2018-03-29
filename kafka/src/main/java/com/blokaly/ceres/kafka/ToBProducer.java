@@ -3,6 +3,7 @@ package com.blokaly.ceres.kafka;
 import com.blokaly.ceres.orderbook.TopOfBook;
 import com.google.common.collect.Maps;
 import com.google.gson.Gson;
+import com.google.gson.JsonArray;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.typesafe.config.Config;
@@ -45,16 +46,29 @@ public class ToBProducer {
       return;
     }
 
-    String[] bid = topOfBook.topOfBids();
-    String[] ask = topOfBook.topOfAsks();
-    Integer hash = 31 * Arrays.hashCode(bid) + Arrays.hashCode(ask);
+    TopOfBook.Entry bid = topOfBook.topOfBids();
+    TopOfBook.Entry ask = topOfBook.topOfAsks();
+
+    Integer hash = Objects.hash(bid, ask);
     String key = topOfBook.getKey();
     Integer last = hashCache.get(key);
     if (!hash.equals(last) ) {
-      ArrayList<List<String[]>> tob = new ArrayList<>();
-      tob.add(Collections.singletonList(bid));
-      tob.add(Collections.singletonList(ask));
+      JsonArray tob = new JsonArray();
+      JsonArray bidEntry = new JsonArray();
+      if (bid != null) {
+        bidEntry.add(bid.price);
+        bidEntry.add(bid.total);
+      }
+      tob.add(bidEntry);
+
+      JsonArray askEntry = new JsonArray();
+      if (ask != null) {
+        askEntry.add(ask.price);
+        askEntry.add(ask.total);
+      }
+      tob.add(askEntry);
       dispatch(key, gson.toJson(tob));
+
       hashCache.put(key, hash);
     }
   }

@@ -75,19 +75,19 @@ public class BestTopOfBook implements OrderBook<IdBasedOrderInfo>, TopOfBook {
   }
 
   @Override
-  public String[] topOfBids() {
+  public Entry topOfBids() {
     return format(bids);
   }
 
   @Override
-  public String[] topOfAsks() {
+  public Entry topOfAsks() {
     return format(asks);
   }
 
-  private String[] format(NavigableMap<DecimalNumber, List<IdBasedOrderInfo>> side) {
+  private Entry format(NavigableMap<DecimalNumber, List<IdBasedOrderInfo>> side) {
     Map.Entry<DecimalNumber, List<IdBasedOrderInfo>> top = side.firstEntry();
     if (top == null) {
-      return new String[]{};
+      return null;
     }
     DecimalNumber total = DecimalNumber.ZERO;
     List<IdBasedOrderInfo> quantities = top.getValue();
@@ -98,7 +98,7 @@ public class BestTopOfBook implements OrderBook<IdBasedOrderInfo>, TopOfBook {
       total = total.plus(quantity);
       details[idx++] = level.getId() + ":" + quantity.toString();
     }
-    return new String[] {top.getKey().toString(), total.toString(), Arrays.toString(details)};
+    return new Entry(top.getKey().toString(), total.toString(), details);
   }
 
   public void remove(List<String> staled) {

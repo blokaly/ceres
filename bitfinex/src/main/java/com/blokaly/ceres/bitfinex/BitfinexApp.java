@@ -27,22 +27,22 @@ import static com.blokaly.ceres.bitfinex.event.EventType.*;
 
 public class BitfinexApp extends AbstractService {
 
-    private final BitfinexClient client;
+    private final BitfinexClientProvider provider;
 
     @Inject
-    public BitfinexApp(BitfinexClient client) {
-        this.client = client;
+    public BitfinexApp(BitfinexClientProvider provider) {
+        this.provider = provider;
     }
 
     @Override
     protected void doStart() {
-        client.connect();
+        provider.get().connect();
     }
 
     @Override
     @PreDestroy
     protected void doStop() {
-        client.close();
+        provider.get().close();
     }
 
     public static class BitfinexModule extends AbstractModule {
@@ -53,8 +53,11 @@ public class BitfinexApp extends AbstractService {
             binder.addBinding(INFO).to(InfoCallbackHandler.class);
             binder.addBinding(SUBSCRIBED).to(SubscribedCallbackHandler.class);
             binder.addBinding(CHANNEL).to(ChannelCallbackHandler.class);
-            binder.addBinding(PING).to(PingPongHandler.class);
-            binder.addBinding(PONG).to(PingPongHandler.class);
+            binder.addBinding(PING).to(PingPongCallbackHandler.class);
+            binder.addBinding(PONG).to(PingPongCallbackHandler.class);
+
+            bind(BitfinexClient.class).toProvider(BitfinexClientProvider.class).in(Singleton.class);
+            bind(MessageHandler.class).to(MessageHandlerImpl.class).in(Singleton.class);
             bind(Service.class).to(BitfinexApp.class);
         }
 
@@ -64,24 +67,12 @@ public class BitfinexApp extends AbstractService {
         }
 
         @Provides
-        public MessageSender provideMessageSender(final BitfinexClient client) {
-            return client::send;
-        }
-
-        @Provides
         @Singleton
         public Gson provideGson(Map<EventType, CommandCallbackHandler> handlers) {
             GsonBuilder builder = new GsonBuilder();
             builder.registerTypeAdapter(AbstractEvent.class, new EventAdapter(handlers));
             return builder.create();
         }
-
-        @Provides
-        @Singleton
-        public MessageHandler provideMessageHandler(Gson gson, MessageSender sender, OrderBookKeeper keeper, ToBProducer producer) {
-            return new MessageHandlerImpl(gson, sender, keeper, producer);
-        }
-
     }
 
     public static void main(String[] args) throws Exception {

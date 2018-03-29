@@ -7,6 +7,7 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.typesafe.config.Config;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -50,6 +51,10 @@ public class OrderBookKeeper {
                 orderbooks.put(channel, book);
             }
         }
+    }
+
+    public Collection<OrderBasedOrderBook> getAllBooks() {
+        return orderbooks.values();
     }
 
     public OrderBasedOrderBook get(int channel) {

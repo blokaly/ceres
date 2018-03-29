@@ -1,7 +1,5 @@
 package com.blokaly.ceres.bitfinex;
 
-import com.google.inject.Inject;
-import com.google.inject.Singleton;
 import org.java_websocket.client.WebSocketClient;
 import org.java_websocket.handshake.ServerHandshake;
 import org.slf4j.Logger;
@@ -10,34 +8,49 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.PreDestroy;
 import java.net.URI;
 
-@Singleton
 public class BitfinexClient extends WebSocketClient {
 
     private static Logger LOGGER = LoggerFactory.getLogger(BitfinexClient.class);
+    private volatile boolean stop = false;
+    private final JsonCracker cracker;
+    private final ConnectionListener listener;
 
-    private JsonCracker cracker;
+    public interface ConnectionListener {
+        void onConnected();
+        void onDisconnected();
+    }
 
-    @Inject
-    public BitfinexClient(URI serverURI, JsonCracker cracker) {
+    public BitfinexClient(URI serverURI, JsonCracker cracker, ConnectionListener listener) {
         super(serverURI);
         this.cracker = cracker;
+        this.listener = listener;
         LOGGER.info("client initiated");
     }
 
+
+
     @Override
-    public void onOpen(ServerHandshake handshakedata) {
-        LOGGER.info("ws open, status - {}:{}", handshakedata.getHttpStatus(), handshakedata.getHttpStatusMessage());
+    public void onOpen(ServerHandshake handshake) {
+        LOGGER.info("ws open, status - {}:{}", handshake.getHttpStatus(), handshake.getHttpStatusMessage());
+        if (listener != null) {
+            listener.onConnected();
+        }
     }
 
     @Override
     public void onMessage(String message) {
         LOGGER.debug("ws message: {}", message);
-        cracker.crack(message);
+        if (!stop) {
+            cracker.crack(message);
+        }
     }
 
     @Override
     public void onClose(int code, String reason, boolean remote) {
         LOGGER.info("ws close: {}", reason);
+        if (listener != null) {
+            listener.onDisconnected();
+        }
     }
 
     @Override
@@ -47,6 +60,7 @@ public class BitfinexClient extends WebSocketClient {
 
     @PreDestroy
     public void stop() {
+        stop = true;
         super.close();
     }
 }

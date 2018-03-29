@@ -34,12 +34,12 @@ public class ToBMapper implements KeyValueMapper<String, String, KeyValue<String
     JsonArray bids = tob.get(0).getAsJsonArray();
     JsonArray asks = tob.get(1).getAsJsonArray();
     JsonOrderBook book = JsonOrderBook.parse(symex[1], bids, asks);
-    BestTopOfBook aggregatedBook = books.get(symex[0]);
-    aggregatedBook.processSnapshot(book);
+    BestTopOfBook topOfBook = books.get(symex[0]);
+    topOfBook.processSnapshot(book);
     ArrayList<List<String[]>> message = new ArrayList<>();
-    message.add(Collections.singletonList(aggregatedBook.topOfBids()));
-    message.add(Collections.singletonList(aggregatedBook.topOfAsks()));
-    return KeyValue.pair(aggregatedBook.getKey(), gson.toJson(message));
+    message.add(Collections.singletonList(topOfBook.topOfBids()));
+    message.add(Collections.singletonList(topOfBook.topOfAsks()));
+    return KeyValue.pair(topOfBook.getKey(), gson.toJson(message));
   }
 
   public synchronized void remove(List<String> staled) {

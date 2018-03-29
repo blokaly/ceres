@@ -35,6 +35,7 @@ public class SmartQuote extends AbstractService {
 
   @Override
   protected void doStart() {
+    LOGGER.info("starting kafka streams...");
     streams.start();
   }
 

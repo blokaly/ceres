@@ -8,7 +8,7 @@ import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
-public class PingPongHandler implements CommandCallbackHandler<AbstractEvent> {
+public class PingPongCallbackHandler implements CommandCallbackHandler<AbstractEvent> {
   @Override
   public AbstractEvent handleEvent(JsonElement json, JsonDeserializationContext context) {
     JsonObject evt = json.getAsJsonObject();

@@ -17,4 +17,6 @@ public interface MessageHandler {
     void onMessage(PingEvent event);
 
     void onMessage(PongEvent event);
+
+    void onMessage(ErrorEvent event);
 }

@@ -20,10 +20,10 @@ public class BestTopOfBook implements OrderBook<IdBasedOrderInfo>, TopOfBook {
   private static final String SUFFIX = ".best";
   private final String symbol;
   private final String key;
-  private final NavigableMap<DecimalNumber, List<OrderInfoLevel>> bids = Maps.newTreeMap(Comparator.<DecimalNumber>reverseOrder());
-  private final NavigableMap<DecimalNumber, List<OrderInfoLevel>> asks = Maps.newTreeMap();
-  private final Map<String, OrderInfoLevel> bidOrders = Maps.newHashMap();
-  private final Map<String, OrderInfoLevel> askOrders = Maps.newHashMap();
+  private final NavigableMap<DecimalNumber, List<IdBasedOrderInfo>> bids = Maps.newTreeMap(Comparator.<DecimalNumber>reverseOrder());
+  private final NavigableMap<DecimalNumber, List<IdBasedOrderInfo>> asks = Maps.newTreeMap();
+  private final Map<String, IdBasedOrderInfo> bidOrders = Maps.newHashMap();
+  private final Map<String, IdBasedOrderInfo> askOrders = Maps.newHashMap();
   private long lastSequence;
 
   @Inject
@@ -81,13 +81,21 @@ public class BestTopOfBook implements OrderBook<IdBasedOrderInfo>, TopOfBook {
     return format(asks);
   }
 
-  private String[] format(NavigableMap<DecimalNumber, List<OrderInfoLevel>> side) {
-    Map.Entry<DecimalNumber, List<OrderInfoLevel>> top = side.firstEntry();
-    DecimalNumber total = DecimalNumber.ZERO;
-    for (OrderInfoLevel level : top.getValue()) {
-      total = total.plus(level.getQuantity());
+  private String[] format(NavigableMap<DecimalNumber, List<IdBasedOrderInfo>> side) {
+    Map.Entry<DecimalNumber, List<IdBasedOrderInfo>> top = side.firstEntry();
+    if (top == null) {
+      return new String[]{};
     }
-    return new String[] {top.getKey().toString(), total.toString()};
+    DecimalNumber total = DecimalNumber.ZERO;
+    List<IdBasedOrderInfo> quantities = top.getValue();
+    String[] details = new String[quantities.size()];
+    int idx = 0;
+    for (IdBasedOrderInfo level : quantities) {
+      DecimalNumber quantity = level.getQuantity();
+      total = total.plus(quantity);
+      details[idx++] = level.getId() + ":" + quantity.toString();
+    }
+    return new String[] {top.getKey().toString(), total.toString(), Arrays.toString(details)};
   }
 
   public void remove(List<String> staled) {
@@ -97,14 +105,14 @@ public class BestTopOfBook implements OrderBook<IdBasedOrderInfo>, TopOfBook {
     }
   }
 
-  private NavigableMap<DecimalNumber, List<OrderInfoLevel>> sidedLevels(OrderInfo.Side side) {
+  private NavigableMap<DecimalNumber, List<IdBasedOrderInfo>> sidedLevels(OrderInfo.Side side) {
     if (side == null || side == OrderInfo.Side.UNKNOWN) {
       return null;
     }
     return side== OrderInfo.Side.BUY ? bids : asks;
   }
 
-  private Map<String, OrderInfoLevel> sidedOrder(OrderInfo.Side side) {
+  private Map<String, IdBasedOrderInfo> sidedOrder(OrderInfo.Side side) {
     if (side == null || side == OrderInfo.Side.UNKNOWN) {
       return null;
     }
@@ -112,53 +120,37 @@ public class BestTopOfBook implements OrderBook<IdBasedOrderInfo>, TopOfBook {
   }
 
   private void process(IdBasedOrderInfo order) {
-    Map<String, OrderInfoLevel> orders = sidedOrder(order.side());
-    NavigableMap<DecimalNumber, List<OrderInfoLevel>> levels = sidedLevels(order.side());
+    Map<String, IdBasedOrderInfo> orders = sidedOrder(order.side());
+    NavigableMap<DecimalNumber, List<IdBasedOrderInfo>> levels = sidedLevels(order.side());
     String orderId = order.getId();
     removeOrder(orders, levels, orderId);
     addOrder(order, orders, levels, orderId);
   }
 
-  private void addOrder(IdBasedOrderInfo order, Map<String, OrderInfoLevel> orders, NavigableMap<DecimalNumber, List<OrderInfoLevel>> levels, String orderId) {
-    OrderInfoLevel level = new OrderInfoLevel(order);
-    DecimalNumber price = level.getPrice();
-    orders.put(orderId, level);
+  private void addOrder(IdBasedOrderInfo order, Map<String, IdBasedOrderInfo> orders, NavigableMap<DecimalNumber, List<IdBasedOrderInfo>> levels, String orderId) {
+    DecimalNumber price = order.getPrice();
+    if (price==null || price.isZero()) {
+      return;
+    }
+    orders.put(orderId, order);
     if (levels.containsKey(price)) {
-      levels.get(price).add(level);
+      levels.get(price).add(order);
     } else {
-      LinkedList<OrderInfoLevel> group = new LinkedList<>();
-      group.add(level);
+      LinkedList<IdBasedOrderInfo> group = new LinkedList<>();
+      group.add(order);
       levels.put(price, group);
     }
   }
 
-  private void removeOrder(Map<String, OrderInfoLevel> orders, NavigableMap<DecimalNumber, List<OrderInfoLevel>> levels, String orderId) {
+  private void removeOrder(Map<String, IdBasedOrderInfo> orders, NavigableMap<DecimalNumber, List<IdBasedOrderInfo>> levels, String orderId) {
     if (orders.containsKey(orderId)) {
-      OrderInfoLevel level = orders.remove(orderId);
+      IdBasedOrderInfo level = orders.remove(orderId);
       DecimalNumber price = level.getPrice();
-      List<OrderInfoLevel> group = levels.get(price);
+      List<IdBasedOrderInfo> group = levels.get(price);
       group.remove(level);
       if (group.isEmpty()) {
         levels.remove(price);
       }
-    }
-  }
-
-  private class OrderInfoLevel implements Level {
-    private final OrderInfo order;
-
-    private OrderInfoLevel(OrderInfo order) {
-      this.order = order;
-    }
-
-    @Override
-    public DecimalNumber getPrice() {
-      return order.getPrice();
-    }
-
-    @Override
-    public DecimalNumber getQuantity() {
-      return order.getQuantity();
     }
   }
 }

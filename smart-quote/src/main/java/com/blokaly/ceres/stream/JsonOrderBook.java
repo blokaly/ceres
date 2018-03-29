@@ -5,6 +5,7 @@ import com.blokaly.ceres.data.IdBasedOrderInfo;
 import com.blokaly.ceres.data.MarketDataSnapshot;
 import com.blokaly.ceres.data.OrderInfo;
 import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 
 import java.util.Collection;
 import java.util.List;
@@ -86,12 +87,20 @@ public class JsonOrderBook implements MarketDataSnapshot<IdBasedOrderInfo> {
 
     @Override
     public DecimalNumber getPrice() {
-      return DecimalNumber.fromStr(jsonArray.get(0).getAsString());
+      if (jsonArray.size() > 0) {
+        return DecimalNumber.fromStr(jsonArray.get(0).getAsString());
+      } else {
+        return null;
+      }
     }
 
     @Override
     public DecimalNumber getQuantity() {
-      return DecimalNumber.fromStr(jsonArray.get(1).getAsString());
+      if (jsonArray.size() > 0) {
+        return DecimalNumber.fromStr(jsonArray.get(1).getAsString());
+      } else {
+        return null;
+      }
     }
 
     @Override

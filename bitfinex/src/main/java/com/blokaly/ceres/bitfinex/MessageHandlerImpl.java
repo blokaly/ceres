@@ -4,21 +4,24 @@ import com.blokaly.ceres.bitfinex.event.*;
 import com.blokaly.ceres.kafka.ToBProducer;
 import com.blokaly.ceres.orderbook.OrderBasedOrderBook;
 import com.google.gson.Gson;
+import com.google.inject.Inject;
+import com.google.inject.Provider;
+import com.google.inject.Singleton;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.function.Consumer;
-
+@Singleton
 public class MessageHandlerImpl implements MessageHandler {
     private static Logger LOGGER = LoggerFactory.getLogger(MessageHandlerImpl.class);
     private final Gson gson;
-    private final MessageSender sender;
+    private final Provider<BitfinexClient> clientProvider;
     private final OrderBookKeeper bookKeeper;
     private final ToBProducer producer;
 
-    public MessageHandlerImpl(Gson gson, MessageSender sender, OrderBookKeeper bookKeeper, ToBProducer producer) {
+    @Inject
+    public MessageHandlerImpl(Gson gson, Provider<BitfinexClient> clientProvider, OrderBookKeeper bookKeeper, ToBProducer producer) {
         this.gson = gson;
-        this.sender = sender;
+        this.clientProvider = clientProvider;
         this.bookKeeper = bookKeeper;
         this.producer = producer;
     }
@@ -39,6 +42,11 @@ public class MessageHandlerImpl implements MessageHandler {
     }
 
     @Override
+    public void onMessage(ErrorEvent event) {
+        LOGGER.error("{}", event);
+    }
+
+    @Override
     public void onMessage(InfoEvent event) {
         String version = event.getVersion();
         if (version != null) {
@@ -47,15 +55,34 @@ public class MessageHandlerImpl implements MessageHandler {
                 LOGGER.error("Unsupported version: {}, only v1 supported.", version);
                 return;
             }
-            bookKeeper.getSymbols().forEach(symbol -> {
-                String jsonString = gson.toJson(new OrderBookEvent(symbol));
-                LOGGER.info("subscribe: {}", jsonString);
-                sender.send(jsonString);
-            });
+            subscribeAll();
         } else {
             LOGGER.info("Received info {}", event);
+            InfoEvent.Status status = event.getStatus();
+            if (status == InfoEvent.Status.WEB_SOCKET_RESTART || status == InfoEvent.Status.PAUSE) {
+                bookKeeper.getAllBooks().forEach(book -> {
+                    book.clear();
+                    producer.publish(book);
+                });
+            } else if (status == InfoEvent.Status.RESUME) {
+                //TODO unsub
+                subscribeAll();
+            }
         }
 
+    }
+
+    private void subscribeAll() {
+        BitfinexClient sender = clientProvider.get();
+        if (sender == null) {
+            LOGGER.error("Bitfinex client unavailable, skip subscription");
+            return;
+        }
+        bookKeeper.getSymbols().forEach(symbol -> {
+            String jsonString = gson.toJson(new OrderBookEvent(symbol));
+            LOGGER.info("subscribe: {}", jsonString);
+            sender.send(jsonString);
+        });
     }
 
     @Override

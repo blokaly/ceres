@@ -85,9 +85,9 @@ public class BitfinexSteps implements En {
             JsonArray snapshot = new JsonArray();
             snapshot.add(channelId);
             List<Map<String, String>> orders = table.asMaps(String.class, String.class);
-            JsonArray orderArray = new JsonArray(orders.size());
+            JsonArray orderArray = new JsonArray();
             for (Map<String, String> order : orders) {
-                JsonArray ord = new JsonArray(3);
+                JsonArray ord = new JsonArray();
                 ord.add(Long.parseLong(order.get("OrderId")));
                 ord.add(order.get("Price"));
                 ord.add(order.get("Amount"));

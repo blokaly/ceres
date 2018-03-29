@@ -4,6 +4,7 @@ import com.blokaly.ceres.bitstamp.event.DiffBookEvent;
 import com.blokaly.ceres.bitstamp.event.OrderBookEvent;
 import com.blokaly.ceres.common.CommonModule;
 import com.blokaly.ceres.common.DumpAndShutdownModule;
+import com.blokaly.ceres.common.Exchange;
 import com.blokaly.ceres.common.SingleThread;
 import com.blokaly.ceres.data.SymbolFormatter;
 import com.blokaly.ceres.kafka.KafkaCommonModule;
@@ -48,6 +49,8 @@ public class BitstampApp extends AbstractService {
 
         @Override
         protected void configure() {
+            install(new CommonModule());
+            install(new KafkaCommonModule());
             bind(Service.class).to(BitstampApp.class);
         }
 
@@ -55,11 +58,11 @@ public class BitstampApp extends AbstractService {
         @Singleton
         public List<PusherClient> providePusherClients(Config config, Gson gson, ToBProducer producer, @SingleThread Provider<ExecutorService> provider) {
             PusherOptions options = new PusherOptions();
-            String appName = config.getString("app.name");
+            String exchange = Exchange.valueOf(config.getString("app.exchange").toUpperCase()).getCode();
             return config.getConfig("symbols").entrySet().stream()
                     .map(item -> {
                         String symbol = SymbolFormatter.normalise(item.getKey());
-                        OrderBookHandler handler = new OrderBookHandler(new PriceBasedOrderBook(symbol, symbol + "." + appName), producer, gson, provider.get());
+                        OrderBookHandler handler = new OrderBookHandler(new PriceBasedOrderBook(symbol, symbol + "." + exchange), producer, gson, provider.get());
                         String subId = (String) item.getValue().unwrapped();
                         return new PusherClient(new Pusher(subId, options), handler, gson);
                     })
@@ -78,7 +81,7 @@ public class BitstampApp extends AbstractService {
     }
 
     public static void main(String[] args) throws Exception {
-        InjectorBuilder.fromModules(new DumpAndShutdownModule(), new CommonModule(), new KafkaCommonModule(), new BitstampModule())
+        InjectorBuilder.fromModules(new BitstampModule())
                 .createInjector()
                 .getInstance(Service.class)
                 .startAsync().awaitTerminated();

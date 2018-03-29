@@ -48,6 +48,8 @@ public class BitfinexApp extends AbstractService {
 
         @Override
         protected void configure() {
+            install(new CommonModule());
+            install(new KafkaCommonModule());
             MapBinder<EventType, CommandCallbackHandler> binder = MapBinder.newMapBinder(binder(), EventType.class, CommandCallbackHandler.class);
             binder.addBinding(INFO).to(InfoCallbackHandler.class);
             binder.addBinding(SUBSCRIBED).to(SubscribedCallbackHandler.class);
@@ -75,7 +77,7 @@ public class BitfinexApp extends AbstractService {
     }
 
     public static void main(String[] args) throws Exception {
-        InjectorBuilder.fromModules(new DumpAndShutdownModule(), new CommonModule(), new KafkaCommonModule(), new BitfinexModule())
+        InjectorBuilder.fromModules( new BitfinexModule())
                 .createInjector()
                 .getInstance(Service.class)
                 .startAsync().awaitTerminated();

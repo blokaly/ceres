@@ -1,6 +1,7 @@
 package com.blokaly.ceres.stream;
 
 import com.blokaly.ceres.common.DecimalNumber;
+import com.blokaly.ceres.common.Exchange;
 import com.blokaly.ceres.data.IdBasedOrderInfo;
 import com.blokaly.ceres.data.MarketDataIncremental;
 import com.blokaly.ceres.data.MarketDataSnapshot;
@@ -17,7 +18,7 @@ import java.util.*;
 public class BestTopOfBook implements OrderBook<IdBasedOrderInfo>, TopOfBook {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(BestTopOfBook.class);
-  private static final String SUFFIX = ".best";
+  private static final String SUFFIX = "." + Exchange.BEST.getCode();
   private final String symbol;
   private final String key;
   private final NavigableMap<DecimalNumber, List<IdBasedOrderInfo>> bids = Maps.newTreeMap(Comparator.<DecimalNumber>reverseOrder());
@@ -96,7 +97,9 @@ public class BestTopOfBook implements OrderBook<IdBasedOrderInfo>, TopOfBook {
     for (IdBasedOrderInfo level : quantities) {
       DecimalNumber quantity = level.getQuantity();
       total = total.plus(quantity);
-      details[idx++] = level.getId() + ":" + quantity.toString();
+      Exchange exchange = Exchange.lookupByCode(level.getId());
+      String exId = exchange == null ? level.getId() : String.valueOf(exchange.getId());
+      details[idx++] = exId + ":" + quantity.toString();
     }
     return new Entry(top.getKey().toString(), total.toString(), details);
   }

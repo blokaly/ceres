@@ -2,6 +2,7 @@ package com.blokaly.ceres.gdax;
 
 import com.blokaly.ceres.common.CommonModule;
 import com.blokaly.ceres.common.DumpAndShutdownModule;
+import com.blokaly.ceres.common.Exchange;
 import com.blokaly.ceres.data.SymbolFormatter;
 import com.blokaly.ceres.gdax.callback.*;
 import com.blokaly.ceres.gdax.event.AbstractEvent;
@@ -53,6 +54,8 @@ public class GdaxApp extends AbstractService {
 
     @Override
     protected void configure() {
+      install(new CommonModule());
+      install(new KafkaCommonModule());
       MapBinder<EventType, CommandCallbackHandler> binder = MapBinder.newMapBinder(binder(), EventType.class, CommandCallbackHandler.class);
       binder.addBinding(OPEN).to(OpenCallbackHandler.class);
       binder.addBinding(HB).to(HeartbeatCallbackHandler.class);
@@ -91,16 +94,16 @@ public class GdaxApp extends AbstractService {
     @Singleton
     public Map<String, PriceBasedOrderBook> provideOrderBooks(Config config) {
       List<String> symbols = config.getStringList("symbols");
-      String appName = config.getString("app.name");
+      Exchange exchange = Exchange.valueOf(config.getString("app.exchange").toUpperCase());
       return symbols.stream().collect(Collectors.toMap(sym->sym, sym -> {
         String symbol = SymbolFormatter.normalise(sym);
-        return new PriceBasedOrderBook(symbol, symbol + "." + appName);
+        return new PriceBasedOrderBook(symbol, symbol + "." + exchange.getCode());
       }));
     }
   }
 
   public static void main(String[] args) throws Exception {
-    InjectorBuilder.fromModules(new DumpAndShutdownModule(), new CommonModule(), new KafkaCommonModule(), new GdaxModule())
+    InjectorBuilder.fromModules(new GdaxModule())
         .createInjector()
         .getInstance(Service.class)
         .startAsync().awaitTerminated();

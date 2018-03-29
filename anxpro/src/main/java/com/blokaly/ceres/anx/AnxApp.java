@@ -6,6 +6,7 @@ import com.blokaly.ceres.anx.event.AbstractEvent;
 import com.blokaly.ceres.anx.event.EventType;
 import com.blokaly.ceres.common.CommonModule;
 import com.blokaly.ceres.common.DumpAndShutdownModule;
+import com.blokaly.ceres.common.Exchange;
 import com.blokaly.ceres.data.SymbolFormatter;
 import com.blokaly.ceres.kafka.KafkaCommonModule;
 import com.blokaly.ceres.orderbook.PriceBasedOrderBook;
@@ -52,6 +53,8 @@ public class AnxApp extends AbstractService {
 
     @Override
     protected void configure() {
+      install(new CommonModule());
+      install(new KafkaCommonModule());
       MapBinder<EventType, CommandCallbackHandler> binder = MapBinder.newMapBinder(binder(), EventType.class, CommandCallbackHandler.class);
       binder.addBinding(SNAPSHOT).to(SnapshotCallbackHandler.class);
       bind(MessageHandler.class).to(MessageHandlerImpl.class);
@@ -70,16 +73,16 @@ public class AnxApp extends AbstractService {
     @Singleton
     public Map<String, PriceBasedOrderBook> provideOrderBooks(Config config) {
       List<String> symbols = config.getStringList("symbols");
-      String appName = config.getString("app.name");
+      String exchange = Exchange.valueOf(config.getString("app.exchange").toUpperCase()).getCode();
       return symbols.stream().collect(Collectors.toMap(sym -> sym, sym -> {
         String symbol = SymbolFormatter.normalise(sym);
-        return new PriceBasedOrderBook(symbol, symbol + "." + appName);
+        return new PriceBasedOrderBook(symbol, symbol + "." + exchange);
       }));
     }
   }
 
   public static void main(String[] args) throws Exception {
-    InjectorBuilder.fromModules(new DumpAndShutdownModule(), new CommonModule(), new KafkaCommonModule(), new AnxModule())
+    InjectorBuilder.fromModules(new AnxModule())
         .createInjector()
         .getInstance(Service.class)
         .startAsync().awaitTerminated();

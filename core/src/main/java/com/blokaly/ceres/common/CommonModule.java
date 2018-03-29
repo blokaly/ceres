@@ -14,6 +14,7 @@ public class CommonModule extends AbstractModule {
 
     @Override
     protected void configure() {
+        install(new DumpAndShutdownModule());
         bind(Thread.UncaughtExceptionHandler.class).to(ExceptionLoggingHandler.class).in(Singleton.class);
     }
 

@@ -2,6 +2,7 @@ package com.blokaly.ceres.margin;
 
 import com.blokaly.ceres.common.CommonModule;
 import com.blokaly.ceres.common.DumpAndShutdownModule;
+import com.blokaly.ceres.common.Exchange;
 import com.blokaly.ceres.kafka.KafkaStreamModule;
 import com.google.common.util.concurrent.AbstractService;
 import com.google.common.util.concurrent.Service;
@@ -51,6 +52,8 @@ public class Marginer extends AbstractService {
 
     @Override
     protected void configure() {
+      install(new CommonModule());
+      install(new KafkaStreamModule());
       bind(Service.class).to(Marginer.class);
     }
 
@@ -73,13 +76,13 @@ public class Marginer extends AbstractService {
       StreamsBuilder builder = new StreamsBuilder();
       List<String> symbols = config.getStringList("symbols");
       KStream<String, String> stream = builder.stream(symbols.stream().map(sym -> "md." + sym).collect(Collectors.toList()));
-      stream.filter((key, value) -> key.endsWith("best")).map(marginProcessor).to("md.finfabrik");
+      stream.filter((key, value) -> key.endsWith(Exchange.BEST.getCode())).map(marginProcessor).to("md." + Exchange.FINFABRIK.name().toLowerCase());
       return builder;
     }
   }
 
   public static void main(String[] args) throws Exception {
-    InjectorBuilder.fromModules(new DumpAndShutdownModule(), new CommonModule(), new KafkaStreamModule(), new MarginerModule())
+    InjectorBuilder.fromModules(new MarginerModule())
         .createInjector()
         .getInstance(Service.class)
         .startAsync().awaitTerminated();

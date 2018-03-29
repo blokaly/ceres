@@ -5,6 +5,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import org.apache.kafka.streams.KeyValue;
 import org.apache.kafka.streams.kstream.KeyValueMapper;
+import org.joda.time.DateTimeUtils;
 
 public class MarginProcessor implements KeyValueMapper<String, String, KeyValue<String, String>> {
 
@@ -37,7 +38,7 @@ public class MarginProcessor implements KeyValueMapper<String, String, KeyValue<
         askPrice = mid;
       }
     }
-
+    entry.add(DateTimeUtils.currentTimeMillis());
     entry.add(bidPrice.toString());
     entry.add(askPrice.toString());
     entry.add(bid);

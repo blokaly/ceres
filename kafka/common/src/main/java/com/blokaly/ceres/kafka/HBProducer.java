@@ -1,5 +1,6 @@
 package com.blokaly.ceres.kafka;
 
+import com.blokaly.ceres.common.Exchange;
 import com.blokaly.ceres.common.SingleThread;
 import com.google.inject.Inject;
 import com.typesafe.config.Config;
@@ -15,7 +16,7 @@ import java.util.concurrent.TimeUnit;
 
 public class HBProducer {
   private static Logger LOGGER = LoggerFactory.getLogger(HBProducer.class);
-  private static final String APP_NAME = "app.name";
+  private static final String APP_NAME = "app.exchange";
   private static final String KAFKA_TOPIC = "kafka.topic";
   private final Producer<String, String> producer;
   private final String topic;
@@ -28,7 +29,7 @@ public class HBProducer {
   public HBProducer(Producer<String, String> producer, Config config, @SingleThread ScheduledExecutorService ses) {
     this.producer = producer;
     topic = config.getString(KAFKA_TOPIC);
-    key = "hb." + config.getString(APP_NAME);
+    key = "hb." + Exchange.valueOf(config.getString(APP_NAME).toUpperCase()).getCode();
     this.ses = ses;
   }
 

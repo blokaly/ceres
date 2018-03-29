@@ -51,6 +51,8 @@ public class SmartQuote extends AbstractService {
 
     @Override
     protected void configure() {
+      install(new CommonModule());
+      install(new KafkaStreamModule());
       bind(Service.class).to(SmartQuote.class);
     }
 
@@ -88,7 +90,7 @@ public class SmartQuote extends AbstractService {
   }
 
   public static void main(String[] args) throws Exception {
-    InjectorBuilder.fromModules(new DumpAndShutdownModule(), new CommonModule(), new KafkaStreamModule(), new SmartQuoteModule())
+    InjectorBuilder.fromModules(new SmartQuoteModule())
         .createInjector()
         .getInstance(Service.class)
         .startAsync().awaitTerminated();

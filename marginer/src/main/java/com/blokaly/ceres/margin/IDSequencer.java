@@ -11,7 +11,7 @@ public class IDSequencer {
 
   @Inject
   public IDSequencer(Config config) {
-    prefix = config.getString("app.id.prefix") + "#";
+    prefix = config.getString("app.id.prefix");
     sequence = System.currentTimeMillis() * 1000000L;
   }
 

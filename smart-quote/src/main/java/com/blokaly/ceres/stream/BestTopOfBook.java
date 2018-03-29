@@ -63,7 +63,10 @@ public class BestTopOfBook implements OrderBook<IdBasedOrderInfo>, TopOfBook {
 
   @Override
   public void clear() {
-
+    bids.clear();
+    bidOrders.clear();
+    asks.clear();
+    askOrders.clear();
   }
 
   @Override

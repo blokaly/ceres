@@ -1,11 +1,14 @@
-apply plugin : 'java'
-apply plugin : 'groovy'
 apply plugin : 'application'
+apply plugin: 'com.bmuschko.docker-java-application'
 
 buildscript {
     repositories {
         jcenter()
         mavenCentral()
+    }
+
+    dependencies {
+        classpath 'com.bmuschko:gradle-docker-plugin:3.2.5'
     }
 }
 
@@ -64,3 +67,13 @@ startScripts {
     }
 }
 
+dockerDistTar {
+    instruction {"RUN mkdir -p /${applicationName}/logs"}
+}
+
+docker {
+    javaApplication {
+        baseImage = 'blokaly/java8:latest'
+        tag = "blokaly/ceres-${applicationName}:${version}"
+    }
+}

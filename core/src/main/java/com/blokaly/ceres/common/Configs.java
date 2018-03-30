@@ -16,13 +16,15 @@ public class Configs {
   private static final Logger log = LoggerFactory.getLogger(Configs.class);
 
 
-  private final Config system = ConfigFactory.systemProperties();
-  private final Config user = new Builder().withSecureConf().envAwareApp().build();
-  private final Config overrides = ConfigFactory.parseResources("overrides.conf");
-  private final Config defaultConfig = ConfigFactory.parseResources("defaults.conf");
+
+  private final Config javavm = ConfigFactory.systemProperties();
 
   private Config composite() {
-    return system.withFallback(user).withFallback(overrides).withFallback(defaultConfig);
+    return ConfigFactory.systemEnvironment()
+        .withFallback(javavm)
+        .withFallback(new Builder().withSecureConf().envAwareApp().build())
+        .withFallback(ConfigFactory.parseResources("overrides.conf"))
+        .withFallback(ConfigFactory.parseResources("defaults.conf"));
   }
 
   public static Config getConfig() {
@@ -31,7 +33,7 @@ public class Configs {
 
   // This should return the current executing user path
   private String getExecutionDirectory() {
-    return system.getString("user.dir");
+    return javavm.getString("user.dir");
   }
 
   public static final BiFunction<Config, String, String> STRING_EXTRACTOR = Config::getString;
@@ -80,7 +82,7 @@ public class Configs {
     }
 
     private Builder envAwareApp() {
-      String env = system.hasPath("env") ? system.getString("env") : "local";
+      String env = javavm.hasPath("env") ? javavm.getString("env") : "local";
       String envFile = "application." + env + ".conf";
       return withResource(envFile).withResource("application.conf");
     }

@@ -3,12 +3,18 @@ package com.blokaly.ceres.common;
 import com.google.common.util.concurrent.MoreExecutors;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.inject.AbstractModule;
+import com.google.inject.Inject;
 import com.google.inject.Provides;
 import com.google.inject.Singleton;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 
+import java.io.FileNotFoundException;
+import java.io.PrintStream;
 import java.util.concurrent.*;
+
+import static com.blokaly.ceres.common.Configs.BOOLEAN_EXTRACTOR;
+import static com.blokaly.ceres.common.Configs.STRING_EXTRACTOR;
 
 public class CommonModule extends AbstractModule {
 
@@ -16,6 +22,7 @@ public class CommonModule extends AbstractModule {
     protected void configure() {
         install(new DumpAndShutdownModule());
         bind(Thread.UncaughtExceptionHandler.class).to(ExceptionLoggingHandler.class).in(Singleton.class);
+        bind(StdRedirect.class).asEagerSingleton();
     }
 
     @Provides
@@ -44,9 +51,19 @@ public class CommonModule extends AbstractModule {
     @Provides
     @Singleton
     public Config provideConfig() {
-        Config defaultConfig = ConfigFactory.parseResources("defaults.conf");
-        Config config = ConfigFactory.parseResources("overrides.conf")
-                .withFallback(defaultConfig).resolve();
-        return config;
+        return Configs.getConfig();
+    }
+
+    @Singleton
+    public static class StdRedirect {
+
+        @Inject
+        public StdRedirect(Config config) throws FileNotFoundException {
+            if (Configs.getOrDefault(config, "std.redirect", BOOLEAN_EXTRACTOR, false)) {
+                String logRoot = Configs.getOrDefault(config, "log.root", STRING_EXTRACTOR, ".");
+                System.setOut(new PrintStream(logRoot + "/std.out"));
+                System.setErr(new PrintStream(logRoot + "/std.err"));
+            }
+        }
     }
 }

@@ -34,9 +34,10 @@ sourceSets {
 applicationDistribution.from("src/conf") { into "conf" }
 
 applicationDefaultJvmArgs = [
+        "-server", "-showversion", "-Xms512m", "-Xmx512m",
         "-Dlog.root=MY_APP_HOME/logs",
         "-Dlog.name=${applicationName}",
-        "-server", "-showversion", "-Xms512m", "-Xmx512m",
+        "-Dstd.redirect=true",
         "-XX:-OmitStackTraceInFastThrow",
         "-XX:+HeapDumpOnOutOfMemoryError",
         "-XX:HeapDumpPath=MY_APP_HOME/logs/gc.hprof",

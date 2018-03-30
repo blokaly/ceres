@@ -37,6 +37,7 @@ applicationDefaultJvmArgs = [
         "-server", "-showversion", "-Xms512m", "-Xmx512m",
         "-Dlog.root=MY_APP_HOME/logs",
         "-Dlog.name=${applicationName}",
+        "-Duser.timezone=GMT",
         "-Dstd.redirect=true",
         "-XX:-OmitStackTraceInFastThrow",
         "-XX:+HeapDumpOnOutOfMemoryError",

@@ -1,21 +1,26 @@
 apply plugin : 'application'
+apply plugin: 'com.bmuschko.docker-java-application'
 
 buildscript {
     repositories {
         jcenter()
         mavenCentral()
     }
-}
 
-mainClassName = 'com.blokaly.ceres.bitstamp.BitstampApp'
-applicationName = "bitstampfh"
-version = 1.0
+    dependencies {
+        classpath 'com.bmuschko:gradle-docker-plugin:3.2.5'
+    }
+}
 
 dependencies {
     compile project(':core')
     compile project(':kafka:common')
     compile "com.pusher:pusher-java-client:1.8.0"
 }
+
+mainClassName = 'com.blokaly.ceres.bitstamp.BitstampApp'
+applicationName = "bitstampfh"
+version = 1.0
 
 // conf files should be under src/conf folder, avoid duplication
 sourceSets {
@@ -29,9 +34,11 @@ sourceSets {
 applicationDistribution.from("src/conf") { into "conf" }
 
 applicationDefaultJvmArgs = [
+        "-server", "-showversion", "-Xms512m", "-Xmx512m",
         "-Dlog.root=MY_APP_HOME/logs",
         "-Dlog.name=${applicationName}",
-        "-server", "-showversion", "-Xms512m", "-Xmx512m",
+        "-Duser.timezone=GMT",
+        "-Dstd.redirect=true",
         "-XX:-OmitStackTraceInFastThrow",
         "-XX:+HeapDumpOnOutOfMemoryError",
         "-XX:HeapDumpPath=MY_APP_HOME/logs/gc.hprof",
@@ -59,5 +66,16 @@ startScripts {
         unixScript.text = unixScript.text.replace('CLASSPATH=$APP_HOME/lib', 'CLASSPATH=$APP_HOME/conf/:$APP_HOME/lib')
         windowsScript.text = windowsScript.text.replace('MY_APP_HOME', '%~dp0..')
         windowsScript.text = windowsScript.text.replace('CLASSPATH=$APP_HOME/lib', 'CLASSPATH=$APP_HOME/conf/:$APP_HOME/lib')
+    }
+}
+
+dockerDistTar {
+    instruction {"RUN mkdir -p /${applicationName}/logs"}
+}
+
+docker {
+    javaApplication {
+        baseImage = 'blokaly/java8:latest'
+        tag = "blokaly/ceres-${applicationName}:${version}"
     }
 }

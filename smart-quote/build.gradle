@@ -1,9 +1,14 @@
 apply plugin : 'application'
+apply plugin: 'com.bmuschko.docker-java-application'
 
 buildscript {
     repositories {
         jcenter()
         mavenCentral()
+    }
+
+    dependencies {
+        classpath 'com.bmuschko:gradle-docker-plugin:3.2.5'
     }
 }
 
@@ -28,9 +33,11 @@ sourceSets {
 applicationDistribution.from("src/conf") { into "conf" }
 
 applicationDefaultJvmArgs = [
+        "-server", "-showversion", "-Xms512m", "-Xmx512m",
         "-Dlog.root=MY_APP_HOME/logs",
         "-Dlog.name=${applicationName}",
-        "-server", "-showversion", "-Xms512m", "-Xmx512m",
+        "-Duser.timezone=GMT",
+        "-Dstd.redirect=true",
         "-XX:-OmitStackTraceInFastThrow",
         "-XX:+HeapDumpOnOutOfMemoryError",
         "-XX:HeapDumpPath=MY_APP_HOME/logs/gc.hprof",
@@ -61,3 +68,13 @@ startScripts {
     }
 }
 
+dockerDistTar {
+    instruction {"RUN mkdir -p /${applicationName}/logs"}
+}
+
+docker {
+    javaApplication {
+        baseImage = 'blokaly/java8:latest'
+        tag = "blokaly/ceres-${applicationName}:${version}"
+    }
+}

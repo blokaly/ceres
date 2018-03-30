@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.util.Map;
+import java.util.Properties;
 import java.util.function.BiFunction;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -20,7 +21,8 @@ public class Configs {
   private final Config javavm = ConfigFactory.systemProperties();
 
   private Config composite() {
-    return ConfigFactory.systemEnvironment()
+    return convertSystemUnderscoreToDot()
+        .withFallback(ConfigFactory.systemEnvironment())
         .withFallback(javavm)
         .withFallback(new Builder().withSecureConf().envAwareApp().build())
         .withFallback(ConfigFactory.parseResources("overrides.conf"))
@@ -38,6 +40,23 @@ public class Configs {
 
   public static final BiFunction<Config, String, String> STRING_EXTRACTOR = Config::getString;
   public static final BiFunction<Config, String, Boolean> BOOLEAN_EXTRACTOR = Config::getBoolean;
+
+  public static Config convertSystemUnderscoreToDot() {
+    Map<String, String> env = System.getenv();
+    Properties props = new Properties();
+    for (Map.Entry<String, String> entry : env.entrySet()) {
+      String propName = entry.getKey();
+      if (propName.contains("_")) {
+        String name = propName.replaceAll("_", "\\.").toLowerCase();
+        props.setProperty(name, entry.getValue());
+      }
+    }
+    if (!props.isEmpty()) {
+      return ConfigFactory.parseProperties(props);
+    } else {
+      return ConfigFactory.empty();
+    }
+  }
 
   public static Map<String, Object> asMap(Config config) {
     return config.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, v -> v.getValue().unwrapped()));

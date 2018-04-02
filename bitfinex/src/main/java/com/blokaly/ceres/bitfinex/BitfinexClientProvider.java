@@ -11,35 +11,26 @@ import java.net.URI;
 @Singleton
 public class BitfinexClientProvider implements Provider<BitfinexClient>, BitfinexClient.ConnectionListener {
   private static Logger LOGGER = LoggerFactory.getLogger(BitfinexClientProvider.class);
-  private final URI serverURI;
-  private final JsonCracker cracker;
-  private BitfinexClient client;
+  private final BitfinexClient client;
 
   @Inject
   public BitfinexClientProvider(URI serverURI, JsonCracker cracker) {
-    this.serverURI = serverURI;
-    this.cracker = cracker;
+    client = new BitfinexClient(serverURI, cracker, this);
   }
 
   @Override
   public synchronized BitfinexClient get() {
-    if (client == null) {
-      client = new BitfinexClient(serverURI, cracker, this);
-    }
     return client;
   }
 
   @Override
   public void onConnected() {
-
+    LOGGER.info("Bitfinex client connected");
   }
 
   @Override
   public void onDisconnected() {
-    LOGGER.info("Bitfinex client disconnected, making a new one");
-    synchronized (this) {
-      client = new BitfinexClient(serverURI, cracker, this);
-      client.connect();
-    }
+    LOGGER.info("Bitfinex client disconnected, reconnecting...");
+    client.reconnect();
   }
 }

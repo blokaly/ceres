@@ -3,7 +3,6 @@ package com.blokaly.ceres.gdax;
 import com.blokaly.ceres.gdax.event.*;
 import com.google.gson.Gson;
 import com.google.inject.Inject;
-import com.google.inject.Provider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -12,12 +11,20 @@ public class JsonCracker {
   private static Logger LOGGER = LoggerFactory.getLogger(JsonCracker.class);
   private final Gson gson;
 
-  private final Provider<MessageHandler> messageHandlerProvider;
+  private final MessageHandler messageHandler;
 
   @Inject
-  public JsonCracker(Gson gson, Provider<MessageHandler> messageHandlerProvider) {
+  public JsonCracker(Gson gson, MessageHandler messageHandler) {
     this.gson = gson;
-    this.messageHandlerProvider = messageHandlerProvider;
+    this.messageHandler = messageHandler;
+  }
+
+  public void onOpen() {
+    messageHandler.onMessage(new OpenEvent());
+  }
+
+  public void onClose() {
+    messageHandler.onMessage(new CloseEvent());
   }
 
   public void crack(String json) {
@@ -30,20 +37,17 @@ public class JsonCracker {
     }
 
     switch (type) {
-      case OPEN:
-        messageHandlerProvider.get().onMessage((OpenEvent)event);
-        break;
       case HB:
-        messageHandlerProvider.get().onMessage((HbEvent)event);
+        messageHandler.onMessage((HbEvent)event);
         break;
       case SUBS:
-        messageHandlerProvider.get().onMessage((SubscribedEvent)event);
+        messageHandler.onMessage((SubscribedEvent)event);
         break;
       case SNAPSHOT:
-        messageHandlerProvider.get().onMessage((SnapshotEvent)event);
+        messageHandler.onMessage((SnapshotEvent)event);
         break;
       case L2U:
-        messageHandlerProvider.get().onMessage((L2UpdateEvent)event);
+        messageHandler.onMessage((L2UpdateEvent)event);
         break;
     }
   }

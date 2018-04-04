@@ -4,20 +4,25 @@ import com.blokaly.ceres.gdax.event.*;
 import com.blokaly.ceres.kafka.ToBProducer;
 import com.blokaly.ceres.orderbook.PriceBasedOrderBook;
 import com.google.gson.Gson;
+import com.google.inject.Inject;
+import com.google.inject.Provider;
+import com.google.inject.Singleton;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Singleton
 public class MessageHandlerImpl implements MessageHandler {
 
   private static Logger LOGGER = LoggerFactory.getLogger(MessageHandlerImpl.class);
   private final Gson gson;
-  private final MessageSender sender;
+  private final Provider<GdaxClient> clientProvider;
   private final OrderBookKeeper bookKeeper;
   private final ToBProducer producer;
 
-  public MessageHandlerImpl(Gson gson, MessageSender sender, OrderBookKeeper bookKeeper, ToBProducer producer) {
+  @Inject
+  public MessageHandlerImpl(Gson gson, Provider<GdaxClient> clientProvider, OrderBookKeeper bookKeeper, ToBProducer producer) {
     this.gson = gson;
-    this.sender = sender;
+    this.clientProvider = clientProvider;
     this.bookKeeper = bookKeeper;
     this.producer = producer;
   }
@@ -26,7 +31,16 @@ public class MessageHandlerImpl implements MessageHandler {
   public void onMessage(OpenEvent event) {
     String jsonString = gson.toJson(new OrderBookEvent(bookKeeper.getAllSymbols()));
     LOGGER.info("subscribing: {}", jsonString);
-    sender.send(jsonString);
+    clientProvider.get().send(jsonString);
+  }
+
+  @Override
+  public void onMessage(CloseEvent closeEvent) {
+    LOGGER.info("publishing stale status due to close");
+    bookKeeper.getAllBooks().forEach(book -> {
+      book.clear();
+      producer.publish(book);
+    });
   }
 
   @Override

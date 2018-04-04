@@ -15,31 +15,47 @@ import java.net.URI;
 public class GdaxClient extends WebSocketClient {
 
   private static Logger LOGGER = LoggerFactory.getLogger(GdaxClient.class);
+  private volatile boolean stop = false;
+  private final JsonCracker cracker;
+  private final ConnectionListener listener;
 
-  private JsonCracker cracker;
+  public interface ConnectionListener {
+    void onConnected();
+    void onDisconnected();
+  }
 
   @Inject
-  public GdaxClient(URI serverURI, JsonCracker cracker) {
+  public GdaxClient(URI serverURI, JsonCracker cracker, ConnectionListener listener) {
     super(serverURI);
     this.cracker = cracker;
+    this.listener = listener;
     LOGGER.info("client initiated");
   }
 
   @Override
   public void onOpen(ServerHandshake handshakedata) {
     LOGGER.info("ws open, status: {}:{}", handshakedata.getHttpStatus(), handshakedata.getHttpStatusMessage());
-    cracker.crack(OpenEvent.jsonString());
+    if (listener != null) {
+      listener.onConnected();
+    }
+    cracker.onOpen();
   }
 
   @Override
   public void onMessage(String message) {
     LOGGER.debug("ws message: {}", message);
-    cracker.crack(message);
+    if (!stop) {
+      cracker.crack(message);
+    }
   }
 
   @Override
   public void onClose(int code, String reason, boolean remote) {
     LOGGER.info("ws close: {}", reason);
+    if (listener != null) {
+      listener.onDisconnected();
+    }
+    cracker.onClose();
   }
 
   @Override
@@ -49,6 +65,7 @@ public class GdaxClient extends WebSocketClient {
 
   @PreDestroy
   public void stop() {
+    stop = true;
     super.close();
   }
 }

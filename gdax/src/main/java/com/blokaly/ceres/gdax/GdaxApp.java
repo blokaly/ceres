@@ -14,10 +14,7 @@ import com.google.common.util.concurrent.AbstractService;
 import com.google.common.util.concurrent.Service;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.inject.AbstractModule;
-import com.google.inject.Inject;
-import com.google.inject.Provides;
-import com.google.inject.Singleton;
+import com.google.inject.*;
 import com.google.inject.multibindings.MapBinder;
 import com.netflix.governator.InjectorBuilder;
 import com.typesafe.config.Config;
@@ -32,22 +29,22 @@ import static com.blokaly.ceres.gdax.event.EventType.*;
 
 public class GdaxApp extends AbstractService {
 
-  private final GdaxClient client;
+  private final Provider<GdaxClient> provider;
 
   @Inject
-  public GdaxApp(GdaxClient client) {
-    this.client = client;
+  public GdaxApp(Provider<GdaxClient> provider) {
+    this.provider = provider;
   }
 
   @Override
   protected void doStart() {
-    client.connect();
+    provider.get().connect();
   }
 
   @Override
   @PreDestroy
   protected void doStop() {
-    client.close();
+    provider.get().close();
   }
 
   public static class GdaxModule extends AbstractModule {
@@ -57,12 +54,13 @@ public class GdaxApp extends AbstractService {
       install(new CommonModule());
       install(new KafkaCommonModule());
       MapBinder<EventType, CommandCallbackHandler> binder = MapBinder.newMapBinder(binder(), EventType.class, CommandCallbackHandler.class);
-      binder.addBinding(OPEN).to(OpenCallbackHandler.class);
       binder.addBinding(HB).to(HeartbeatCallbackHandler.class);
       binder.addBinding(SUBS).to(SubscribedCallbackHandler.class);
       binder.addBinding(SNAPSHOT).to(SnapshotCallbackHandler.class);
       binder.addBinding(L2U).to(RefreshCallbackHandler.class);
 
+      bind(GdaxClient.class).toProvider(GdaxClientProvider.class).in(Singleton.class);
+      bind(MessageHandler.class).to(MessageHandlerImpl.class).in(Singleton.class);
       bind(Service.class).to(GdaxApp.class);
     }
 
@@ -72,22 +70,11 @@ public class GdaxApp extends AbstractService {
     }
 
     @Provides
-    public MessageSender provideMessageSender(final GdaxClient client) {
-      return client::send;
-    }
-
-    @Provides
     @Singleton
     public Gson provideGson(Map<EventType, CommandCallbackHandler> handlers) {
       GsonBuilder builder = new GsonBuilder();
       builder.registerTypeAdapter(AbstractEvent.class, new EventAdapter(handlers));
       return builder.create();
-    }
-
-    @Provides
-    @Singleton
-    public MessageHandler provideMessageHandler(Gson gson, MessageSender sender, OrderBookKeeper keeper, ToBProducer producer) {
-      return new MessageHandlerImpl(gson, sender, keeper, producer);
     }
 
     @Provides

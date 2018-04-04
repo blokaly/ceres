@@ -16,11 +16,6 @@ public class MockModule extends AbstractModule {
     }
 
     @Provides
-    public MessageSender provideMessageSender(OutgoingMessageQueue queue) {
-        return queue::send;
-    }
-
-    @Provides
     public AbstractService provideService() {
         return new AbstractService() {
             @Override

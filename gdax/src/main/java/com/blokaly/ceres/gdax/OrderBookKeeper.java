@@ -1,5 +1,6 @@
 package com.blokaly.ceres.gdax;
 
+import com.blokaly.ceres.orderbook.OrderBasedOrderBook;
 import com.blokaly.ceres.orderbook.PriceBasedOrderBook;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
@@ -23,5 +24,9 @@ public class OrderBookKeeper {
 
   public Collection<String> getAllSymbols() {
     return orderbooks.keySet();
+  }
+
+  public Collection<PriceBasedOrderBook> getAllBooks() {
+    return orderbooks.values();
   }
 }

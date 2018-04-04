@@ -4,7 +4,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 public enum EventType {
-  OPEN("open"),
   HB("heartbeat"),
   SUBS("subscriptions"),
   SNAPSHOT("snapshot"),

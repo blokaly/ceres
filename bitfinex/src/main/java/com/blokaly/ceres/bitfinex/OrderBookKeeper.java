@@ -28,7 +28,7 @@ public class OrderBookKeeper {
         symMap = Maps.newHashMap();
     }
 
-    public List<String> getSymbols() {
+    public List<String> getAllSymbols() {
         return symbols;
     }
 

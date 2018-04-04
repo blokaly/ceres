@@ -4,16 +4,12 @@ import com.blokaly.ceres.bitfinex.callback.*;
 import com.blokaly.ceres.bitfinex.event.AbstractEvent;
 import com.blokaly.ceres.bitfinex.event.EventType;
 import com.blokaly.ceres.common.CommonModule;
-import com.blokaly.ceres.common.DumpAndShutdownModule;
 import com.blokaly.ceres.kafka.KafkaCommonModule;
 import com.google.common.util.concurrent.AbstractService;
 import com.google.common.util.concurrent.Service;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.inject.AbstractModule;
-import com.google.inject.Inject;
-import com.google.inject.Provides;
-import com.google.inject.Singleton;
+import com.google.inject.*;
 import com.google.inject.multibindings.MapBinder;
 import com.netflix.governator.InjectorBuilder;
 import com.typesafe.config.Config;
@@ -26,7 +22,7 @@ import static com.blokaly.ceres.bitfinex.event.EventType.*;
 
 public class BitfinexApp extends AbstractService {
 
-    private final BitfinexClientProvider provider;
+    private final Provider<BitfinexClient> provider;
 
     @Inject
     public BitfinexApp(BitfinexClientProvider provider) {

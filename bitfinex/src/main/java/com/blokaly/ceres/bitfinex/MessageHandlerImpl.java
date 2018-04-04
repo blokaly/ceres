@@ -78,7 +78,7 @@ public class MessageHandlerImpl implements MessageHandler {
             LOGGER.error("Bitfinex client unavailable, skip subscription");
             return;
         }
-        bookKeeper.getSymbols().forEach(symbol -> {
+        bookKeeper.getAllSymbols().forEach(symbol -> {
             String jsonString = gson.toJson(new OrderBookEvent(symbol));
             LOGGER.info("subscribe: {}", jsonString);
             sender.send(jsonString);

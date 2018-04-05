@@ -1,17 +1,14 @@
-package com.blokaly.ceres.stream;
+package com.blokaly.ceres.smartquote;
 
 import com.blokaly.ceres.common.DecimalNumber;
 import com.blokaly.ceres.data.IdBasedOrderInfo;
 import com.blokaly.ceres.data.MarketDataSnapshot;
 import com.blokaly.ceres.data.OrderInfo;
 import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
 
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
 
 public class JsonOrderBook implements MarketDataSnapshot<IdBasedOrderInfo> {
 

@@ -3,8 +3,8 @@ package com.blokaly.ceres.bitstamp;
 import com.blokaly.ceres.bitstamp.event.DiffBookEvent;
 import com.blokaly.ceres.bitstamp.event.OrderBookEvent;
 import com.blokaly.ceres.common.CommonModule;
-import com.blokaly.ceres.common.DumpAndShutdownModule;
 import com.blokaly.ceres.common.Exchange;
+import com.blokaly.ceres.common.Services;
 import com.blokaly.ceres.common.SingleThread;
 import com.blokaly.ceres.data.SymbolFormatter;
 import com.blokaly.ceres.kafka.KafkaCommonModule;
@@ -15,7 +15,6 @@ import com.google.common.util.concurrent.Service;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.inject.*;
-import com.netflix.governator.InjectorBuilder;
 import com.pusher.client.Pusher;
 import com.pusher.client.PusherOptions;
 import com.typesafe.config.Config;
@@ -25,12 +24,12 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.stream.Collectors;
 
-public class BitstampApp extends AbstractService {
+public class BitstampService extends AbstractService {
 
     private final List<PusherClient> clients;
 
     @Inject
-    public BitstampApp(List<PusherClient> clients) {
+    public BitstampService(List<PusherClient> clients) {
         this.clients = clients;
     }
 
@@ -51,7 +50,7 @@ public class BitstampApp extends AbstractService {
         protected void configure() {
             install(new CommonModule());
             install(new KafkaCommonModule());
-            bind(Service.class).to(BitstampApp.class);
+            bind(Service.class).to(BitstampService.class);
         }
 
         @Provides
@@ -80,10 +79,7 @@ public class BitstampApp extends AbstractService {
 
     }
 
-    public static void main(String[] args) throws Exception {
-        InjectorBuilder.fromModules(new BitstampModule())
-                .createInjector()
-                .getInstance(Service.class)
-                .startAsync().awaitTerminated();
+    public static void main(String[] args) {
+        Services.start(new BitstampModule());
     }
 }

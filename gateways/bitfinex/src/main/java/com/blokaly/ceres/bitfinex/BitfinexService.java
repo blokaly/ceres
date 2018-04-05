@@ -4,6 +4,7 @@ import com.blokaly.ceres.bitfinex.callback.*;
 import com.blokaly.ceres.bitfinex.event.AbstractEvent;
 import com.blokaly.ceres.bitfinex.event.EventType;
 import com.blokaly.ceres.common.CommonModule;
+import com.blokaly.ceres.common.Services;
 import com.blokaly.ceres.kafka.KafkaCommonModule;
 import com.google.common.util.concurrent.AbstractService;
 import com.google.common.util.concurrent.Service;
@@ -11,7 +12,6 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.inject.*;
 import com.google.inject.multibindings.MapBinder;
-import com.netflix.governator.InjectorBuilder;
 import com.typesafe.config.Config;
 
 import javax.annotation.PreDestroy;
@@ -20,12 +20,12 @@ import java.util.Map;
 
 import static com.blokaly.ceres.bitfinex.event.EventType.*;
 
-public class BitfinexApp extends AbstractService {
+public class BitfinexService extends AbstractService {
 
     private final Provider<BitfinexClient> provider;
 
     @Inject
-    public BitfinexApp(BitfinexClientProvider provider) {
+    public BitfinexService(BitfinexClientProvider provider) {
         this.provider = provider;
     }
 
@@ -55,7 +55,7 @@ public class BitfinexApp extends AbstractService {
 
             bind(BitfinexClient.class).toProvider(BitfinexClientProvider.class).in(Singleton.class);
             bind(MessageHandler.class).to(MessageHandlerImpl.class).in(Singleton.class);
-            bind(Service.class).to(BitfinexApp.class);
+            bind(Service.class).to(BitfinexService.class);
         }
 
         @Provides
@@ -72,10 +72,7 @@ public class BitfinexApp extends AbstractService {
         }
     }
 
-    public static void main(String[] args) throws Exception {
-        InjectorBuilder.fromModules( new BitfinexModule())
-                .createInjector()
-                .getInstance(Service.class)
-                .startAsync().awaitTerminated();
+    public static void main(String[] args) {
+        Services.start(new BitfinexModule());
     }
 }

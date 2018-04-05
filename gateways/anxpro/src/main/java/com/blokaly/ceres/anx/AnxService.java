@@ -5,8 +5,8 @@ import com.blokaly.ceres.anx.callback.SnapshotCallbackHandler;
 import com.blokaly.ceres.anx.event.AbstractEvent;
 import com.blokaly.ceres.anx.event.EventType;
 import com.blokaly.ceres.common.CommonModule;
-import com.blokaly.ceres.common.DumpAndShutdownModule;
 import com.blokaly.ceres.common.Exchange;
+import com.blokaly.ceres.common.Services;
 import com.blokaly.ceres.data.SymbolFormatter;
 import com.blokaly.ceres.kafka.KafkaCommonModule;
 import com.blokaly.ceres.orderbook.PriceBasedOrderBook;
@@ -19,7 +19,6 @@ import com.google.inject.Inject;
 import com.google.inject.Provides;
 import com.google.inject.Singleton;
 import com.google.inject.multibindings.MapBinder;
-import com.netflix.governator.InjectorBuilder;
 import com.typesafe.config.Config;
 
 import javax.annotation.PreDestroy;
@@ -29,12 +28,12 @@ import java.util.stream.Collectors;
 
 import static com.blokaly.ceres.anx.event.EventType.SNAPSHOT;
 
-public class AnxApp extends AbstractService {
+public class AnxService extends AbstractService {
 
   private final AnxSocketIOClient client;
 
   @Inject
-  public AnxApp(AnxSocketIOClient client) {
+  public AnxService(AnxSocketIOClient client) {
     this.client = client;
   }
 
@@ -58,7 +57,7 @@ public class AnxApp extends AbstractService {
       MapBinder<EventType, CommandCallbackHandler> binder = MapBinder.newMapBinder(binder(), EventType.class, CommandCallbackHandler.class);
       binder.addBinding(SNAPSHOT).to(SnapshotCallbackHandler.class);
       bind(MessageHandler.class).to(MessageHandlerImpl.class);
-      bind(Service.class).to(AnxApp.class);
+      bind(Service.class).to(AnxService.class);
     }
 
     @Provides
@@ -81,10 +80,7 @@ public class AnxApp extends AbstractService {
     }
   }
 
-  public static void main(String[] args) throws Exception {
-    InjectorBuilder.fromModules(new AnxModule())
-        .createInjector()
-        .getInstance(Service.class)
-        .startAsync().awaitTerminated();
+  public static void main(String[] args) {
+    Services.start(new AnxModule());
   }
 }

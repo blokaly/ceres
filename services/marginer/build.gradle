@@ -3,7 +3,7 @@ dependencies {
     compile project(':kafka:stream')
 }
 
-mainClassName = 'com.blokaly.ceres.margin.Marginer'
+mainClassName = 'com.blokaly.ceres.marginer.MarginerService'
 applicationName = "marginer"
 version = 1.0
 

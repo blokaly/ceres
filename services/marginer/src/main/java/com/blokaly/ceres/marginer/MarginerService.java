@@ -1,8 +1,8 @@
-package com.blokaly.ceres.margin;
+package com.blokaly.ceres.marginer;
 
 import com.blokaly.ceres.common.CommonModule;
-import com.blokaly.ceres.common.DumpAndShutdownModule;
 import com.blokaly.ceres.common.Exchange;
+import com.blokaly.ceres.common.Services;
 import com.blokaly.ceres.kafka.KafkaStreamModule;
 import com.google.common.util.concurrent.AbstractService;
 import com.google.common.util.concurrent.Service;
@@ -12,10 +12,10 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Inject;
 import com.google.inject.Provides;
 import com.google.inject.Singleton;
-import com.netflix.governator.InjectorBuilder;
 import com.typesafe.config.Config;
-import org.apache.kafka.common.serialization.Serdes;
-import org.apache.kafka.streams.*;
+import org.apache.kafka.streams.KafkaStreams;
+import org.apache.kafka.streams.KeyValue;
+import org.apache.kafka.streams.StreamsBuilder;
 import org.apache.kafka.streams.kstream.KStream;
 import org.apache.kafka.streams.kstream.KeyValueMapper;
 import org.slf4j.Logger;
@@ -23,15 +23,14 @@ import org.slf4j.LoggerFactory;
 
 import javax.annotation.PreDestroy;
 import java.util.List;
-import java.util.Properties;
 import java.util.stream.Collectors;
 
-public class Marginer extends AbstractService {
-  private static final Logger LOGGER = LoggerFactory.getLogger(Marginer.class);
+public class MarginerService extends AbstractService {
+  private static final Logger LOGGER = LoggerFactory.getLogger(MarginerService.class);
   private final KafkaStreams streams;
 
   @Inject
-  public Marginer(KafkaStreams streams) {
+  public MarginerService(KafkaStreams streams) {
     this.streams = streams;
   }
 
@@ -54,7 +53,7 @@ public class Marginer extends AbstractService {
     protected void configure() {
       install(new CommonModule());
       install(new KafkaStreamModule());
-      bind(Service.class).to(Marginer.class);
+      bind(Service.class).to(MarginerService.class);
     }
 
     @Provides
@@ -81,10 +80,7 @@ public class Marginer extends AbstractService {
     }
   }
 
-  public static void main(String[] args) throws Exception {
-    InjectorBuilder.fromModules(new MarginerModule())
-        .createInjector()
-        .getInstance(Service.class)
-        .startAsync().awaitTerminated();
+  public static void main(String[] args)  {
+    Services.start(new MarginerModule());
   }
 }

@@ -1,4 +1,4 @@
-package com.blokaly.ceres.stream;
+package com.blokaly.ceres.smartquote;
 
 import com.blokaly.ceres.common.DecimalNumber;
 import com.blokaly.ceres.common.Exchange;

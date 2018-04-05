@@ -1,4 +1,4 @@
-package com.blokaly.ceres.stream;
+package com.blokaly.ceres.smartquote;
 
 import org.apache.kafka.streams.kstream.Predicate;
 

@@ -18,9 +18,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Consumer;
-import java.util.function.IntConsumer;
-import java.util.stream.IntStream;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertNotNull;
@@ -36,7 +33,7 @@ public class BitfinexSteps implements En {
 
         Before((Scenario scenario) -> {
             injector = InjectorBuilder
-                    .fromModules(new ShutdownHookModule(), new BitfinexApp.BitfinexModule())
+                    .fromModules(new ShutdownHookModule(), new BitfinexService.BitfinexModule())
                     .overrideWith(new MockModule())
                     .createInjector();
         });

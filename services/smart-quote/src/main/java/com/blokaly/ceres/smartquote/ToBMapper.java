@@ -1,4 +1,4 @@
-package com.blokaly.ceres.stream;
+package com.blokaly.ceres.smartquote;
 
 import com.blokaly.ceres.orderbook.TopOfBook;
 import com.google.gson.Gson;
@@ -10,8 +10,6 @@ import org.apache.kafka.streams.kstream.KeyValueMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 

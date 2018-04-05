@@ -4,7 +4,7 @@ dependencies {
     compile "io.socket:socket.io-client:1.0.0"
 }
 
-mainClassName = 'com.blokaly.ceres.anx.AnxApp'
+mainClassName = 'com.blokaly.ceres.anx.AnxService'
 applicationName = "anxfh"
 version = 1.0
 

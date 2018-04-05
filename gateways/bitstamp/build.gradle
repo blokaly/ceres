@@ -4,7 +4,7 @@ dependencies {
     compile "com.pusher:pusher-java-client:1.8.0"
 }
 
-mainClassName = 'com.blokaly.ceres.bitstamp.BitstampApp'
+mainClassName = 'com.blokaly.ceres.bitstamp.BitstampService'
 applicationName = "bitstampfh"
 version = 1.0
 

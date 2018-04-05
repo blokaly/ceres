@@ -1,4 +1,4 @@
-package com.blokaly.ceres.margin;
+package com.blokaly.ceres.marginer;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;

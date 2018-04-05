@@ -1,4 +1,4 @@
-package com.blokaly.ceres.margin;
+package com.blokaly.ceres.marginer;
 
 import com.blokaly.ceres.common.DecimalNumber;
 import com.google.gson.Gson;

@@ -1,7 +1,7 @@
-package com.blokaly.ceres.stream;
+package com.blokaly.ceres.smartquote;
 
 import com.blokaly.ceres.common.CommonModule;
-import com.blokaly.ceres.common.DumpAndShutdownModule;
+import com.blokaly.ceres.common.Services;
 import com.blokaly.ceres.kafka.KafkaStreamModule;
 import com.google.common.util.concurrent.AbstractService;
 import com.google.common.util.concurrent.Service;
@@ -13,7 +13,6 @@ import com.google.inject.Provides;
 import com.google.inject.Singleton;
 import com.netflix.governator.InjectorBuilder;
 import com.typesafe.config.Config;
-import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.streams.*;
 import org.apache.kafka.streams.kstream.KStream;
 import org.slf4j.Logger;
@@ -22,15 +21,14 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.PreDestroy;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 import java.util.stream.Collectors;
 
-public class SmartQuote extends AbstractService {
-  private static final Logger LOGGER = LoggerFactory.getLogger(SmartQuote.class);
+public class SmartQuoteService extends AbstractService {
+  private static final Logger LOGGER = LoggerFactory.getLogger(SmartQuoteService.class);
   private final KafkaStreams streams;
 
   @Inject
-  public SmartQuote(KafkaStreams streams) {
+  public SmartQuoteService(KafkaStreams streams) {
     this.streams = streams;
   }
 
@@ -53,7 +51,7 @@ public class SmartQuote extends AbstractService {
     protected void configure() {
       install(new CommonModule());
       install(new KafkaStreamModule());
-      bind(Service.class).to(SmartQuote.class);
+      bind(Service.class).to(SmartQuoteService.class);
     }
 
     @Provides
@@ -89,11 +87,8 @@ public class SmartQuote extends AbstractService {
     }
   }
 
-  public static void main(String[] args) throws Exception {
-    InjectorBuilder.fromModules(new SmartQuoteModule())
-        .createInjector()
-        .getInstance(Service.class)
-        .startAsync().awaitTerminated();
+  public static void main(String[] args)  {
+    Services.start(new SmartQuoteModule());
   }
 
 }

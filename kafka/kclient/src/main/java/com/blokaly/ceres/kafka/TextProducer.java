@@ -11,7 +11,6 @@ import javax.annotation.PreDestroy;
 
 public class TextProducer {
   private static Logger LOGGER = LoggerFactory.getLogger(TextProducer.class);
-  private static final String KAFKA_TOPIC = "kafka.topic";
   private final Producer<String, String> producer;
   private final String topic;
   private volatile boolean closing = false;
@@ -19,7 +18,7 @@ public class TextProducer {
   @Inject
   public TextProducer(Producer<String, String> producer, Config config) {
     this.producer = producer;
-    topic = config.getString(KAFKA_TOPIC);
+    topic = config.getString(CommonConfigs.KAFKA_TOPIC);
   }
 
   @PreDestroy

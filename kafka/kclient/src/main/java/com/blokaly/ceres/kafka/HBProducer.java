@@ -1,7 +1,9 @@
 package com.blokaly.ceres.kafka;
 
+import com.blokaly.ceres.common.Configs;
 import com.blokaly.ceres.common.Exchange;
 import com.blokaly.ceres.common.SingleThread;
+import com.google.common.base.Strings;
 import com.google.inject.Inject;
 import com.typesafe.config.Config;
 import org.apache.kafka.clients.producer.Producer;
@@ -16,8 +18,6 @@ import java.util.concurrent.TimeUnit;
 
 public class HBProducer {
   private static Logger LOGGER = LoggerFactory.getLogger(HBProducer.class);
-  private static final String APP_NAME = "app.exchange";
-  private static final String KAFKA_TOPIC = "kafka.topic";
   private final Producer<String, String> producer;
   private final String topic;
   private final String key;
@@ -28,14 +28,26 @@ public class HBProducer {
   @Inject
   public HBProducer(Producer<String, String> producer, Config config, @SingleThread ScheduledExecutorService ses) {
     this.producer = producer;
-    topic = config.getString(KAFKA_TOPIC);
-    key = "hb." + Exchange.valueOf(config.getString(APP_NAME).toUpperCase()).getCode();
+    topic = Configs.getOrDefault(config, CommonConfigs.KAFKA_TOPIC, Configs.STRING_EXTRACTOR, "");
+    String hbKey = Configs.getOrDefault(config, CommonConfigs.HB_KEY, Configs.STRING_EXTRACTOR, "");
+    String suffix = exchangeOrDefault(hbKey);
+    key = suffix.isEmpty() ? null :  "hb." + suffix;
     this.ses = ses;
+  }
+
+  private String exchangeOrDefault(String name) {
+    Exchange exchange = Exchange.parse(name.toUpperCase());
+    if (exchange == null) {
+      return name;
+    } else {
+      return exchange.getCode();
+    }
   }
 
   @PostConstruct
   public void init() {
-    if (topic == null || topic.isEmpty()) {
+    if (topic.isEmpty() || key==null) {
+      LOGGER.info("topic or hb key unavailable, heartbeat disabled");
       return;
     }
     ses.scheduleWithFixedDelay(this::hb, 3, 1, TimeUnit.SECONDS);

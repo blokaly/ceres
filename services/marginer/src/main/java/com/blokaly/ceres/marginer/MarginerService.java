@@ -47,7 +47,7 @@ public class MarginerService extends AbstractService {
     streams.close();
   }
 
-  public static class MarginerModule extends AbstractModule {
+  private static class MarginerModule extends AbstractModule {
 
     @Override
     protected void configure() {

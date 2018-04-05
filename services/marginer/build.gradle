@@ -1,6 +1,6 @@
 dependencies {
     compile project(':services')
-    compile project(':kafka:stream')
+    compile project(':kafka:kstream')
 }
 
 mainClassName = 'com.blokaly.ceres.marginer.MarginerService'

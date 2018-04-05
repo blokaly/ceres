@@ -7,6 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.net.URL;
 import java.util.Map;
 import java.util.Properties;
 import java.util.function.BiFunction;
@@ -89,17 +90,6 @@ public class Configs {
       return this;
     }
 
-    private Builder withOptionalFile(String path) {
-      File secureConfFile = new File(path);
-      if (secureConfFile.exists()) {
-        log.info("Loaded config file from path ({})", path);
-        conf = returnOrFallback(ConfigFactory.parseFile(secureConfFile));
-      } else {
-        log.info("Attempted to load file from path ({}) but it was not found", path);
-      }
-      return this;
-    }
-
     private Builder envAwareApp() {
       String env = javavm.hasPath("env") ? javavm.getString("env") : "local";
       String envFile = "application." + env + ".conf";
@@ -107,7 +97,15 @@ public class Configs {
     }
 
     private Builder withSecureConf() {
-      return withOptionalFile(getExecutionDirectory() + "/secure.conf");
+      URL resource = ClassLoader.getSystemClassLoader().getResource("secure.conf");
+      if (resource == null) {
+        log.info("Attempted to load file secure.conf from classpath, but not found");
+      } else {
+        log.info("Loaded secure config file from path ({})", resource);
+        conf = returnOrFallback(ConfigFactory.parseResources(resource.toString()));
+      }
+
+      return this;
     }
 
     private Config build() {

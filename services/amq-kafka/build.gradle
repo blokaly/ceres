@@ -1,10 +1,10 @@
 dependencies {
     compile project(':services')
-    compile project(':activemq:common')
-    compile project(':kafka:smartquote')
+    compile project(':activemq:amqclient')
+    compile project(':kafka:kclient')
 }
 
-mainClassName = 'com.blokaly.ceres.amqkafka.Service'
+mainClassName = 'com.blokaly.ceres.amqkafka.AmqKafkaService'
 applicationName = "amq-kafka"
 version = 1.0
 

@@ -47,4 +47,13 @@ public enum Exchange {
     return ID_MAP.get(id);
   }
 
+  public static Exchange parse(String name) {
+    for (Exchange exchange : Exchange.values()) {
+      if (exchange.name().equals(name)) {
+        return exchange;
+      }
+    }
+
+    return null;
+  }
 }

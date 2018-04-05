@@ -1,6 +1,5 @@
 subprojects {
     dependencies {
         compile project(':core')
-        compile 'org.apache.activemq:activemq-all:5.15.2'
     }
 }

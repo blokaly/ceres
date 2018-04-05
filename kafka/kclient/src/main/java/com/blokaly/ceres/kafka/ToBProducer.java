@@ -17,7 +17,6 @@ import java.util.concurrent.ConcurrentMap;
 
 public class ToBProducer {
   private static Logger LOGGER = LoggerFactory.getLogger(ToBProducer.class);
-  private static final String KAFKA_TOPIC = "kafka.topic";
   private final Producer<String, String> producer;
   private final Gson gson;
   private final String topic;
@@ -29,7 +28,7 @@ public class ToBProducer {
   public ToBProducer(Producer<String, String> producer, Gson gson, Config config) {
     this.producer = producer;
     this.gson = gson;
-    topic = config.getString(KAFKA_TOPIC);
+    topic = config.getString(CommonConfigs.KAFKA_TOPIC);
     hashCache = Maps.newConcurrentMap();
   }
 

@@ -28,7 +28,7 @@ public class HBProducer {
   @Inject
   public HBProducer(Producer<String, String> producer, Config config, @SingleThread ScheduledExecutorService ses) {
     this.producer = producer;
-    topic = Configs.getOrDefault(config, CommonConfigs.KAFKA_TOPIC, Configs.STRING_EXTRACTOR, "");
+    topic = config.getString(CommonConfigs.KAFKA_TOPIC);
     String hbKey = Configs.getOrDefault(config, CommonConfigs.HB_KEY, Configs.STRING_EXTRACTOR, "");
     String suffix = exchangeOrDefault(hbKey);
     key = suffix.isEmpty() ? null :  "hb." + suffix;
@@ -46,7 +46,7 @@ public class HBProducer {
 
   @PostConstruct
   public void init() {
-    if (topic.isEmpty() || key==null) {
+    if (key==null) {
       LOGGER.info("topic or hb key unavailable, heartbeat disabled");
       return;
     }

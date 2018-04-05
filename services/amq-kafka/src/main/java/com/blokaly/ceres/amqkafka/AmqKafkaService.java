@@ -52,14 +52,14 @@ public class AmqKafkaService extends AbstractService {
       install(new KafkaCommonModule());
       install(new ActiveMQCommonModule());
 
-      bind(MessageListener.class).to(MessageForwarder.class).in(Singleton.class);
+      bind(MessageListener.class).to(TextMessageForwarder.class).in(Singleton.class);
       bind(Service.class).to(AmqKafkaService.class);
     }
 
     @Provides
     @Singleton
     public QueueConsumer provideQueueConsumer(Config config, Session session, MessageListener listener) {
-      String queue = config.getString("activemq.queue");
+      String queue = config.getString("activemq.destination");
       return new QueueConsumer(session, queue, listener);
     }
   }

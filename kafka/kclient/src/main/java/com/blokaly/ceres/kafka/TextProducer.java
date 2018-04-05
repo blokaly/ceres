@@ -28,15 +28,15 @@ public class TextProducer {
     producer.close();
   }
 
-  public void publish(String text) {
+  public void publish(String key, String text) {
     if (closing) {
       return;
     }
 
-    ProducerRecord<String, String> record = new ProducerRecord<>(topic, text);
+    ProducerRecord<String, String> record = new ProducerRecord<>(topic, key, text);
     LOGGER.debug("publishing -> {}", text);
     producer.send(record, (metadata, exception) -> {
-      if (exception != null) {
+      if (metadata==null || exception != null) {
         LOGGER.error("Error sending Kafka message", exception);
       }
     });

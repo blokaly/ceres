@@ -15,6 +15,7 @@ public class KafkaCommonModule extends AbstractModule {
   @Override
   protected void configure() {
     bind(ToBProducer.class).in(Singleton.class);
+    bind(TextProducer.class).in(Singleton.class);
     bind(HBProducer.class).asEagerSingleton();
   }
 

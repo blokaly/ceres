@@ -1,19 +1,5 @@
-apply plugin : 'application'
-apply plugin: 'com.bmuschko.docker-java-application'
-
-buildscript {
-    repositories {
-        jcenter()
-        mavenCentral()
-    }
-
-    dependencies {
-        classpath 'com.bmuschko:gradle-docker-plugin:3.2.5'
-    }
-}
-
 dependencies {
-    compile project(':core')
+    compile project(':gateways')
     compile project(':kafka:common')
     compile "com.pusher:pusher-java-client:1.8.0"
 }

@@ -1,24 +1,11 @@
-apply plugin : 'application'
-apply plugin: 'com.bmuschko.docker-java-application'
-
-buildscript {
-    repositories {
-        jcenter()
-        mavenCentral()
-    }
-
-    dependencies {
-        classpath 'com.bmuschko:gradle-docker-plugin:3.2.5'
-    }
-}
-
 dependencies {
-    compile project(':core')
-    compile project(':kafka:stream')
+    compile project(':gateways')
+    compile project(':kafka:common')
+    compile "org.java-websocket:Java-WebSocket:1.3.8"
 }
 
-mainClassName = 'com.blokaly.ceres.stream.SmartQuote'
-applicationName = "smart-quote"
+mainClassName = 'com.blokaly.ceres.bitfinex.BitfinexApp'
+applicationName = "bitfinexfh"
 version = 1.0
 
 // conf files should be under src/conf folder, avoid duplication

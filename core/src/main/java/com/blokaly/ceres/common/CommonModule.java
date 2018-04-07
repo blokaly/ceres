@@ -2,12 +2,8 @@ package com.blokaly.ceres.common;
 
 import com.google.common.util.concurrent.MoreExecutors;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
-import com.google.inject.AbstractModule;
-import com.google.inject.Inject;
-import com.google.inject.Provides;
-import com.google.inject.Singleton;
+import com.google.inject.*;
 import com.typesafe.config.Config;
-import com.typesafe.config.ConfigFactory;
 
 import java.io.FileNotFoundException;
 import java.io.PrintStream;
@@ -16,7 +12,7 @@ import java.util.concurrent.*;
 import static com.blokaly.ceres.common.Configs.BOOLEAN_EXTRACTOR;
 import static com.blokaly.ceres.common.Configs.STRING_EXTRACTOR;
 
-public class CommonModule extends AbstractModule {
+public class CommonModule extends PrivateModule {
 
     @Override
     protected void configure() {
@@ -25,8 +21,7 @@ public class CommonModule extends AbstractModule {
         bind(StdRedirect.class).asEagerSingleton();
     }
 
-    @Provides
-    @Singleton
+    @Exposed @Provides @Singleton
     public ThreadFactory provideThreadFactory(Thread.UncaughtExceptionHandler uncaughtExceptionHandler) {
         ThreadFactoryBuilder builder = new ThreadFactoryBuilder();
         builder.setNameFormat("ceres-%d");
@@ -34,29 +29,27 @@ public class CommonModule extends AbstractModule {
         return builder.build();
     }
 
-    @Provides @SingleThread
+    @Exposed @Provides @SingleThread
     public ScheduledExecutorService provideSingleScheduledExecutorService(ThreadFactory factory) {
         ScheduledExecutorService service = Executors.newSingleThreadScheduledExecutor(factory);
         MoreExecutors.addDelayedShutdownHook(service, 5, TimeUnit.SECONDS);
         return service;
     }
 
-    @Provides @SingleThread
+    @Exposed @Provides @SingleThread
     public ExecutorService provideSingleExecutorService(ThreadFactory factory) {
         ExecutorService service = Executors.newSingleThreadExecutor(factory);
         MoreExecutors.addDelayedShutdownHook(service, 5, TimeUnit.SECONDS);
         return service;
     }
 
-    @Provides
-    @Singleton
+    @Exposed @Provides @Singleton
     public Config provideConfig() {
         return Configs.getConfig();
     }
 
     @Singleton
     public static class StdRedirect {
-
         @Inject
         public StdRedirect(Config config) throws FileNotFoundException {
             if (Configs.getOrDefault(config, "std.redirect", BOOLEAN_EXTRACTOR, false)) {

@@ -1,5 +1,6 @@
 package com.blokaly.ceres.gdax;
 
+import com.blokaly.ceres.binding.CeresService;
 import com.blokaly.ceres.common.CommonModule;
 import com.blokaly.ceres.common.Exchange;
 import com.blokaly.ceres.common.Services;
@@ -9,15 +10,13 @@ import com.blokaly.ceres.gdax.event.AbstractEvent;
 import com.blokaly.ceres.gdax.event.EventType;
 import com.blokaly.ceres.kafka.KafkaCommonModule;
 import com.blokaly.ceres.orderbook.PriceBasedOrderBook;
-import com.google.common.util.concurrent.AbstractService;
-import com.google.common.util.concurrent.Service;
+import com.google.common.util.concurrent.AbstractIdleService;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.inject.*;
 import com.google.inject.multibindings.MapBinder;
 import com.typesafe.config.Config;
 
-import javax.annotation.PreDestroy;
 import java.net.URI;
 import java.util.List;
 import java.util.Map;
@@ -25,7 +24,8 @@ import java.util.stream.Collectors;
 
 import static com.blokaly.ceres.gdax.event.EventType.*;
 
-public class GdaxService extends AbstractService {
+@CeresService
+public class GdaxService extends AbstractIdleService {
 
   private final Provider<GdaxClient> provider;
 
@@ -35,17 +35,16 @@ public class GdaxService extends AbstractService {
   }
 
   @Override
-  protected void doStart() {
+  protected void startUp() throws Exception {
     provider.get().connect();
   }
 
   @Override
-  @PreDestroy
-  protected void doStop() {
+  protected void shutDown() throws Exception {
     provider.get().close();
   }
 
-  public static class GdaxModule extends AbstractModule {
+  public static class GdaxModule extends PrivateModule {
 
     @Override
     protected void configure() {
@@ -56,10 +55,9 @@ public class GdaxService extends AbstractService {
       binder.addBinding(SUBS).to(SubscribedCallbackHandler.class);
       binder.addBinding(SNAPSHOT).to(SnapshotCallbackHandler.class);
       binder.addBinding(L2U).to(RefreshCallbackHandler.class);
-
-      bind(GdaxClient.class).toProvider(GdaxClientProvider.class).in(Singleton.class);
       bind(MessageHandler.class).to(MessageHandlerImpl.class).in(Singleton.class);
-      bind(Service.class).to(GdaxService.class);
+      bind(GdaxClient.class).toProvider(GdaxClientProvider.class).in(Singleton.class);
+      expose(GdaxClient.class);
     }
 
     @Provides

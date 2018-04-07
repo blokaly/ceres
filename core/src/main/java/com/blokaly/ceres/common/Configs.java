@@ -41,6 +41,7 @@ public class Configs {
 
   public static final BiFunction<Config, String, String> STRING_EXTRACTOR = Config::getString;
   public static final BiFunction<Config, String, Boolean> BOOLEAN_EXTRACTOR = Config::getBoolean;
+  public static final BiFunction<Config, String, Integer> INTEGER_EXTRACTOR = Config::getInt;
 
   public static Config convertSystemUnderscoreToDot() {
     Map<String, String> env = System.getenv();

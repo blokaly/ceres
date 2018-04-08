@@ -1,5 +1,6 @@
 package com.blokaly.ceres.common;
 
+import com.blokaly.ceres.binding.CeresModule;
 import com.google.common.util.concurrent.MoreExecutors;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.inject.*;
@@ -12,12 +13,13 @@ import java.util.concurrent.*;
 import static com.blokaly.ceres.common.Configs.BOOLEAN_EXTRACTOR;
 import static com.blokaly.ceres.common.Configs.STRING_EXTRACTOR;
 
-public class CommonModule extends PrivateModule {
+public class CommonModule extends CeresModule {
 
     @Override
     protected void configure() {
         install(new DumpAndShutdownModule());
         bind(Thread.UncaughtExceptionHandler.class).to(ExceptionLoggingHandler.class).in(Singleton.class);
+        bindExpose(Config.class).toProvider(Configs::getConfig).in(Singleton.class);
         bind(StdRedirect.class).asEagerSingleton();
     }
 
@@ -41,11 +43,6 @@ public class CommonModule extends PrivateModule {
         ExecutorService service = Executors.newSingleThreadExecutor(factory);
         MoreExecutors.addDelayedShutdownHook(service, 5, TimeUnit.SECONDS);
         return service;
-    }
-
-    @Exposed @Provides @Singleton
-    public Config provideConfig() {
-        return Configs.getConfig();
     }
 
     @Singleton

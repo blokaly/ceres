@@ -1,0 +1,67 @@
+dependencies {
+    compile project(':services')
+    compile project(':redis:redis-client')
+    compile project(':webserver:server')
+}
+
+mainClassName = 'com.blokaly.ceres.quote.ValidatorService'
+applicationName = "quote-validaor"
+version = 1.0
+
+// conf files should be under src/conf folder, avoid duplication
+sourceSets {
+    main {
+        resources {
+            exclude '**/*'
+        }
+    }
+}
+
+applicationDistribution.from("src/conf") { into "conf" }
+
+applicationDefaultJvmArgs = [
+        "-server", "-showversion", "-Xms512m", "-Xmx512m",
+        "-Dlog.root=MY_APP_HOME/logs",
+        "-Dlog.name=${applicationName}",
+        "-Duser.timezone=GMT",
+        "-Dstd.redirect=true",
+        "-XX:-OmitStackTraceInFastThrow",
+        "-XX:+HeapDumpOnOutOfMemoryError",
+        "-XX:HeapDumpPath=MY_APP_HOME/logs/gc.hprof",
+        "-XX:+DisableExplicitGC",
+        "-XX:+PrintGCDetails",
+        "-XX:+PrintGCApplicationStoppedTime",
+        "-XX:+PrintGCApplicationConcurrentTime",
+        "-XX:+PrintGCDateStamps",
+        "-XX:+UseConcMarkSweepGC",
+        "-XX:+ScavengeBeforeFullGC",
+        "-XX:CMSInitiatingOccupancyFraction=55",
+        "-XX:+CMSScavengeBeforeRemark",
+        "-XX:-CMSIncrementalMode",
+        "-XX:-CMSClassUnloadingEnabled",
+        "-XX:+CMSConcurrentMTEnabled",
+        "-XX:+CMSParallelRemarkEnabled",
+        "-XX:+UseStringCache",
+        "-XX:+OptimizeStringConcat",
+        "-Xloggc:MY_APP_HOME/logs/gc.log"
+]
+
+startScripts {
+    doLast {
+        unixScript.text = unixScript.text.replace('MY_APP_HOME', '\$APP_HOME')
+        unixScript.text = unixScript.text.replace('CLASSPATH=$APP_HOME/lib', 'CLASSPATH=$APP_HOME/conf/:$APP_HOME/lib')
+        windowsScript.text = windowsScript.text.replace('MY_APP_HOME', '%~dp0..')
+        windowsScript.text = windowsScript.text.replace('CLASSPATH=$APP_HOME/lib', 'CLASSPATH=$APP_HOME/conf/:$APP_HOME/lib')
+    }
+}
+
+dockerDistTar {
+    instruction {"RUN mkdir -p /${applicationName}/logs"}
+}
+
+docker {
+    javaApplication {
+        baseImage = 'blokaly/java8:latest'
+        tag = "blokaly/ceres-${applicationName}:${version}"
+    }
+}

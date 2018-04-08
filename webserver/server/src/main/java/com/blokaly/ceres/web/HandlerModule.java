@@ -1,5 +1,6 @@
 package com.blokaly.ceres.web;
 
+import com.blokaly.ceres.binding.CeresModule;
 import com.google.inject.*;
 import com.google.inject.binder.LinkedBindingBuilder;
 import com.google.inject.multibindings.Multibinder;
@@ -9,7 +10,7 @@ import io.undertow.server.RoutingHandler;
 
 import java.util.Set;
 
-public abstract class HandlerModule extends PrivateModule {
+public abstract class HandlerModule extends CeresModule {
   private Multibinder<UndertowHandler> handlerBinder;
 
   @Override

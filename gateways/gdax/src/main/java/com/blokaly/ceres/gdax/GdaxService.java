@@ -1,5 +1,6 @@
 package com.blokaly.ceres.gdax;
 
+import com.blokaly.ceres.binding.CeresModule;
 import com.blokaly.ceres.binding.CeresService;
 import com.blokaly.ceres.common.CommonModule;
 import com.blokaly.ceres.common.Exchange;
@@ -44,7 +45,7 @@ public class GdaxService extends AbstractIdleService {
     provider.get().close();
   }
 
-  public static class GdaxModule extends PrivateModule {
+  public static class GdaxModule extends CeresModule {
 
     @Override
     protected void configure() {
@@ -56,8 +57,7 @@ public class GdaxService extends AbstractIdleService {
       binder.addBinding(SNAPSHOT).to(SnapshotCallbackHandler.class);
       binder.addBinding(L2U).to(RefreshCallbackHandler.class);
       bind(MessageHandler.class).to(MessageHandlerImpl.class).in(Singleton.class);
-      bind(GdaxClient.class).toProvider(GdaxClientProvider.class).in(Singleton.class);
-      expose(GdaxClient.class);
+      bindExpose(GdaxClient.class).toProvider(GdaxClientProvider.class).in(Singleton.class);
     }
 
     @Provides

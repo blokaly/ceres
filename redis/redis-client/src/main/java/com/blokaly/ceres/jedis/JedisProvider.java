@@ -1,21 +1,20 @@
 package com.blokaly.ceres.jedis;
 
+import com.blokaly.ceres.binding.ServiceProvider;
 import com.blokaly.ceres.common.Configs;
 import com.google.inject.Inject;
-import com.google.inject.Provider;
 import com.google.inject.Singleton;
 import com.typesafe.config.Config;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.Protocol;
-
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
 
 import static com.blokaly.ceres.common.Configs.INTEGER_EXTRACTOR;
 
 @Singleton
-public class JedisProvider implements Provider<Jedis> {
-
+public class JedisProvider extends ServiceProvider<Jedis> {
+  private static Logger LOGGER = LoggerFactory.getLogger(JedisProvider.class);
   private final Jedis jedis;
 
   @Inject
@@ -26,18 +25,20 @@ public class JedisProvider implements Provider<Jedis> {
     jedis = new Jedis(host, port, timeout);
   }
 
-  @PostConstruct
-  public void start() {
-    jedis.connect();
-  }
-
   @Override
   public Jedis get() {
     return jedis;
   }
 
-  @PreDestroy
-  public void stop() {
+  @Override
+  protected void startUp() throws Exception {
+    LOGGER.info("Jedis starting...");
+    jedis.connect();
+  }
+
+  @Override
+  protected void shutDown() throws Exception {
+    LOGGER.info("Jedis stopping...");
     jedis.close();
   }
 }

@@ -31,7 +31,7 @@ public class Services {
     @Override
     protected void configure() {
       Multibinder<Service> binder = Multibinder.newSetBinder(binder(), Service.class);
-      Set<Class<? extends Service>> services = Utils.getAllAnnotatedServices();
+      Set<Class<? extends Service>> services = Utils.getAllCeresServices();
       for (Class<? extends Service> service : services) {
         binder.addBinding().to(service);
       }

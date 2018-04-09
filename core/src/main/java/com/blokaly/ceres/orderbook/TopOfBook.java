@@ -41,6 +41,6 @@ public interface TopOfBook {
   }
 
   String getKey();
-  Entry topOfBids();
-  Entry topOfAsks();
+  Entry[] topOfBids(int depth);
+  Entry[] topOfAsks(int depth);
 }

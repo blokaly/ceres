@@ -76,13 +76,13 @@ public class BestTopOfBook implements OrderBook<IdBasedOrderInfo>, TopOfBook {
   }
 
   @Override
-  public Entry topOfBids() {
-    return format(bids);
+  public Entry[] topOfBids(int depth) {
+    return new Entry[]{format(bids)};
   }
 
   @Override
-  public Entry topOfAsks() {
-    return format(asks);
+  public Entry[] topOfAsks(int depth) {
+    return new Entry[]{format(asks)};
   }
 
   private Entry format(NavigableMap<DecimalNumber, List<IdBasedOrderInfo>> side) {

@@ -1,6 +1,5 @@
 package com.blokaly.ceres.common;
 
-import com.blokaly.ceres.binding.CeresModule;
 import com.google.common.util.concurrent.MoreExecutors;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.inject.*;
@@ -13,17 +12,17 @@ import java.util.concurrent.*;
 import static com.blokaly.ceres.common.Configs.BOOLEAN_EXTRACTOR;
 import static com.blokaly.ceres.common.Configs.STRING_EXTRACTOR;
 
-public class CommonModule extends CeresModule {
+public class CommonModule extends AbstractModule {
 
     @Override
     protected void configure() {
         install(new DumpAndShutdownModule());
         bind(Thread.UncaughtExceptionHandler.class).to(ExceptionLoggingHandler.class).in(Singleton.class);
-        bindExpose(Config.class).toProvider(Configs::getConfig).in(Singleton.class);
+        bind(Config.class).toProvider(Configs::getConfig).in(Singleton.class);
         bind(StdRedirect.class).asEagerSingleton();
     }
 
-    @Exposed @Provides @Singleton
+    @Provides @Singleton
     public ThreadFactory provideThreadFactory(Thread.UncaughtExceptionHandler uncaughtExceptionHandler) {
         ThreadFactoryBuilder builder = new ThreadFactoryBuilder();
         builder.setNameFormat("ceres-%d");
@@ -31,7 +30,7 @@ public class CommonModule extends CeresModule {
         return builder.build();
     }
 
-    @Exposed @Provides @SingleThread
+    @Provides @SingleThread
     public ScheduledExecutorService provideSingleScheduledExecutorService(ThreadFactory factory) {
         ScheduledExecutorService service = Executors.newSingleThreadScheduledExecutor(factory);
         MoreExecutors.addDelayedShutdownHook(service, 5, TimeUnit.SECONDS);

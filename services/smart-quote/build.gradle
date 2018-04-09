@@ -3,7 +3,7 @@ dependencies {
     compile project(':kafka:kstream')
 }
 
-mainClassName = 'com.blokaly.ceres.smartquote.SmartQuoteService'
+mainClassName = 'com.blokaly.ceres.quote.SmartQuoteService'
 applicationName = "smart-quote"
 version = 1.0
 

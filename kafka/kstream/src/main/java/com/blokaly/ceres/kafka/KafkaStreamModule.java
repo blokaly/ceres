@@ -14,9 +14,7 @@ import java.util.Properties;
 
 public class KafkaStreamModule extends AbstractModule {
   @Override
-  protected void configure() {
-
-  }
+  protected void configure() { }
 
   @Provides
   @Singleton
@@ -27,6 +25,7 @@ public class KafkaStreamModule extends AbstractModule {
     props.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, kafka.getString(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG));
     props.put(StreamsConfig.DEFAULT_KEY_SERDE_CLASS_CONFIG, Serdes.String().getClass());
     props.put(StreamsConfig.DEFAULT_VALUE_SERDE_CLASS_CONFIG, Serdes.String().getClass());
+    props.put(StreamsConfig.CACHE_MAX_BYTES_BUFFERING_CONFIG, "1024");
     Topology topology = builder.build();
     KafkaStreams streams = new KafkaStreams(topology, props);
     streams.setUncaughtExceptionHandler(uncaughtExceptionHandler);

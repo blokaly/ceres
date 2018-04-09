@@ -1,5 +1,6 @@
 package com.blokaly.ceres.kafka;
 
+import com.blokaly.ceres.common.CommonConfigs;
 import com.google.inject.Inject;
 import com.typesafe.config.Config;
 import org.apache.kafka.clients.producer.Producer;

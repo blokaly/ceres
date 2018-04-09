@@ -1,5 +1,6 @@
 package com.blokaly.ceres.kafka;
 
+import com.blokaly.ceres.common.CommonConfigs;
 import com.blokaly.ceres.common.Configs;
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;

@@ -1,5 +1,6 @@
 package com.blokaly.ceres.kafka;
 
+import com.blokaly.ceres.common.CommonConfigs;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.typesafe.config.Config;

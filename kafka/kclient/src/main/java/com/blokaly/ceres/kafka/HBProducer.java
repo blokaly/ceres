@@ -1,9 +1,9 @@
 package com.blokaly.ceres.kafka;
 
+import com.blokaly.ceres.common.CommonConfigs;
 import com.blokaly.ceres.common.Configs;
 import com.blokaly.ceres.common.Exchange;
 import com.blokaly.ceres.common.SingleThread;
-import com.google.common.base.Strings;
 import com.google.inject.Inject;
 import com.typesafe.config.Config;
 import org.apache.kafka.clients.producer.Producer;
@@ -29,7 +29,7 @@ public class HBProducer {
   public HBProducer(Producer<String, String> producer, Config config, @SingleThread ScheduledExecutorService ses) {
     this.producer = producer;
     topic = config.getString(CommonConfigs.KAFKA_TOPIC);
-    String hbKey = Configs.getOrDefault(config, CommonConfigs.HB_KEY, Configs.STRING_EXTRACTOR, "");
+    String hbKey = Configs.getOrDefault(config, CommonConfigs.KAFKA_HB_KEY, Configs.STRING_EXTRACTOR, "");
     String suffix = exchangeOrDefault(hbKey);
     key = suffix.isEmpty() ? null :  "hb." + suffix;
     this.ses = ses;

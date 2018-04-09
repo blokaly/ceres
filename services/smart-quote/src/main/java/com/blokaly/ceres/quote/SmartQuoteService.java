@@ -1,4 +1,4 @@
-package com.blokaly.ceres.smartquote;
+package com.blokaly.ceres.quote;
 
 import com.blokaly.ceres.binding.BootstrapService;
 import com.blokaly.ceres.binding.CeresModule;

@@ -2,6 +2,7 @@ package com.blokaly.ceres.bitfinex;
 
 import com.blokaly.ceres.common.Exchange;
 import com.blokaly.ceres.data.SymbolFormatter;
+import com.blokaly.ceres.common.CommonConfigs;
 import com.blokaly.ceres.orderbook.OrderBasedOrderBook;
 import com.google.common.collect.Maps;
 import com.google.inject.Inject;
@@ -23,7 +24,7 @@ public class OrderBookKeeper {
     @Inject
     public OrderBookKeeper(Config config) {
         symbols = config.getStringList("symbols");
-        exchange = Exchange.valueOf(config.getString("app.exchange").toUpperCase()).getCode();
+        exchange = Exchange.valueOf(config.getString(CommonConfigs.APP_EXCHANGE).toUpperCase()).getCode();
         orderbooks = Maps.newHashMap();
         symMap = Maps.newHashMap();
     }

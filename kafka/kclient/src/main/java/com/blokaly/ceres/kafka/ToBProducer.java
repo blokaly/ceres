@@ -1,10 +1,10 @@
 package com.blokaly.ceres.kafka;
 
+import com.blokaly.ceres.common.CommonConfigs;
 import com.blokaly.ceres.orderbook.TopOfBook;
 import com.google.common.collect.Maps;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
 import com.google.inject.Inject;
 import com.typesafe.config.Config;
 import org.apache.kafka.clients.producer.Producer;

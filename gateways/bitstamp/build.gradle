@@ -1,6 +1,7 @@
 dependencies {
     compile project(':gateways')
     compile project(':kafka:kclient')
+    compile project(':kafka:kstream')
     compile "com.pusher:pusher-java-client:1.8.0"
 }
 

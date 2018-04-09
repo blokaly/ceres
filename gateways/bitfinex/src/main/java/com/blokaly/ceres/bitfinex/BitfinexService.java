@@ -63,8 +63,8 @@ public class BitfinexService extends BootstrapService {
             install(new CommonModule());
             install(new KafkaCommonModule());
             install(new KafkaStreamModule());
-            bindAllCallbacks();
             expose(KafkaStreams.class);
+            bindAllCallbacks();
             expose(ExecutorService.class).annotatedWith(SingleThread.class);
             bindExpose(MessageHandler.class).to(MessageHandlerImpl.class).in(Singleton.class);
             bindExpose(BitfinexClient.class).toProvider(BitfinexClientProvider.class).in(Singleton.class);

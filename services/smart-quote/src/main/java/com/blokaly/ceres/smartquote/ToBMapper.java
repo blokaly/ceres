@@ -32,14 +32,14 @@ public class ToBMapper implements KeyValueMapper<String, String, KeyValue<String
     JsonArray tob = gson.fromJson(value, JsonArray.class);
     JsonArray bid = tob.get(0).getAsJsonArray();
     JsonArray ask = tob.get(1).getAsJsonArray();
-    JsonOrderBook book = JsonOrderBook.parse(symex[1], bid, ask);
+    JsonOrderBook book = JsonOrderBook.parse(symex[1], bid.get(0).getAsJsonArray(), ask.get(0).getAsJsonArray());
     BestTopOfBook topOfBook = books.get(symex[0]);
     topOfBook.processSnapshot(book);
 
     JsonArray message = new JsonArray();
 
 
-    TopOfBook.Entry entry = topOfBook.topOfBids();
+    TopOfBook.Entry entry = topOfBook.topOfBids(1)[0];
     JsonArray bidEntry = new JsonArray();
     if (entry != null) {
       bidEntry.add(entry.price);
@@ -48,7 +48,7 @@ public class ToBMapper implements KeyValueMapper<String, String, KeyValue<String
     }
     message.add(bidEntry);
 
-    entry = topOfBook.topOfAsks();
+    entry = topOfBook.topOfAsks(1)[0];
     JsonArray askEntry = new JsonArray();
     if (entry != null) {
       askEntry.add(entry.price);

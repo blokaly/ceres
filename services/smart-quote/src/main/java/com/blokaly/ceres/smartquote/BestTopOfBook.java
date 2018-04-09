@@ -77,11 +77,17 @@ public class BestTopOfBook implements OrderBook<IdBasedOrderInfo>, TopOfBook {
 
   @Override
   public Entry[] topOfBids(int depth) {
+    if (depth != 1) {
+      throw new IllegalArgumentException("Only support level 1");
+    }
     return new Entry[]{format(bids)};
   }
 
   @Override
   public Entry[] topOfAsks(int depth) {
+    if (depth != 1) {
+      throw new IllegalArgumentException("Only support level 1");
+    }
     return new Entry[]{format(asks)};
   }
 

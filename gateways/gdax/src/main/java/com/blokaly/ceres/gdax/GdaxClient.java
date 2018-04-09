@@ -1,6 +1,5 @@
 package com.blokaly.ceres.gdax;
 
-import com.blokaly.ceres.gdax.event.OpenEvent;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import org.java_websocket.client.WebSocketClient;

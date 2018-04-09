@@ -2,12 +2,12 @@ package com.blokaly.ceres.bitfinex;
 
 import com.blokaly.ceres.binding.BootstrapService;
 import com.blokaly.ceres.binding.CeresModule;
-import com.blokaly.ceres.binding.CeresService;
 import com.blokaly.ceres.bitfinex.callback.*;
 import com.blokaly.ceres.bitfinex.event.AbstractEvent;
 import com.blokaly.ceres.bitfinex.event.EventType;
 import com.blokaly.ceres.common.CommonModule;
 import com.blokaly.ceres.common.Services;
+import com.blokaly.ceres.common.SingleThread;
 import com.blokaly.ceres.kafka.KafkaCommonModule;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -17,6 +17,7 @@ import com.typesafe.config.Config;
 
 import java.net.URI;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
 
 import static com.blokaly.ceres.bitfinex.event.EventType.*;
 
@@ -46,6 +47,7 @@ public class BitfinexService extends BootstrapService {
             install(new CommonModule());
             install(new KafkaCommonModule());
             bindAllCallbacks();
+            expose(ExecutorService.class).annotatedWith(SingleThread.class);
             bindExpose(MessageHandler.class).to(MessageHandlerImpl.class).in(Singleton.class);
             bindExpose(BitfinexClient.class).toProvider(BitfinexClientProvider.class).in(Singleton.class);
         }

@@ -5,7 +5,6 @@ import com.blokaly.ceres.anx.event.EventType;
 import com.blokaly.ceres.anx.event.SnapshotEvent;
 import com.google.gson.Gson;
 import com.google.inject.Inject;
-import com.google.inject.Provider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -13,13 +12,12 @@ public class JsonCracker {
 
   private static Logger LOGGER = LoggerFactory.getLogger(JsonCracker.class);
   private final Gson gson;
-
-  private final Provider<MessageHandler> messageHandlerProvider;
+  private final MessageHandler messageHandler;
 
   @Inject
-  public JsonCracker(Gson gson, Provider<MessageHandler> messageHandlerProvider) {
+  public JsonCracker(Gson gson, MessageHandler messageHandler) {
     this.gson = gson;
-    this.messageHandlerProvider = messageHandlerProvider;
+    this.messageHandler = messageHandler;
   }
 
   public void crack(String json) {
@@ -33,7 +31,7 @@ public class JsonCracker {
 
     switch (type) {
       case SNAPSHOT:
-        messageHandlerProvider.get().onMessage((SnapshotEvent)event);
+        messageHandler.onMessage((SnapshotEvent)event);
         break;
     }
   }

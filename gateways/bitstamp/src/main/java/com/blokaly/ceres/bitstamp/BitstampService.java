@@ -1,5 +1,7 @@
 package com.blokaly.ceres.bitstamp;
 
+import com.blokaly.ceres.binding.BootstrapService;
+import com.blokaly.ceres.binding.CeresModule;
 import com.blokaly.ceres.bitstamp.event.DiffBookEvent;
 import com.blokaly.ceres.bitstamp.event.OrderBookEvent;
 import com.blokaly.ceres.common.CommonModule;
@@ -10,8 +12,6 @@ import com.blokaly.ceres.data.SymbolFormatter;
 import com.blokaly.ceres.kafka.KafkaCommonModule;
 import com.blokaly.ceres.kafka.ToBProducer;
 import com.blokaly.ceres.orderbook.PriceBasedOrderBook;
-import com.google.common.util.concurrent.AbstractService;
-import com.google.common.util.concurrent.Service;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.inject.*;
@@ -19,12 +19,11 @@ import com.pusher.client.Pusher;
 import com.pusher.client.PusherOptions;
 import com.typesafe.config.Config;
 
-import javax.annotation.PreDestroy;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.stream.Collectors;
 
-public class BitstampService extends AbstractService {
+public class BitstampService extends BootstrapService {
 
     private final List<PusherClient> clients;
 
@@ -34,38 +33,37 @@ public class BitstampService extends AbstractService {
     }
 
     @Override
-    protected void doStart() {
+    protected void startUp() throws Exception {
         clients.forEach(PusherClient::start);
     }
 
     @Override
-    @PreDestroy
-    protected void doStop() {
+    protected void shutDown() throws Exception {
         clients.forEach(PusherClient::stop);
     }
 
-    public static class BitstampModule extends AbstractModule {
+    public static class BitstampModule extends CeresModule {
 
         @Override
         protected void configure() {
             install(new CommonModule());
             install(new KafkaCommonModule());
-            bind(Service.class).to(BitstampService.class);
         }
 
         @Provides
         @Singleton
+        @Exposed
         public List<PusherClient> providePusherClients(Config config, Gson gson, ToBProducer producer, @SingleThread Provider<ExecutorService> provider) {
             PusherOptions options = new PusherOptions();
             String exchange = Exchange.valueOf(config.getString("app.exchange").toUpperCase()).getCode();
             return config.getConfig("symbols").entrySet().stream()
-                    .map(item -> {
-                        String symbol = SymbolFormatter.normalise(item.getKey());
-                        OrderBookHandler handler = new OrderBookHandler(new PriceBasedOrderBook(symbol, symbol + "." + exchange), producer, gson, provider.get());
-                        String subId = (String) item.getValue().unwrapped();
-                        return new PusherClient(new Pusher(subId, options), handler, gson);
-                    })
-                    .collect(Collectors.toList());
+                .map(item -> {
+                    String symbol = SymbolFormatter.normalise(item.getKey());
+                    OrderBookHandler handler = new OrderBookHandler(new PriceBasedOrderBook(symbol, symbol + "." + exchange), producer, gson, provider.get());
+                    String subId = (String) item.getValue().unwrapped();
+                    return new PusherClient(new Pusher(subId, options), handler, gson);
+                })
+                .collect(Collectors.toList());
         }
 
         @Provides

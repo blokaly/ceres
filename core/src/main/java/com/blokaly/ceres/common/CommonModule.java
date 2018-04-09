@@ -37,7 +37,7 @@ public class CommonModule extends AbstractModule {
         return service;
     }
 
-    @Exposed @Provides @SingleThread
+    @Provides @SingleThread
     public ExecutorService provideSingleExecutorService(ThreadFactory factory) {
         ExecutorService service = Executors.newSingleThreadExecutor(factory);
         MoreExecutors.addDelayedShutdownHook(service, 5, TimeUnit.SECONDS);

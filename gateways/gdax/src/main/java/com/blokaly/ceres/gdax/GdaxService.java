@@ -1,7 +1,7 @@
 package com.blokaly.ceres.gdax;
 
+import com.blokaly.ceres.binding.BootstrapService;
 import com.blokaly.ceres.binding.CeresModule;
-import com.blokaly.ceres.binding.CeresService;
 import com.blokaly.ceres.common.CommonModule;
 import com.blokaly.ceres.common.Exchange;
 import com.blokaly.ceres.common.Services;
@@ -11,10 +11,12 @@ import com.blokaly.ceres.gdax.event.AbstractEvent;
 import com.blokaly.ceres.gdax.event.EventType;
 import com.blokaly.ceres.kafka.KafkaCommonModule;
 import com.blokaly.ceres.orderbook.PriceBasedOrderBook;
-import com.google.common.util.concurrent.AbstractIdleService;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.inject.*;
+import com.google.inject.Inject;
+import com.google.inject.Provider;
+import com.google.inject.Provides;
+import com.google.inject.Singleton;
 import com.google.inject.multibindings.MapBinder;
 import com.typesafe.config.Config;
 
@@ -25,8 +27,7 @@ import java.util.stream.Collectors;
 
 import static com.blokaly.ceres.gdax.event.EventType.*;
 
-@CeresService
-public class GdaxService extends AbstractIdleService {
+public class GdaxService extends BootstrapService {
 
   private final Provider<GdaxClient> provider;
 
@@ -51,11 +52,7 @@ public class GdaxService extends AbstractIdleService {
     protected void configure() {
       install(new CommonModule());
       install(new KafkaCommonModule());
-      MapBinder<EventType, CommandCallbackHandler> binder = MapBinder.newMapBinder(binder(), EventType.class, CommandCallbackHandler.class);
-      binder.addBinding(HB).to(HeartbeatCallbackHandler.class);
-      binder.addBinding(SUBS).to(SubscribedCallbackHandler.class);
-      binder.addBinding(SNAPSHOT).to(SnapshotCallbackHandler.class);
-      binder.addBinding(L2U).to(RefreshCallbackHandler.class);
+      bindAllCallbacks();
       bind(MessageHandler.class).to(MessageHandlerImpl.class).in(Singleton.class);
       bindExpose(GdaxClient.class).toProvider(GdaxClientProvider.class).in(Singleton.class);
     }
@@ -82,6 +79,14 @@ public class GdaxService extends AbstractIdleService {
         String symbol = SymbolFormatter.normalise(sym);
         return new PriceBasedOrderBook(symbol, symbol + "." + exchange.getCode());
       }));
+    }
+
+    private void bindAllCallbacks() {
+      MapBinder<EventType, CommandCallbackHandler> binder = MapBinder.newMapBinder(binder(), EventType.class, CommandCallbackHandler.class);
+      binder.addBinding(HB).to(HeartbeatCallbackHandler.class);
+      binder.addBinding(SUBS).to(SubscribedCallbackHandler.class);
+      binder.addBinding(SNAPSHOT).to(SnapshotCallbackHandler.class);
+      binder.addBinding(L2U).to(RefreshCallbackHandler.class);
     }
   }
 

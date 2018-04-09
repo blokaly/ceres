@@ -12,16 +12,18 @@ import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerConfig;
+import org.apache.kafka.common.serialization.StringDeserializer;
 import org.apache.kafka.common.serialization.StringSerializer;
 
+import javax.annotation.Nullable;
 import java.util.Properties;
 
 public class KafkaCommonModule extends AbstractModule {
   @Override
   protected void configure() {
-    bind(ToBProducer.class).in(Singleton.class);
-    bind(TextProducer.class).in(Singleton.class);
-    bind(HBProducer.class).asEagerSingleton();
+//    bind(ToBProducer.class).in(Singleton.class);
+//    bind(TextProducer.class).in(Singleton.class);
+//    bind(HBProducer.class).asEagerSingleton();
   }
 
   @Provides
@@ -43,8 +45,8 @@ public class KafkaCommonModule extends AbstractModule {
     Properties props = new Properties();
     props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, kafka.getString(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG));
     props.put(ConsumerConfig.GROUP_ID_CONFIG, kafka.getString(ConsumerConfig.GROUP_ID_CONFIG));
-    props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
-    props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
+    props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
+    props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
     props.put(ConsumerConfig.SESSION_TIMEOUT_MS_CONFIG, Configs.getOrDefault(kafka, ConsumerConfig.SESSION_TIMEOUT_MS_CONFIG, Configs.STRING_EXTRACTOR, CommonConfigs.DEFAULT_CONSUMER_GROUP_TIMEOUT));
     props.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, "false");
     return new KafkaConsumer<String, String>(props);

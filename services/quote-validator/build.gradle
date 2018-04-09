@@ -1,5 +1,6 @@
 dependencies {
     compile project(':services')
+    compile project(':kafka:kclient')
     compile project(':redis:redis-client')
     compile project(':webserver:server')
 }

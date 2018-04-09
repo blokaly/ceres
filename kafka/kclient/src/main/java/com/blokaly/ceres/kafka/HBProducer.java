@@ -11,6 +11,7 @@ import org.apache.kafka.clients.producer.ProducerRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.Nullable;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import java.util.concurrent.ScheduledExecutorService;
@@ -46,8 +47,8 @@ public class HBProducer {
 
   @PostConstruct
   public void init() {
-    if (key==null) {
-      LOGGER.info("topic or hb key unavailable, heartbeat disabled");
+    if (producer==null || key==null) {
+      LOGGER.info("producer or hb key unavailable, heartbeat disabled");
       return;
     }
     ses.scheduleWithFixedDelay(this::hb, 3, 1, TimeUnit.SECONDS);
@@ -56,8 +57,10 @@ public class HBProducer {
   @PreDestroy
   public void stop() {
     closing = true;
-    producer.flush();
-    producer.close();
+    if (producer != null) {
+      producer.flush();
+      producer.close();
+    }
   }
 
   private void hb() {

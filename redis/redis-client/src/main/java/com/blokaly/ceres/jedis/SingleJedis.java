@@ -32,10 +32,10 @@ public class SingleJedis implements RedisClient {
   }
 
   @Override
-  public void set(String key, String value, int timeout) {
+  public void set(String key, String value, int ttl) {
     executor.execute(() -> {
       jedis.set(key, value);
-      jedis.expire(key, timeout);
+      jedis.expire(key, ttl);
     });
   }
 

@@ -1,17 +1,15 @@
 package com.blokaly.ceres.common;
 
 import com.blokaly.ceres.binding.Utils;
+import com.blokaly.ceres.health.HealthChecker;
+import com.codahale.metrics.health.HealthCheckRegistry;
 import com.google.common.util.concurrent.MoreExecutors;
 import com.google.common.util.concurrent.Service;
 import com.google.common.util.concurrent.ServiceManager;
-import com.google.inject.AbstractModule;
-import com.google.inject.Module;
-import com.google.inject.Provides;
-import com.google.inject.Singleton;
+import com.google.inject.*;
 import com.google.inject.multibindings.Multibinder;
 import com.netflix.governator.InjectorBuilder;
 import com.netflix.governator.LifecycleInjector;
-import com.netflix.governator.spi.LifecycleListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,16 +29,18 @@ public class Services {
   private static class ServicesModule extends AbstractModule {
     @Override
     protected void configure() {
+      install(new CommonModule());
       Multibinder<Service> binder = Multibinder.newSetBinder(binder(), Service.class);
       Set<Class<? extends Service>> services = Utils.getAllCeresServices();
       for (Class<? extends Service> service : services) {
         binder.addBinding().to(service);
       }
+      bind(HealthCheckRegister.class).asEagerSingleton();
     }
 
     @Provides
     @Singleton
-    public ServiceManager provideServiceManager(Set<Service> services) {
+    private ServiceManager provideServiceManager(Set<Service> services) {
       ServiceManager manager = new ServiceManager(services);
       manager.addListener(new ServiceManager.Listener() {
                             @Override
@@ -64,6 +64,18 @@ public class Services {
         }
       }));
       return manager;
+    }
+
+    @Singleton
+    private static class HealthCheckRegister {
+      @Inject
+      private HealthCheckRegister(HealthCheckRegistry registry, Set<Service> services) {
+        for (Service service : services) {
+          if (service instanceof HealthChecker) {
+            registry.register(service.getClass().getSimpleName(), ((HealthChecker) service).getChecker());
+          }
+        }
+      }
     }
   }
 }

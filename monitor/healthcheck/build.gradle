@@ -1,0 +1,8 @@
+ext.metricsVersion = '4.0.0'
+
+dependencies {
+    compile project(':monitor')
+    compile "io.dropwizard.metrics:metrics-jvm:$metricsVersion"
+    compile "io.dropwizard.metrics:metrics-healthchecks:$metricsVersion"
+}
+

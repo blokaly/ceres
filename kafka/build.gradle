@@ -1,6 +1,6 @@
 subprojects {
     dependencies {
-        compile project(':core')
+        compile project(':common')
         compile 'org.apache.kafka:kafka-clients:1.0.0'
     }
 }

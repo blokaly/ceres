@@ -1,0 +1,7 @@
+dependencies {
+    compile project(':core')
+    compile project(':monitor:metrics')
+    compile project(':monitor:healthcheck')
+    compile "com.netflix.governator:governator-core:1.17.4"
+    compile "org.reflections:reflections:0.9.11"
+}

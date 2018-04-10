@@ -3,6 +3,7 @@ package com.blokaly.ceres.common;
 import com.google.common.util.concurrent.MoreExecutors;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.inject.*;
+import com.netflix.governator.LifecycleListenerModule;
 import com.typesafe.config.Config;
 
 import java.io.FileNotFoundException;

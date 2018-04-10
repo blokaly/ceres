@@ -15,16 +15,11 @@ import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.apache.kafka.common.serialization.StringSerializer;
 
-import javax.annotation.Nullable;
 import java.util.Properties;
 
 public class KafkaCommonModule extends AbstractModule {
   @Override
-  protected void configure() {
-//    bind(ToBProducer.class).in(Singleton.class);
-//    bind(TextProducer.class).in(Singleton.class);
-//    bind(HBProducer.class).asEagerSingleton();
-  }
+  protected void configure() {}
 
   @Provides
   @Singleton

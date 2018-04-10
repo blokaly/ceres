@@ -11,7 +11,6 @@ import org.apache.kafka.common.errors.WakeupException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.annotation.Nullable;
 import java.util.Collections;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutorService;
@@ -36,13 +35,13 @@ public class KafkaChannel implements Channel<ConsumerRecord<String, String>> {
   public  Subscription<ConsumerRecord<String, String>> subscribe(String topic, Subscriber<ConsumerRecord<String, String>> subscriber) {
     Subscription<ConsumerRecord<String, String>> subscription = subscriptions.computeIfAbsent(topic, this::makeSubscription);
     subscription.add(subscriber);
+    if (!enabled) {
+      open();
+    }
     return subscription;
   }
 
-  public void open() {
-    if (enabled) {
-      return;
-    }
+  private void open() {
     enabled = true;
     executorService.submit(()->{
       while (enabled) {

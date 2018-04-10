@@ -35,7 +35,9 @@ public class SingleJedis implements RedisClient {
   public void set(String key, String value, int ttl) {
     executor.execute(() -> {
       jedis.set(key, value);
-      jedis.expire(key, ttl);
+      if (ttl > 0) {
+        jedis.expire(key, ttl);
+      }
     });
   }
 

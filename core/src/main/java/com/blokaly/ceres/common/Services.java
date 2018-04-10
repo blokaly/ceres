@@ -10,6 +10,8 @@ import com.google.inject.Provides;
 import com.google.inject.Singleton;
 import com.google.inject.multibindings.Multibinder;
 import com.netflix.governator.InjectorBuilder;
+import com.netflix.governator.LifecycleInjector;
+import com.netflix.governator.spi.LifecycleListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,10 +23,9 @@ public class Services {
   private static final Logger LOGGER = LoggerFactory.getLogger(Services.class);
 
   public static void start(Module module) {
-    InjectorBuilder.fromModules(module).combineWith(new ServicesModule())
-        .createInjector()
-        .getInstance(ServiceManager.class)
-        .startAsync().awaitHealthy();
+    LifecycleInjector injector = InjectorBuilder.fromModules(module).combineWith(new ServicesModule())
+        .createInjector();
+    injector.getInstance(ServiceManager.class).startAsync().awaitHealthy();
   }
 
   private static class ServicesModule extends AbstractModule {
@@ -42,9 +43,17 @@ public class Services {
     public ServiceManager provideServiceManager(Set<Service> services) {
       ServiceManager manager = new ServiceManager(services);
       manager.addListener(new ServiceManager.Listener() {
-                            public void failure(Service service) {
-                              System.exit(1);
+                            @Override
+                            public void healthy() {
+                              LOGGER.info("All services started");
                             }
+
+                            @Override
+                            public void stopped() {
+                              LOGGER.info("All services stopped");
+                            }
+
+                            public void failure(Service service) { System.exit(1); }
                           },
           MoreExecutors.directExecutor());
       Runtime.getRuntime().addShutdownHook(new Thread(() -> {

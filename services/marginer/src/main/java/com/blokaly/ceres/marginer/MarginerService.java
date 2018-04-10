@@ -1,14 +1,13 @@
 package com.blokaly.ceres.marginer;
 
+import com.blokaly.ceres.binding.BootstrapService;
+import com.blokaly.ceres.binding.CeresModule;
 import com.blokaly.ceres.common.CommonModule;
 import com.blokaly.ceres.common.Exchange;
 import com.blokaly.ceres.common.Services;
 import com.blokaly.ceres.kafka.KafkaStreamModule;
-import com.google.common.util.concurrent.AbstractService;
-import com.google.common.util.concurrent.Service;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.inject.AbstractModule;
 import com.google.inject.Inject;
 import com.google.inject.Provides;
 import com.google.inject.Singleton;
@@ -21,11 +20,10 @@ import org.apache.kafka.streams.kstream.KeyValueMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.annotation.PreDestroy;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class MarginerService extends AbstractService {
+public class MarginerService extends BootstrapService {
   private static final Logger LOGGER = LoggerFactory.getLogger(MarginerService.class);
   private final KafkaStreams streams;
 
@@ -35,25 +33,24 @@ public class MarginerService extends AbstractService {
   }
 
   @Override
-  protected void doStart() {
+  protected void startUp() throws Exception {
     LOGGER.info("starting kafka streams...");
     streams.start();
   }
 
   @Override
-  @PreDestroy
-  protected void doStop() {
+  protected void shutDown() throws Exception {
     LOGGER.info("stopping kafka streams...");
     streams.close();
   }
 
-  private static class MarginerModule extends AbstractModule {
+  private static class MarginerModule extends CeresModule {
 
     @Override
     protected void configure() {
       install(new CommonModule());
       install(new KafkaStreamModule());
-      bind(Service.class).to(MarginerService.class);
+      expose(KafkaStreams.class);
     }
 
     @Provides

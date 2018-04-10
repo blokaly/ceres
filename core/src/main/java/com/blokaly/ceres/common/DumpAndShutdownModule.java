@@ -16,9 +16,9 @@ public class DumpAndShutdownModule  extends AbstractModule {
     private static final Logger LOGGER = LoggerFactory.getLogger(DumpAndShutdownModule.class);
 
     @Singleton
-    public static class SystemShutdownHook extends Thread {
+    public static class ThreadDumpHook extends Thread {
         @Inject
-        public SystemShutdownHook() {
+        public ThreadDumpHook() {
             Runtime.getRuntime().addShutdownHook(new Thread(() -> LOGGER.info(generateThreadDump())));
         }
     }
@@ -26,7 +26,7 @@ public class DumpAndShutdownModule  extends AbstractModule {
     @Override
     protected void configure() {
         install(new ShutdownHookModule());
-        bind(SystemShutdownHook.class).asEagerSingleton();
+        bind(ThreadDumpHook.class).asEagerSingleton();
     }
 
     private static String generateThreadDump() {

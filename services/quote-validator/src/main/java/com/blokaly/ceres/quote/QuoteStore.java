@@ -8,10 +8,13 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.typesafe.config.Config;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Singleton
 public class QuoteStore implements Channel.Subscriber<ConsumerRecord<String,String>> {
-  private static final int EXPIRE_SECONDS = 30;
+  private static Logger LOGGER = LoggerFactory.getLogger(QuoteStore.class);
+  private static final int EXPIRE_SECONDS = 300;
   private final KafkaChannel channel;
   private final RedisClient redis;
   private final String topic;
@@ -25,7 +28,6 @@ public class QuoteStore implements Channel.Subscriber<ConsumerRecord<String,Stri
   }
 
   public synchronized void start() {
-    channel.open();
     subscription = channel.subscribe(topic, this);
   }
 
@@ -43,6 +45,7 @@ public class QuoteStore implements Channel.Subscriber<ConsumerRecord<String,Stri
 
   @Override
   public void onSubscription(String topic, ConsumerRecord<String, String> item) {
+    LOGGER.info("storing {}->{}", item.key(), item.value());
     redis.set(item.key(), item.value(), EXPIRE_SECONDS);
   }
 }

@@ -26,7 +26,6 @@ public class ToBProducer {
   private final ConcurrentMap<String, Integer> hashCache;
   private volatile boolean closing = false;
 
-
   @Inject
   public ToBProducer(Producer<String, String> producer, Gson gson, Config config) {
     this.producer = producer;

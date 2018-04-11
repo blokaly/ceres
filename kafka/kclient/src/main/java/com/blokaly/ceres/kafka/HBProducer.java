@@ -11,7 +11,6 @@ import org.apache.kafka.clients.producer.ProducerRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.annotation.Nullable;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import java.util.concurrent.ScheduledExecutorService;
@@ -51,6 +50,7 @@ public class HBProducer {
       LOGGER.info("producer or hb key unavailable, heartbeat disabled");
       return;
     }
+    LOGGER.info("scheduling kafka topic heartbeating...");
     ses.scheduleWithFixedDelay(this::hb, 3, 1, TimeUnit.SECONDS);
   }
 

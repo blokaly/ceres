@@ -50,7 +50,6 @@ public class GdaxService extends BootstrapService {
 
     @Override
     protected void configure() {
-      install(new CommonModule());
       install(new KafkaCommonModule());
       bindAllCallbacks();
       bind(MessageHandler.class).to(MessageHandlerImpl.class).in(Singleton.class);

@@ -1,6 +1,6 @@
-package com.blokaly.ceres.gdax;
+package com.blokaly.ceres.kraken;
 
-import com.blokaly.ceres.orderbook.PriceBasedOrderBook;
+import com.blokaly.ceres.orderbook.DepthBasedOrderBook;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
@@ -10,14 +10,14 @@ import java.util.Map;
 @Singleton
 public class OrderBookKeeper {
 
-  private final Map<String, PriceBasedOrderBook> orderbooks;
+  private final Map<String, DepthBasedOrderBook> orderbooks;
 
   @Inject
-  public OrderBookKeeper(Map<String, PriceBasedOrderBook> orderbooks) {
+  public OrderBookKeeper(Map<String, DepthBasedOrderBook> orderbooks) {
     this.orderbooks = orderbooks;
   }
 
-  public PriceBasedOrderBook get(String symbol) {
+  public DepthBasedOrderBook get(String symbol) {
     return orderbooks.get(symbol);
   }
 
@@ -25,7 +25,8 @@ public class OrderBookKeeper {
     return orderbooks.keySet();
   }
 
-  public Collection<PriceBasedOrderBook> getAllBooks() {
+  public Collection<DepthBasedOrderBook> getAllBooks() {
     return orderbooks.values();
   }
 }
+

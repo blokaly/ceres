@@ -10,7 +10,8 @@ public enum Exchange {
   GDAX("GDAX", 2),
   BITFINEX("BIFX", 3),
   BITSTAMP("BISP", 4),
-  ANXPRO("ANXP", 5)
+  ANXPRO("ANXP", 5),
+  KRAKEN("KRAK", 6)
   ;
 
   private static final Map<String, Exchange> CODE_MAP = new HashMap<String, Exchange>();

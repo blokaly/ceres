@@ -5,26 +5,25 @@ import com.blokaly.ceres.data.DepthBasedOrderInfo;
 import com.blokaly.ceres.data.MarketDataIncremental;
 import com.blokaly.ceres.data.MarketDataSnapshot;
 import com.blokaly.ceres.data.OrderInfo;
-import com.blokaly.ceres.proto.OrderBookProto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.List;
-import java.util.stream.Collectors;
 
-public class DepthBasedOrderBook implements OrderBook<DepthBasedOrderInfo> {
+public class DepthBasedOrderBook implements OrderBook<DepthBasedOrderInfo>, TopOfBook {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(OrderBasedOrderBook.class);
     private final String symbol;
+    private final String key;
     private final int depth;
     private final PriceLevel[] bids;
     private final PriceLevel[] asks;
     private long lastSequence;
 
-    public DepthBasedOrderBook(String symbol, int depth) {
+    public DepthBasedOrderBook(String symbol, int depth, String key) {
         this.symbol = symbol;
+        this.key = key;
         this.lastSequence = 0;
         this.depth = depth;
         bids = new PriceLevel[depth];
@@ -130,21 +129,25 @@ public class DepthBasedOrderBook implements OrderBook<DepthBasedOrderInfo> {
         }
     }
 
-    private List<OrderBookProto.Level> translateSide(OrderInfo.Side side) {
-        PriceLevel[] levels = sidedLevels(side);
-        return Arrays.stream(levels).map(level -> {
-            OrderBookProto.Level.Builder builder = OrderBookProto.Level.newBuilder();
-            builder.setPrice(level.getPrice().toString());
-            builder.setSize(level.getQuantity().toString());
-            return builder.build();
-        }).collect(Collectors.toList());
+    @Override
+    public String getKey() {
+        return key;
+    }
+
+    @Override
+    public Entry[] topOfBids(int depth) {
+        return new Entry[0];
+    }
+
+    @Override
+    public Entry[] topOfAsks(int depth) {
+        return new Entry[0];
     }
 
     private final class PriceLevel implements OrderBook.Level {
 
         private DecimalNumber price;
         private DecimalNumber total;
-
 
         private PriceLevel(DecimalNumber price, DecimalNumber quantity) {
             this.price = price;

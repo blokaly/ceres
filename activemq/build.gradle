@@ -1,5 +1,5 @@
 subprojects {
     dependencies {
-        compile project(':core')
+        compile project(':common')
     }
 }

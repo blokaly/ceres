@@ -9,16 +9,22 @@ import com.blokaly.ceres.data.SymbolFormatter;
 import com.blokaly.ceres.gdax.callback.*;
 import com.blokaly.ceres.gdax.event.AbstractEvent;
 import com.blokaly.ceres.gdax.event.EventType;
+import com.blokaly.ceres.kafka.HBProducer;
 import com.blokaly.ceres.kafka.KafkaCommonModule;
+import com.blokaly.ceres.kafka.KafkaStreamModule;
+import com.blokaly.ceres.kafka.ToBProducer;
 import com.blokaly.ceres.orderbook.PriceBasedOrderBook;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.inject.Inject;
-import com.google.inject.Provider;
-import com.google.inject.Provides;
-import com.google.inject.Singleton;
+import com.google.inject.*;
 import com.google.inject.multibindings.MapBinder;
+import com.google.inject.name.Named;
+import com.google.inject.name.Names;
 import com.typesafe.config.Config;
+import org.apache.kafka.streams.KafkaStreams;
+import org.apache.kafka.streams.StreamsBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.net.URI;
 import java.util.List;
@@ -28,22 +34,30 @@ import java.util.stream.Collectors;
 import static com.blokaly.ceres.gdax.event.EventType.*;
 
 public class GdaxService extends BootstrapService {
-
+  private static final Logger LOGGER = LoggerFactory.getLogger(GdaxService.class);
   private final Provider<GdaxClient> provider;
+  private final KafkaStreams streams;
 
   @Inject
-  public GdaxService(Provider<GdaxClient> provider) {
+  public GdaxService(Provider<GdaxClient> provider, @Named("Throttled") KafkaStreams streams) {
     this.provider = provider;
+    this.streams = streams;
   }
 
   @Override
   protected void startUp() throws Exception {
+    LOGGER.info("starting gdax client...");
     provider.get().connect();
+    LOGGER.info("starting kafka streams...");
+    streams.start();
   }
 
   @Override
   protected void shutDown() throws Exception {
+    LOGGER.info("stopping gdax client...");
     provider.get().close();
+    LOGGER.info("stopping kafka streams...");
+    streams.close();
   }
 
   public static class GdaxModule extends CeresModule {
@@ -51,18 +65,26 @@ public class GdaxService extends BootstrapService {
     @Override
     protected void configure() {
       install(new KafkaCommonModule());
+      install(new KafkaStreamModule());
+      bindExpose(ToBProducer.class);
+      bind(HBProducer.class).asEagerSingleton();
+      expose(StreamsBuilder.class).annotatedWith(Names.named("Throttled"));
+      expose(KafkaStreams.class).annotatedWith(Names.named("Throttled"));
+
       bindAllCallbacks();
       bind(MessageHandler.class).to(MessageHandlerImpl.class).in(Singleton.class);
       bindExpose(GdaxClient.class).toProvider(GdaxClientProvider.class).in(Singleton.class);
     }
 
     @Provides
+    @Exposed
     public URI provideUri(Config config) throws Exception {
       return new URI(config.getString("app.ws.url"));
     }
 
     @Provides
     @Singleton
+    @Exposed
     public Gson provideGson(Map<EventType, CommandCallbackHandler> handlers) {
       GsonBuilder builder = new GsonBuilder();
       builder.registerTypeAdapter(AbstractEvent.class, new EventAdapter(handlers));
@@ -71,6 +93,7 @@ public class GdaxService extends BootstrapService {
 
     @Provides
     @Singleton
+    @Exposed
     public Map<String, PriceBasedOrderBook> provideOrderBooks(Config config) {
       List<String> symbols = config.getStringList("symbols");
       Exchange exchange = Exchange.valueOf(config.getString("app.exchange").toUpperCase());

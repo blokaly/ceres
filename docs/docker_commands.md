@@ -40,4 +40,20 @@
     
 - Connect to a running container (if bash supported)
 
-    `> docker exec -it <name> bash`    
+    `> docker exec -it <name> bash`   
+    
+- Remove all unused images
+    
+    `> docker rmi $(docker images -a|grep "<none>"|awk '$2=="<none>" {print $3}')`
+    
+- upgrade an image with the container
+
+    `> docker stop <container>`    
+         
+    `> docker rm <container>` 
+    
+    `> docker pull <image>` 
+           
+    `> docker rmi $(docker images -a|grep "<none>"|awk '$2=="<none>" {print $3}')`
+    
+    `> docker run -d --name <container> -e <env config> -v <volume config> <image>`

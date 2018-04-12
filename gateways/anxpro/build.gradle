@@ -63,6 +63,6 @@ dockerDistTar {
 docker {
     javaApplication {
         baseImage = 'blokaly/java8:latest'
-        tag = "blokaly/ceres-${applicationName}:${version}"
+        tag = "${dockerRepo}/ceres-${applicationName}:${version}"
     }
 }

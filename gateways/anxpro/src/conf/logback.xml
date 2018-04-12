@@ -1,6 +1,6 @@
 <configuration scan="true">
 
-    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+    <appender name="MainFile" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <file>${log.root}/${log.name}.log</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
             <fileNamePattern>${log.name}/${log.name}-%d{yyyy-MM-dd}.%i.log</fileNamePattern>
@@ -13,7 +13,7 @@
         </encoder>
     </appender>
 
-    <appender name="MONITOR" class="ch.qos.logback.core.rolling.RollingFileAppender">
+    <appender name="MonitorFile" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <file>${log.root}/${log.name}-monitor.log</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
             <fileNamePattern>${log.name}/${log.name}-monitor-%d{yyyy-MM-dd}.%i.log</fileNamePattern>
@@ -29,15 +29,15 @@
     <appender name="AsyncFile" class="ch.qos.logback.classic.AsyncAppender">
         <queueSize>500</queueSize>
         <discardingThreshold>0</discardingThreshold>
-        <appender-ref ref="FILE" />
+        <appender-ref ref="MainFile" />
     </appender>
 
     <appender name="AsyncMonitor" class="ch.qos.logback.classic.AsyncAppender">
         <discardingThreshold>0</discardingThreshold>
-        <appender-ref ref="MONITOR" />
+        <appender-ref ref="MonitorFile" />
     </appender>
 
-    <logger name="com.blokaly.monitor" level="INFO">
+    <logger name="com.blokaly.monitor" level="INFO" additivity="false">
         <appender-ref ref="AsyncMonitor" />
     </logger>
 

@@ -1,5 +1,6 @@
 package com.blokaly.ceres.common;
 
+import com.blokaly.ceres.health.HealthLogger;
 import com.codahale.metrics.health.HealthCheck;
 import com.codahale.metrics.health.HealthCheckRegistry;
 import com.google.common.util.concurrent.MoreExecutors;
@@ -56,15 +57,15 @@ public class CommonModule extends AbstractModule {
   @Singleton
   public HealthCheckRegistry provideHealthCheckRegistry(@SingleThread ScheduledExecutorService ses) {
     HealthCheckRegistry registry = new HealthCheckRegistry();
-    Logger logger = LoggerFactory.getLogger("HealthChecker");
     ses.scheduleWithFixedDelay(() -> {
       for (Map.Entry<String, HealthCheck.Result> entry : registry.runHealthChecks().entrySet()) {
         String name = entry.getKey();
+        Logger logger = HealthLogger.getLogger(name);
         HealthCheck.Result result = entry.getValue();
         if (result.isHealthy()) {
-          logger.info("{}: OK", name);
+          logger.info("Service OK");
         } else {
-          logger.error("{}: FAIL - {}", name, result.getMessage());
+          logger.error("Service FAIL - {}", result.getMessage());
         }
       }
     }, 5, 5, TimeUnit.SECONDS);

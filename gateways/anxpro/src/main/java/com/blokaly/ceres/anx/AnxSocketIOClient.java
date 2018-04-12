@@ -4,13 +4,11 @@ import com.blokaly.ceres.common.Pair;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.typesafe.config.Config;
-import io.socket.client.IO;
 import io.socket.client.Socket;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.net.URISyntaxException;
 import java.util.List;
 
 @Singleton
@@ -20,36 +18,19 @@ public class AnxSocketIOClient {
   private static final String PRIVATE = "private/";
   private static final String TOPIC_PREFIX = "public/orderBook/ANX/";
   private static final String SUBSCRIBE = "subscribe";
-  private final String host;
-  private final String streamPath;
   private final AnxRestClient restClient;
   private final JsonCracker cracker;
   private final Socket socket;
 
   @Inject
-  public AnxSocketIOClient(Config config, AnxRestClient restClient, JsonCracker cracker) {
+  public AnxSocketIOClient(Config config, Socket socket, AnxRestClient restClient, JsonCracker cracker) {
     this.restClient = restClient;
     this.cracker = cracker;
-    Config apiConfig = config.getConfig("api");
-    host = apiConfig.getString("host");
-    streamPath = apiConfig.getString("path.stream");
     List<String> symbols = config.getStringList("symbols");
-    try {
-      socket = init(symbols);
-    } catch (URISyntaxException e) {
-      throw new IllegalArgumentException(e);
-    }
-    symbols.forEach(this::onTopic);
-  }
-
-  private Socket init(List<String> symbols) throws URISyntaxException {
-
-    IO.Options options = new IO.Options();
-    options.path = this.streamPath;
-    Socket socket = IO.socket(host, options);
     socket.on(Socket.EVENT_CONNECT, callback -> this.onConnected(symbols));
     socket.on(Socket.EVENT_DISCONNECT, callback -> this.onDisconnected());
-    return socket;
+    this.socket = socket;
+    symbols.forEach(this::onTopic);
   }
 
   private String[] getTopics(String uuid, List<String> symbols) {

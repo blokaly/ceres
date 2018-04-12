@@ -79,6 +79,7 @@ public class AnxRestClient {
       }
     } catch (Exception iex) {
       LOGGER.error("Failed to retrieve uuid and token from anx", iex);
+      System.exit(1);
     } finally {
       if (conn != null) {
         conn.disconnect();

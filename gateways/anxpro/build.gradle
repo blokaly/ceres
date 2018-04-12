@@ -1,6 +1,7 @@
 dependencies {
     compile project(':gateways')
     compile project(':kafka:kclient')
+    compile project(':kafka:kstream')
     compile "io.socket:socket.io-client:1.0.0"
 }
 

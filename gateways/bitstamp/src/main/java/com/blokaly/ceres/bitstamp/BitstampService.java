@@ -6,6 +6,7 @@ import com.blokaly.ceres.bitstamp.event.DiffBookEvent;
 import com.blokaly.ceres.bitstamp.event.OrderBookEvent;
 import com.blokaly.ceres.common.*;
 import com.blokaly.ceres.data.SymbolFormatter;
+import com.blokaly.ceres.kafka.HBProducer;
 import com.blokaly.ceres.kafka.KafkaCommonModule;
 import com.blokaly.ceres.kafka.KafkaStreamModule;
 import com.blokaly.ceres.kafka.ToBProducer;
@@ -13,6 +14,8 @@ import com.blokaly.ceres.orderbook.PriceBasedOrderBook;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.inject.*;
+import com.google.inject.name.Named;
+import com.google.inject.name.Names;
 import com.pusher.client.Pusher;
 import com.pusher.client.PusherOptions;
 import com.typesafe.config.Config;
@@ -33,7 +36,7 @@ public class BitstampService extends BootstrapService {
     private final KafkaStreams streams;
 
     @Inject
-    public BitstampService(List<PusherClient> clients, KafkaStreams streams) {
+    public BitstampService(List<PusherClient> clients, @Named("Throttled") KafkaStreams streams) {
         this.clients = clients;
         this.streams = streams;
     }
@@ -58,10 +61,12 @@ public class BitstampService extends BootstrapService {
 
         @Override
         protected void configure() {
-            install(new CommonModule());
             install(new KafkaCommonModule());
             install(new KafkaStreamModule());
-            expose(KafkaStreams.class);
+            bindExpose(ToBProducer.class);
+            bind(HBProducer.class).asEagerSingleton();
+            expose(StreamsBuilder.class).annotatedWith(Names.named("Throttled"));
+            expose(KafkaStreams.class).annotatedWith(Names.named("Throttled"));
         }
 
         @Provides
@@ -82,28 +87,12 @@ public class BitstampService extends BootstrapService {
 
         @Provides
         @Singleton
-        public StreamsBuilder provideStreamsBuilder(Config config) {
-            String topic = config.getString(CommonConfigs.KAFKA_TOPIC);
-            int windowSecond = config.getInt(CommonConfigs.KAFKA_THROTTLE_SECOND);
-            StreamsBuilder builder = new StreamsBuilder();
-            builder.stream(topic)
-                .groupByKey()
-                .windowedBy(TimeWindows.of(TimeUnit.SECONDS.toMillis(windowSecond)))
-                .reduce((agg, v)->v)
-                .toStream((k,v)->k.key())
-                .to(topic + ".throttled");
-            return builder;
-        }
-
-        @Provides
-        @Singleton
         public Gson provideGson() {
             GsonBuilder builder = new GsonBuilder();
             builder.registerTypeAdapter(OrderBookEvent.class, new OrderBookEventAdapter());
             builder.registerTypeAdapter(DiffBookEvent.class, new DiffBookEventAdapter());
             return builder.create();
         }
-
     }
 
     public static void main(String[] args) {

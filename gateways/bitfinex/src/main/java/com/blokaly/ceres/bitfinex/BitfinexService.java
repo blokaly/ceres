@@ -66,7 +66,7 @@ public class BitfinexService extends BootstrapService {
       bindExpose(ToBProducer.class);
       bind(HBProducer.class).asEagerSingleton();
       expose(StreamsBuilder.class).annotatedWith(Names.named("Throttled"));
-      expose(KafkaStreams.class).annotatedWith(Names.named("Throttled"));;
+      expose(KafkaStreams.class).annotatedWith(Names.named("Throttled"));
 
       bindAllCallbacks();
       bindExpose(MessageHandler.class).to(MessageHandlerImpl.class).in(Singleton.class);

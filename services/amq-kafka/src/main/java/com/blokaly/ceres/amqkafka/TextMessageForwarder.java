@@ -1,6 +1,6 @@
 package com.blokaly.ceres.amqkafka;
 
-import com.blokaly.ceres.kafka.TextProducer;
+import com.blokaly.ceres.kafka.StringProducer;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import org.apache.activemq.command.ActiveMQDestination;
@@ -15,10 +15,10 @@ import javax.jms.TextMessage;
 public class TextMessageForwarder implements MessageListener {
 
   private static Logger LOGGER = LoggerFactory.getLogger(TextMessageForwarder.class);
-  private final TextProducer producer;
+  private final StringProducer producer;
 
   @Inject
-  public TextMessageForwarder(TextProducer producer) {
+  public TextMessageForwarder(StringProducer producer) {
     this.producer = producer;
   }
 

@@ -10,14 +10,14 @@ import org.slf4j.LoggerFactory;
 
 import javax.annotation.PreDestroy;
 
-public class TextProducer {
-  private static Logger LOGGER = LoggerFactory.getLogger(TextProducer.class);
+public class StringProducer {
+  private static Logger LOGGER = LoggerFactory.getLogger(StringProducer.class);
   private final Producer<String, String> producer;
   private final String topic;
   private volatile boolean closing = false;
 
   @Inject
-  public TextProducer(Producer<String, String> producer, Config config) {
+  public StringProducer(Producer<String, String> producer, Config config) {
     this.producer = producer;
     topic = config.getString(CommonConfigs.KAFKA_TOPIC);
   }

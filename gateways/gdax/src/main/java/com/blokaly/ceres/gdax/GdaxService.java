@@ -2,8 +2,8 @@ package com.blokaly.ceres.gdax;
 
 import com.blokaly.ceres.binding.BootstrapService;
 import com.blokaly.ceres.binding.CeresModule;
-import com.blokaly.ceres.common.CommonModule;
-import com.blokaly.ceres.common.Exchange;
+import com.blokaly.ceres.common.CommonConfigs;
+import com.blokaly.ceres.common.Source;
 import com.blokaly.ceres.common.Services;
 import com.blokaly.ceres.data.SymbolFormatter;
 import com.blokaly.ceres.gdax.callback.*;
@@ -23,8 +23,6 @@ import com.google.inject.name.Names;
 import com.typesafe.config.Config;
 import org.apache.kafka.streams.KafkaStreams;
 import org.apache.kafka.streams.StreamsBuilder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.net.URI;
 import java.util.List;
@@ -97,10 +95,10 @@ public class GdaxService extends BootstrapService {
     @Exposed
     public Map<String, PriceBasedOrderBook> provideOrderBooks(Config config) {
       List<String> symbols = config.getStringList("symbols");
-      Exchange exchange = Exchange.valueOf(config.getString("app.exchange").toUpperCase());
+      String source = Source.valueOf(config.getString(CommonConfigs.APP_SOURCE).toUpperCase()).getCode();
       return symbols.stream().collect(Collectors.toMap(sym->sym, sym -> {
         String symbol = SymbolFormatter.normalise(sym);
-        return new PriceBasedOrderBook(symbol, symbol + "." + exchange.getCode());
+        return new PriceBasedOrderBook(symbol, symbol + "." + source);
       }));
     }
 

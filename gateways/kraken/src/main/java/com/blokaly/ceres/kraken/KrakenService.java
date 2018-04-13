@@ -2,7 +2,8 @@ package com.blokaly.ceres.kraken;
 
 import com.blokaly.ceres.binding.BootstrapService;
 import com.blokaly.ceres.binding.CeresModule;
-import com.blokaly.ceres.common.Exchange;
+import com.blokaly.ceres.common.CommonConfigs;
+import com.blokaly.ceres.common.Source;
 import com.blokaly.ceres.common.Services;
 import com.blokaly.ceres.data.SymbolFormatter;
 import com.blokaly.ceres.kafka.HBProducer;
@@ -24,8 +25,6 @@ import org.apache.kafka.streams.StreamsBuilder;
 import org.knowm.xchange.ExchangeFactory;
 import org.knowm.xchange.kraken.KrakenExchange;
 import org.knowm.xchange.kraken.service.KrakenMarketDataServiceRaw;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Map;
@@ -95,10 +94,10 @@ public class KrakenService extends BootstrapService {
     public Map<String, DepthBasedOrderBook> provideOrderBooks(Config config) {
       List<String> symbols = config.getStringList("symbols");
       int depth = config.getInt("depth");
-      Exchange exchange = Exchange.valueOf(config.getString("app.exchange").toUpperCase());
+      String source = Source.valueOf(config.getString(CommonConfigs.APP_SOURCE).toUpperCase()).getCode();
       return symbols.stream().collect(Collectors.toMap(sym->sym, sym -> {
         String symbol = SymbolFormatter.normalise(sym);
-        return new DepthBasedOrderBook(symbol, depth, symbol + "." + exchange.getCode());
+        return new DepthBasedOrderBook(symbol, depth, symbol + "." + source);
       }));
     }
 

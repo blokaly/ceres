@@ -3,7 +3,7 @@ package com.blokaly.ceres.marginer;
 import com.blokaly.ceres.binding.BootstrapService;
 import com.blokaly.ceres.binding.CeresModule;
 import com.blokaly.ceres.common.CommonModule;
-import com.blokaly.ceres.common.Exchange;
+import com.blokaly.ceres.common.Source;
 import com.blokaly.ceres.common.Services;
 import com.blokaly.ceres.kafka.KafkaStreamModule;
 import com.google.gson.Gson;
@@ -72,7 +72,7 @@ public class MarginerService extends BootstrapService {
       StreamsBuilder builder = new StreamsBuilder();
       List<String> symbols = config.getStringList("symbols");
       KStream<String, String> stream = builder.stream(symbols.stream().map(sym -> "md." + sym).collect(Collectors.toList()));
-      stream.filter((key, value) -> key.endsWith(Exchange.BEST.getCode())).map(marginProcessor).to("md." + Exchange.FINFABRIK.name().toLowerCase());
+      stream.filter((key, value) -> key.endsWith(Source.BEST.getCode())).map(marginProcessor).to("md." + Source.FINFABRIK.name().toLowerCase());
       return builder;
     }
   }

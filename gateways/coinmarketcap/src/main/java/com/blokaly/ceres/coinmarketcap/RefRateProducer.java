@@ -7,6 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
+import java.util.function.Predicate;
 
 @Singleton
 public class RefRateProducer {
@@ -19,6 +20,8 @@ public class RefRateProducer {
   }
 
   public void publishRate(Collection<TickerEvent> tickers) {
-      LOGGER.info("{}", tickers);
+    tickers.parallelStream().filter(TickerEvent::isValid).forEach(evt -> {
+
+    });
   }
 }

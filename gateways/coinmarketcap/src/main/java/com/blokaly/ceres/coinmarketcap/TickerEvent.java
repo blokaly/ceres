@@ -12,4 +12,8 @@ public class TickerEvent {
     this.usdPrice = usdPrice;
     this.lastUpdate = lastUpdate;
   }
+
+  public boolean isValid() {
+    return !usdPrice.isZero();
+  }
 }

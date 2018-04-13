@@ -6,7 +6,8 @@ import com.blokaly.ceres.anx.event.AbstractEvent;
 import com.blokaly.ceres.anx.event.EventType;
 import com.blokaly.ceres.binding.BootstrapService;
 import com.blokaly.ceres.binding.CeresModule;
-import com.blokaly.ceres.common.Exchange;
+import com.blokaly.ceres.common.CommonConfigs;
+import com.blokaly.ceres.common.Source;
 import com.blokaly.ceres.common.Services;
 import com.blokaly.ceres.data.SymbolFormatter;
 import com.blokaly.ceres.kafka.HBProducer;
@@ -28,11 +29,7 @@ import io.socket.client.IO;
 import io.socket.client.Socket;
 import org.apache.kafka.streams.KafkaStreams;
 import org.apache.kafka.streams.StreamsBuilder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import javax.naming.Name;
-import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -106,10 +103,10 @@ public class AnxService extends BootstrapService {
     @Singleton
     public Map<String, PriceBasedOrderBook> provideOrderBooks(Config config) {
       List<String> symbols = config.getStringList("symbols");
-      String exchange = Exchange.valueOf(config.getString("app.exchange").toUpperCase()).getCode();
+      String source = Source.valueOf(config.getString(CommonConfigs.APP_SOURCE).toUpperCase()).getCode();
       return symbols.stream().collect(Collectors.toMap(sym -> sym, sym -> {
         String symbol = SymbolFormatter.normalise(sym);
-        return new PriceBasedOrderBook(symbol, symbol + "." + exchange);
+        return new PriceBasedOrderBook(symbol, symbol + "." + source);
       }));
     }
 

@@ -21,13 +21,9 @@ import com.pusher.client.PusherOptions;
 import com.typesafe.config.Config;
 import org.apache.kafka.streams.KafkaStreams;
 import org.apache.kafka.streams.StreamsBuilder;
-import org.apache.kafka.streams.kstream.TimeWindows;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 public class BitstampService extends BootstrapService {
@@ -75,11 +71,11 @@ public class BitstampService extends BootstrapService {
         @Exposed
         public List<PusherClient> providePusherClients(Config config, Gson gson, ToBProducer producer, @SingleThread Provider<ExecutorService> provider) {
             PusherOptions options = new PusherOptions();
-            String exchange = Exchange.valueOf(config.getString("app.exchange").toUpperCase()).getCode();
+            String source = Source.valueOf(config.getString(CommonConfigs.APP_SOURCE).toUpperCase()).getCode();
             return config.getConfig("symbols").entrySet().stream()
                 .map(item -> {
                     String symbol = SymbolFormatter.normalise(item.getKey());
-                    OrderBookHandler handler = new OrderBookHandler(new PriceBasedOrderBook(symbol, symbol + "." + exchange), producer, gson, provider.get());
+                    OrderBookHandler handler = new OrderBookHandler(new PriceBasedOrderBook(symbol, symbol + "." + source), producer, gson, provider.get());
                     String subId = (String) item.getValue().unwrapped();
                     return new PusherClient(new Pusher(subId, options), handler, gson);
                 })

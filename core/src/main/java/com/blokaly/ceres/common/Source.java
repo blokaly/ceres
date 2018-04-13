@@ -3,7 +3,7 @@ package com.blokaly.ceres.common;
 import java.util.HashMap;
 import java.util.Map;
 
-public enum Exchange {
+public enum Source {
 
   BEST("BEST", 0),
   FINFABRIK("FFEX", 1),
@@ -14,11 +14,11 @@ public enum Exchange {
   KRAKEN("KRAK", 6)
   ;
 
-  private static final Map<String, Exchange> CODE_MAP = new HashMap<String, Exchange>();
-  private static final Map<Integer, Exchange> ID_MAP = new HashMap<Integer, Exchange>();
+  private static final Map<String, Source> CODE_MAP = new HashMap<String, Source>();
+  private static final Map<Integer, Source> ID_MAP = new HashMap<Integer, Source>();
 
   static {
-    for (Exchange ex : Exchange.values()) {
+    for (Source ex : Source.values()) {
       CODE_MAP.put(ex.code, ex);
       ID_MAP.put(ex.id, ex);
     }
@@ -27,7 +27,7 @@ public enum Exchange {
   private final String code;
   private final int id;
 
-  Exchange(String code, int id) {
+  Source(String code, int id) {
     this.code = code;
     this.id = id;
   }
@@ -40,18 +40,18 @@ public enum Exchange {
     return id;
   }
 
-  public static Exchange lookupByCode(String code) {
+  public static Source lookupByCode(String code) {
     return CODE_MAP.get(code);
   }
 
-  public static Exchange lookupById(int id) {
+  public static Source lookupById(int id) {
     return ID_MAP.get(id);
   }
 
-  public static Exchange parse(String name) {
-    for (Exchange exchange : Exchange.values()) {
-      if (exchange.name().equals(name)) {
-        return exchange;
+  public static Source parse(String name) {
+    for (Source source : Source.values()) {
+      if (source.name().equals(name)) {
+        return source;
       }
     }
 

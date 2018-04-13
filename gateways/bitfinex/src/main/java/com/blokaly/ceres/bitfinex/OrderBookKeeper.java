@@ -1,6 +1,6 @@
 package com.blokaly.ceres.bitfinex;
 
-import com.blokaly.ceres.common.Exchange;
+import com.blokaly.ceres.common.Source;
 import com.blokaly.ceres.data.SymbolFormatter;
 import com.blokaly.ceres.common.CommonConfigs;
 import com.blokaly.ceres.orderbook.OrderBasedOrderBook;
@@ -19,12 +19,12 @@ public class OrderBookKeeper {
     private final Map<Integer, OrderBasedOrderBook> orderbooks;
     private final Map<Integer, String> symMap;
     private final List<String> symbols;
-    private final String exchange;
+    private final String source;
 
     @Inject
     public OrderBookKeeper(Config config) {
         symbols = config.getStringList("symbols");
-        exchange = Exchange.valueOf(config.getString(CommonConfigs.APP_EXCHANGE).toUpperCase()).getCode();
+        source = Source.valueOf(config.getString(CommonConfigs.APP_SOURCE).toUpperCase()).getCode();
         orderbooks = Maps.newHashMap();
         symMap = Maps.newHashMap();
     }
@@ -40,7 +40,7 @@ public class OrderBookKeeper {
     public void makeOrderBook(int channel, String symbol) {
         OrderBasedOrderBook book = orderbooks.get(channel);
         symbol = SymbolFormatter.normalise(symbol);
-        String key = symbol + "." + exchange;
+        String key = symbol + "." + source;
         if (book == null) {
             book = new OrderBasedOrderBook(symbol, key);
             orderbooks.put(channel, book);

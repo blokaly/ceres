@@ -2,7 +2,7 @@ package com.blokaly.ceres.kafka;
 
 import com.blokaly.ceres.common.CommonConfigs;
 import com.blokaly.ceres.common.Configs;
-import com.blokaly.ceres.common.Exchange;
+import com.blokaly.ceres.common.Source;
 import com.blokaly.ceres.common.SingleThread;
 import com.google.inject.Inject;
 import com.typesafe.config.Config;
@@ -36,11 +36,11 @@ public class HBProducer {
   }
 
   private String exchangeOrDefault(String name) {
-    Exchange exchange = Exchange.parse(name.toUpperCase());
-    if (exchange == null) {
+    Source source = Source.parse(name.toUpperCase());
+    if (source == null) {
       return name;
     } else {
-      return exchange.getCode();
+      return source.getCode();
     }
   }
 

@@ -22,7 +22,6 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 public class CoinMarketCapService extends BootstrapService {
-  private static final Logger LOGGER = LoggerFactory.getLogger(CoinMarketCapService.class);
   private final TickerRequester requester;
   private final RefRateProducer producer;
   private final Gson gson;
@@ -46,11 +45,6 @@ public class CoinMarketCapService extends BootstrapService {
     }, 0L, 5L, TimeUnit.MINUTES);
 
     awaitTerminated();
-  }
-
-  @Override
-  protected void shutDown() throws Exception {
-
   }
 
   public static class CoinMarketCapModule extends CeresModule {

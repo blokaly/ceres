@@ -31,7 +31,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 public class BitstampService extends BootstrapService {
-    private static final Logger LOGGER = LoggerFactory.getLogger(BitstampService.class);
     private final List<PusherClient> clients;
     private final KafkaStreams streams;
 
@@ -45,6 +44,8 @@ public class BitstampService extends BootstrapService {
     protected void startUp() throws Exception {
         LOGGER.info("starting pusher client...");
         clients.forEach(PusherClient::start);
+
+        waitFor(3);
         LOGGER.info("starting kafka streams...");
         streams.start();
     }

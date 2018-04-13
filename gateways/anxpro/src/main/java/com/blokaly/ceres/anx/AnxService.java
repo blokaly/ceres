@@ -40,7 +40,6 @@ import java.util.stream.Collectors;
 import static com.blokaly.ceres.anx.event.EventType.SNAPSHOT;
 
 public class AnxService extends BootstrapService {
-  private static final Logger LOGGER = LoggerFactory.getLogger(AnxService.class);
   private final AnxSocketIOClient client;
   private final KafkaStreams streams;
 
@@ -54,6 +53,7 @@ public class AnxService extends BootstrapService {
   protected void startUp() throws Exception {
     LOGGER.info("starting ANX socketio client...");
     client.connect();
+    waitFor(3);
     LOGGER.info("starting kafka streams...");
     streams.start();
   }

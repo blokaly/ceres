@@ -32,7 +32,6 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 public class KrakenService extends BootstrapService {
-  private static final Logger LOGGER = LoggerFactory.getLogger(KrakenService.class);
   private final MarketDataHandler handler;
   private final KafkaStreams streams;
 
@@ -46,6 +45,8 @@ public class KrakenService extends BootstrapService {
   protected void startUp() throws Exception {
     LOGGER.info("starting kraken market data handler...");
     handler.start();
+
+    waitFor(3);
     LOGGER.info("starting kafka streams...");
     streams.start();
   }

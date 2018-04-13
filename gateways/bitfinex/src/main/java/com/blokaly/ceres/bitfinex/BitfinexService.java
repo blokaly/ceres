@@ -31,7 +31,6 @@ import java.util.Map;
 import static com.blokaly.ceres.bitfinex.event.EventType.*;
 
 public class BitfinexService extends BootstrapService {
-  private static final Logger LOGGER = LoggerFactory.getLogger(BitfinexService.class);
   private final BitfinexClient client;
   private final KafkaStreams streams;
 
@@ -45,6 +44,7 @@ public class BitfinexService extends BootstrapService {
   protected void startUp() throws Exception {
     LOGGER.info("starting websocket client...");
     client.connect();
+    waitFor(3);
     LOGGER.info("starting kafka streams...");
     streams.start();
   }

@@ -34,7 +34,6 @@ import java.util.stream.Collectors;
 import static com.blokaly.ceres.gdax.event.EventType.*;
 
 public class GdaxService extends BootstrapService {
-  private static final Logger LOGGER = LoggerFactory.getLogger(GdaxService.class);
   private final Provider<GdaxClient> provider;
   private final KafkaStreams streams;
 
@@ -48,6 +47,8 @@ public class GdaxService extends BootstrapService {
   protected void startUp() throws Exception {
     LOGGER.info("starting gdax client...");
     provider.get().connect();
+
+    waitFor(3);
     LOGGER.info("starting kafka streams...");
     streams.start();
   }

@@ -3,8 +3,8 @@ package com.blokaly.ceres.kraken;
 import com.blokaly.ceres.binding.BootstrapService;
 import com.blokaly.ceres.binding.CeresModule;
 import com.blokaly.ceres.common.CommonConfigs;
-import com.blokaly.ceres.common.Source;
 import com.blokaly.ceres.common.Services;
+import com.blokaly.ceres.common.Source;
 import com.blokaly.ceres.data.SymbolFormatter;
 import com.blokaly.ceres.kafka.HBProducer;
 import com.blokaly.ceres.kafka.KafkaCommonModule;
@@ -70,7 +70,6 @@ public class KrakenService extends BootstrapService {
       expose(KafkaStreams.class).annotatedWith(Names.named("Throttled"));
 
       bind(org.knowm.xchange.Exchange.class).toInstance(ExchangeFactory.INSTANCE.createExchange(KrakenExchange.class.getName()));
-      bind(KrakenRefService.class).asEagerSingleton();
     }
 
     @Provides

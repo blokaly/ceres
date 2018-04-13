@@ -6,37 +6,7 @@ dependencies {
 mainClassName = 'com.blokaly.ceres.coinmarketcap.CoinMarketCapService'
 applicationName = "cmcapfh"
 version = 1.0
-
-applicationDefaultJvmArgs = [
-        "-server", "-showversion", "-Xms512m", "-Xmx512m",
-        "-Dlog.root=MY_APP_HOME/logs",
-        "-Dlog.name=${applicationName}",
-        "-Duser.timezone=GMT",
-        "-Dstd.redirect=true",
-        "-XX:-OmitStackTraceInFastThrow",
-        "-XX:+HeapDumpOnOutOfMemoryError",
-        "-XX:HeapDumpPath=MY_APP_HOME/logs/gc.hprof",
-        "-XX:+DisableExplicitGC",
-        "-XX:+PrintGCDetails",
-        "-XX:+PrintGCApplicationStoppedTime",
-        "-XX:+PrintGCApplicationConcurrentTime",
-        "-XX:+PrintGCDateStamps",
-        "-XX:+UseConcMarkSweepGC",
-        "-XX:+ScavengeBeforeFullGC",
-        "-XX:CMSInitiatingOccupancyFraction=55",
-        "-XX:+CMSScavengeBeforeRemark",
-        "-XX:-CMSIncrementalMode",
-        "-XX:-CMSClassUnloadingEnabled",
-        "-XX:+CMSConcurrentMTEnabled",
-        "-XX:+CMSParallelRemarkEnabled",
-        "-XX:+UseStringCache",
-        "-XX:+OptimizeStringConcat",
-        "-Xloggc:MY_APP_HOME/logs/gc.log"
-]
-
-dockerDistTar {
-    instruction {"RUN mkdir -p /${applicationName}/logs"}
-}
+memoryUsage = "512m"
 
 docker {
     javaApplication {

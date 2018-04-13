@@ -35,7 +35,7 @@ public class StringProducer {
     }
 
     ProducerRecord<String, String> record = new ProducerRecord<>(topic, key, text);
-    LOGGER.debug("publishing -> {}", text);
+    LOGGER.debug("publishing[{}]: {}->{}", topic, key, text);
     producer.send(record, (metadata, exception) -> {
       if (metadata==null || exception != null) {
         LOGGER.error("Error sending Kafka message", exception);

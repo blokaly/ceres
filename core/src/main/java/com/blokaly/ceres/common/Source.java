@@ -1,5 +1,9 @@
 package com.blokaly.ceres.common;
 
+import com.typesafe.config.Config;
+import com.typesafe.config.impl.ConfigImplUtil;
+
+import javax.annotation.Nullable;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -11,7 +15,8 @@ public enum Source {
   BITFINEX("BIFX", 3),
   BITSTAMP("BISP", 4),
   ANXPRO("ANXP", 5),
-  KRAKEN("KRAK", 6)
+  KRAKEN("KRAK", 6),
+  COINMARKETCAP("CMCP", 7)
   ;
 
   private static final Map<String, Source> CODE_MAP = new HashMap<String, Source>();
@@ -56,5 +61,16 @@ public enum Source {
     }
 
     return null;
+  }
+
+  @Nullable
+  public static String getCode(Config config, String path) {
+    try {
+      return Source.valueOf(
+          Configs.getOrDefault(config, path, Configs.STRING_EXTRACTOR, "").toUpperCase())
+          .getCode();
+    } catch (Exception ex) {
+      return null;
+    }
   }
 }

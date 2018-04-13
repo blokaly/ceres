@@ -13,6 +13,14 @@ public class TickerEvent {
     this.lastUpdate = lastUpdate;
   }
 
+  public String getSymbol() {
+    return symbol;
+  }
+
+  public DecimalNumber getUsdPrice() {
+    return usdPrice;
+  }
+
   public boolean isValid() {
     return !usdPrice.isZero();
   }

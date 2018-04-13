@@ -41,9 +41,9 @@ public class CoinMarketCapService extends BootstrapService {
   protected void startUp() throws Exception {
     ses.scheduleAtFixedRate(()->{
       List<TickerEvent> tickers = gson.fromJson(requester.request(), tickersType);
-      producer.publishRate(tickers);
+      producer.update(tickers);
     }, 0L, 5L, TimeUnit.MINUTES);
-
+    ses.scheduleAtFixedRate(producer::publishRate, 5L, 5L, TimeUnit.SECONDS);
     awaitTerminated();
   }
 

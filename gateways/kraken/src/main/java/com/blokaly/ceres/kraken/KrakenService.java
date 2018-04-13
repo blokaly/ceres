@@ -70,6 +70,7 @@ public class KrakenService extends BootstrapService {
       expose(KafkaStreams.class).annotatedWith(Names.named("Throttled"));
 
       bind(org.knowm.xchange.Exchange.class).toInstance(ExchangeFactory.INSTANCE.createExchange(KrakenExchange.class.getName()));
+      bind(KrakenRefService.class).asEagerSingleton();
     }
 
     @Provides

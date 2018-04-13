@@ -9,17 +9,6 @@ mainClassName = 'com.blokaly.ceres.gdax.GdaxService'
 applicationName = "gdaxfh"
 version = 1.0
 
-// conf files should be under src/conf folder, avoid duplication
-sourceSets {
-    main {
-        resources {
-            exclude '**/*'
-        }
-    }
-}
-
-applicationDistribution.from("src/conf") { into "conf" }
-
 applicationDefaultJvmArgs = [
         "-server", "-showversion", "-Xms512m", "-Xmx512m",
         "-Dlog.root=MY_APP_HOME/logs",
@@ -46,15 +35,6 @@ applicationDefaultJvmArgs = [
         "-XX:+OptimizeStringConcat",
         "-Xloggc:MY_APP_HOME/logs/gc.log"
 ]
-
-startScripts {
-    doLast {
-        unixScript.text = unixScript.text.replace('MY_APP_HOME', '\$APP_HOME')
-        unixScript.text = unixScript.text.replace('CLASSPATH=$APP_HOME/lib', 'CLASSPATH=$APP_HOME/conf/:$APP_HOME/lib')
-        windowsScript.text = windowsScript.text.replace('MY_APP_HOME', '%~dp0..')
-        windowsScript.text = windowsScript.text.replace('CLASSPATH=$APP_HOME/lib', 'CLASSPATH=$APP_HOME/conf/:$APP_HOME/lib')
-    }
-}
 
 dockerDistTar {
     instruction {"RUN mkdir -p /${applicationName}/logs"}

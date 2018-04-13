@@ -1,7 +1,5 @@
 apply plugin: 'com.bmuschko.docker-java-application'
 
-ext.memoryUsage = "512m"
-
 subprojects {
     apply plugin : 'application'
     apply plugin: 'com.bmuschko.docker-java-application'

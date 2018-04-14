@@ -1,6 +1,12 @@
 import React, { Component } from 'react';
-import './App.css';
+import {
+   BrowserRouter as Router,
+   Route,
+   Link
+} from 'react-router-dom'
 
+import './App.css';
+import Status from "./components/Status"
 import { default as GrommetApp } from 'grommet/components/App'
 import Header from 'grommet/components/Header';
 import Title from 'grommet/components/Title';
@@ -8,13 +14,10 @@ import Split from 'grommet/components/Split';
 import Sidebar from 'grommet/components/Sidebar';
 import Menu from 'grommet/components/Menu';
 import Anchor from 'grommet/components/Anchor';
-import Section from 'grommet/components/Section';
+import Box from 'grommet/components/Box';
 
-import {
-   BrowserRouter as Router,
-   Route,
-   Link
-} from 'react-router-dom'
+
+
 
 const Home = () => (
    <div>
@@ -67,7 +70,7 @@ class App extends Component {
     return (
        <Router>
              <GrommetApp centered={false}>
-                <Split priority="left" flex="right">
+                <Split priority="right" flex="right">
                    <Sidebar colorIndex="neutral-1" fixed={false}>
                       <Header size="large" justify="between" pad={{horizontal: 'medium'}}>
                          <Title>Ceres Dashboard</Title>
@@ -76,13 +79,15 @@ class App extends Component {
                          <Anchor key="home" path="/" label="Home" />
                          <Anchor key="about" path="/about" label="About" />
                          <Anchor key="topics" path="/topics" label="Topics" />
+                         <Anchor key="status" path="/status" label="Status" />
                       </Menu>
                    </Sidebar>
-                   <Section margin="small">
+                   <div>
                       <Route exact path="/" component={Home}/>
                       <Route path="/about" component={About}/>
                       <Route path="/topics" component={Topics}/>
-                   </Section>
+                      <Route path="/status" component={Status}/>
+                   </div>
                 </Split>
              </GrommetApp>
 

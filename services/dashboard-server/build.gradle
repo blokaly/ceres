@@ -1,0 +1,8 @@
+dependencies {
+    compile project(':services')
+    compile project(':webserver:server')
+}
+
+mainClassName = 'com.blokaly.ceres.monitor.DashboardServer'
+applicationName = "dashboard-server"
+version = 1.0

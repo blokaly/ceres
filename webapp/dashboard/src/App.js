@@ -2,7 +2,8 @@ import React, { Component } from 'react';
 import {
    BrowserRouter as Router,
    Route,
-   Link
+   Link,
+   Switch
 } from 'react-router-dom'
 
 import './App.css';
@@ -82,12 +83,12 @@ class App extends Component {
                          <Anchor key="status" path="/status" label="Status" />
                       </Menu>
                    </Sidebar>
-                   <div>
+                   <Switch>
                       <Route exact path="/" component={Home}/>
                       <Route path="/about" component={About}/>
                       <Route path="/topics" component={Topics}/>
                       <Route path="/status" component={Status}/>
-                   </div>
+                   </Switch>
                 </Split>
              </GrommetApp>
 

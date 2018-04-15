@@ -36,6 +36,7 @@ public class DashboardServer extends BootstrapService {
         @Override
         protected void configureHandlers() {
           bindHandler().toProvider(DashboardWebSocketProvider.class);
+          bindHandler().toProvider(DashboardWebRootProvider.class);
         }
       }));
       expose(Undertow.class);

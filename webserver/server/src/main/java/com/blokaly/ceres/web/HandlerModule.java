@@ -1,7 +1,9 @@
 package com.blokaly.ceres.web;
 
 import com.blokaly.ceres.binding.CeresModule;
-import com.google.inject.*;
+import com.google.inject.Exposed;
+import com.google.inject.Provides;
+import com.google.inject.Singleton;
 import com.google.inject.binder.LinkedBindingBuilder;
 import com.google.inject.multibindings.Multibinder;
 import io.undertow.Handlers;

@@ -3,6 +3,12 @@ dependencies {
     compile project(':webserver:server')
 }
 
+sourceSets {
+    main {
+        resources { srcDir 'src/webapp'	}
+    }
+}
+
 mainClassName = 'com.blokaly.ceres.monitor.DashboardServer'
 applicationName = "dashboard-server"
 version = 1.0

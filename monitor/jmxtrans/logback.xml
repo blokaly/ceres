@@ -1,0 +1,27 @@
+<configuration debug="false">
+
+    <appender name="File" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>/var/log/jmxtrans/${log.name}.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>${log.name}/${log.name}-%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+            <maxFileSize>500MB</maxFileSize>
+            <maxHistory>14</maxHistory>
+        </rollingPolicy>
+        <encoder>
+            <charset>UTF-8</charset>
+            <pattern>%d{yyyy-MM-dd'T'HH:mm:ss.SSSZ}[%level][%.10thread]  %logger{32} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+
+    <appender name="AsyncFile" class="ch.qos.logback.classic.AsyncAppender">
+        <queueSize>500</queueSize>
+        <discardingThreshold>0</discardingThreshold>
+        <appender-ref ref="File" />
+    </appender>
+
+    <root level="INFO">
+        <appender-ref ref="AsyncFile" />
+    </root>
+
+</configuration>

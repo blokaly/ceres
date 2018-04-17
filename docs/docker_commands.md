@@ -42,6 +42,10 @@
 
     `> docker exec -it <name> bash`   
     
+- Connect to an image
+    
+    `> docker run -i -t <image> /bin/bash`
+    
 - Remove all unused images
     
     `> docker rmi $(docker images -a|grep "<none>"|awk '$2=="<none>" {print $3}')`

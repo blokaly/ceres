@@ -4,8 +4,9 @@ subprojects {
     apply plugin : 'application'
     apply plugin: 'com.bmuschko.docker-java-application'
 
-    jar {
-        exclude {source -> !source.directory && source.file.path.contains("resources/main")}
+    processResources {
+        exclude('logback.xml')
+        exclude('defaults.conf')
     }
 
     applicationDistribution.from("src/conf") { into "conf" }

@@ -8,6 +8,7 @@ import {
 
 import './App.css';
 import Status from "./components/Status"
+import Home from "./components/Home"
 import { default as GrommetApp } from 'grommet/components/App'
 import Header from 'grommet/components/Header';
 import Title from 'grommet/components/Title';
@@ -17,14 +18,11 @@ import Menu from 'grommet/components/Menu';
 import Anchor from 'grommet/components/Anchor';
 import Box from 'grommet/components/Box';
 
-
-
-
-const Home = () => (
-   <div>
-      <h2>Home</h2>
-   </div>
-)
+// const Home = () => (
+//    <div>
+//       <h2>Home</h2>
+//    </div>
+// )
 
 const About = () => (
    <div>

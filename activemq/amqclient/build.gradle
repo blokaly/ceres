@@ -1,0 +1,6 @@
+dependencies {
+    compile project(':activemq')
+    compile 'org.apache.activemq:activemq-broker:5.15.2'
+    compile 'org.apache.activemq:activemq-client:5.15.2'
+}
+

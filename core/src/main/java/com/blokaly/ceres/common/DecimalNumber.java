@@ -8,6 +8,7 @@ public class DecimalNumber implements Comparable<DecimalNumber> {
 
     public static DecimalNumber ZERO = new DecimalNumber(0L, 0);
     public static DecimalNumber ONE = new DecimalNumber(1L, 0);
+    public static DecimalNumber MAX = new DecimalNumber(Long.MAX_VALUE, 0);
     private static int maxLongValue = String.valueOf(Long.MAX_VALUE).length();
 
     private long longValue;

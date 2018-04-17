@@ -1,0 +1,16 @@
+dependencies {
+    compile project(':gateways')
+    compile project(':kafka:kclient')
+}
+
+mainClassName = 'com.blokaly.ceres.coinmarketcap.CoinMarketCapService'
+applicationName = "cmcapfh"
+version = 1.0
+memoryUsage = "512m"
+
+docker {
+    javaApplication {
+        baseImage = 'blokaly/java8:latest'
+        tag = "${dockerRepo}/ceres-${applicationName}:${version}"
+    }
+}

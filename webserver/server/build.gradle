@@ -1,0 +1,5 @@
+dependencies {
+    compile project(':webserver')
+    compile 'io.undertow:undertow-core:2.0.1.Final'
+}
+

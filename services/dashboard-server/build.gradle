@@ -1,0 +1,22 @@
+dependencies {
+    compile project(':services')
+    compile project(':webserver:server')
+}
+
+sourceSets {
+    main {
+        resources { srcDir 'src/webapp'	}
+    }
+}
+
+mainClassName = 'com.blokaly.ceres.monitor.DashboardServer'
+applicationName = "dashboard-server"
+version = 1.0
+
+docker {
+    javaApplication {
+        baseImage = 'blokaly/java8:latest'
+        ports = [8080]
+        tag = "${dockerRepo}/ceres-${applicationName}:${version}"
+    }
+}

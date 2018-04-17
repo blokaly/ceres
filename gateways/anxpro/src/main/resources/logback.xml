@@ -1,0 +1,16 @@
+<configuration scan="true">
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{yyyy-MM-dd'T'HH:mm:ss.SSSZ}[%.-1level][%thread]  %logger{32} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <logger name="com.blokaly.monitor" level="INFO">
+        <appender-ref ref="STDOUT"/>
+    </logger>
+
+    <root level="INFO">
+        <appender-ref ref="STDOUT" />
+    </root>
+
+</configuration>

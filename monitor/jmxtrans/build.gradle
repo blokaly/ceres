@@ -1,0 +1,52 @@
+apply plugin: 'com.bmuschko.docker-remote-api'
+
+import com.bmuschko.gradle.docker.tasks.image.Dockerfile
+import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
+import com.bmuschko.gradle.docker.tasks.image.DockerPushImage
+
+buildscript {
+    repositories {
+        jcenter()
+        mavenCentral()
+    }
+
+    dependencies {
+        classpath 'com.bmuschko:gradle-docker-plugin:3.2.5'
+    }
+}
+
+ext {
+    app = "kafkamon"
+}
+
+task createDockerfile(type: Dockerfile) {
+    dependsOn processResources
+    destFile = project.file('build/resources/main/Dockerfile')
+    from 'blokaly/jmxtrans:latest'
+    environmentVariable 'JMXTRANS_HOME':'/usr/share/jmxtrans'
+    environmentVariable 'PATH':'$JMXTRANS_HOME/bin:$PATH'
+    environmentVariable 'JAR_FILE':'$JMXTRANS_HOME/lib/jmxtrans-all.jar'
+    environmentVariable 'HEAP_SIZE':'512'
+    environmentVariable 'SECONDS_BETWEEN_RUNS':'60'
+    environmentVariable 'CONTINUE_ON_ERROR':'false'
+    environmentVariable 'JSON_DIR':'/var/lib/jmxtrans'
+    environmentVariable 'LOG_NAME':"${app}"
+
+    workingDir '${JMXTRANS_HOME}'
+    copyFile 'docker-entrypoint.sh', '$JMXTRANS_HOME/bin/'
+    copyFile 'kafka.json', '$JSON_DIR/'
+
+    exposePort 9999
+    entryPoint '/usr/share/jmxtrans/bin/docker-entrypoint.sh', 'start-with-jmx'
+}
+
+task buildImage(type: DockerBuildImage) {
+    dependsOn createDockerfile
+    inputDir = createDockerfile.destFile.parentFile
+    tag = "${dockerRepo}/ceres-${app}:latest"
+}
+
+task pushImage(type: DockerPushImage) {
+    dependsOn buildImage
+    imageName = "${dockerRepo}/ceres-${app}"
+}

@@ -4,6 +4,9 @@ allprojects {
         mavenCentral()
     }
 
+    group = 'com.blokaly.ceres'
+    version = '1.0'
+
     apply plugin : 'idea'
     apply plugin : 'java'
     apply plugin : 'groovy'
@@ -14,13 +17,17 @@ allprojects {
         testCompile 'org.spockframework:spock-core:1.0-groovy-2.4', {
             exclude module : 'groovy-all'
         }
+        testCompile "info.cukes:cucumber-java8:1.2.5"
+        testCompile "info.cukes:cucumber-junit:1.2.5"
     }
 }
 
 subprojects {
-    version = '1.0'
     sourceCompatibility = 1.8
     targetCompatibility = 1.8
+    ext {
+        dockerRepo = project.hasProperty('dockerRepo') ? project.getProperty('dockerRepo') : 'blokaly'
+    }
 }
 
 

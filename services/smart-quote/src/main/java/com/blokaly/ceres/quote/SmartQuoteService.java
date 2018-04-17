@@ -46,7 +46,6 @@ public class SmartQuoteService extends BootstrapService {
 
     @Override
     protected void configure() {
-      install(new CommonModule());
       install(new KafkaStreamModule());
       expose(KafkaStreams.class);
     }

@@ -17,7 +17,7 @@ subprojects {
             "-XmsMY_APP_MEM",
             "-XmxMY_APP_MEM",
             "-Dlog.root=MY_APP_HOME/logs",
-            "-Dlog.name=${applicationName}",
+            "-Dlog.name=MY_APP_NAME",
             "-Duser.timezone=GMT",
             "-Dstd.redirect=true",
             "-XX:-OmitStackTraceInFastThrow",
@@ -43,11 +43,13 @@ subprojects {
 
     startScripts {
         doLast {
+            unixScript.text = unixScript.text.replace('MY_APP_NAME', '\$APP_NAME')
             unixScript.text = unixScript.text.replace('MY_APP_HOME', '\$APP_HOME')
             unixScript.text = unixScript.text.replace('MY_APP_MEM', getMemoryUsage())
             unixScript.text = unixScript.text.replace('CLASSPATH=$APP_HOME/lib', 'CLASSPATH=$APP_HOME/conf/:$APP_HOME/lib')
+            windowsScript.text = windowsScript.text.replace('MY_APP_NAME', '\$APP_NAME')
             windowsScript.text = windowsScript.text.replace('MY_APP_HOME', '%~dp0..')
-            windowsScript.text = unixScript.text.replace('MY_APP_MEM', getMemoryUsage())
+            windowsScript.text = windowsScript.text.replace('MY_APP_MEM', getMemoryUsage())
             windowsScript.text = windowsScript.text.replace('CLASSPATH=$APP_HOME/lib', 'CLASSPATH=$APP_HOME/conf/:$APP_HOME/lib')
         }
     }

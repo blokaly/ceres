@@ -32,7 +32,11 @@ public class ToBMapper implements KeyValueMapper<String, String, KeyValue<String
     JsonArray tob = gson.fromJson(value, JsonArray.class);
     JsonArray bid = tob.get(0).getAsJsonArray();
     JsonArray ask = tob.get(1).getAsJsonArray();
-    JsonOrderBook book = JsonOrderBook.parse(symex[1], bid.get(0).getAsJsonArray(), ask.get(0).getAsJsonArray());
+
+    JsonArray topBid = bid.size() == 0 ? null : bid.get(0).getAsJsonArray();
+    JsonArray topAsk = ask.size() == 0 ? null : ask.get(0).getAsJsonArray();
+
+    JsonOrderBook book = JsonOrderBook.parse(symex[1], topBid, topAsk);
     BestTopOfBook topOfBook = books.get(symex[0]);
     topOfBook.processSnapshot(book);
 

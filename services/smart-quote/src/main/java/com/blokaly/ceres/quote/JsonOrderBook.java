@@ -19,8 +19,8 @@ public class JsonOrderBook implements MarketDataSnapshot<IdBasedOrderInfo> {
 
   public static JsonOrderBook parse(String id, JsonArray bid, JsonArray ask) {
 
-    List<IdBasedOrderInfo> bids = Collections.singletonList(new JsonArrayOrderInfo(id, OrderInfo.Side.BUY, bid.getAsJsonArray()));
-    List<IdBasedOrderInfo> asks = Collections.singletonList(new JsonArrayOrderInfo(id, OrderInfo.Side.SELL, ask.getAsJsonArray()));
+    List<IdBasedOrderInfo> bids = bid==null ? Collections.emptyList() : Collections.singletonList(new JsonArrayOrderInfo(id, OrderInfo.Side.BUY, bid.getAsJsonArray()));
+    List<IdBasedOrderInfo> asks = ask==null ? Collections.emptyList() : Collections.singletonList(new JsonArrayOrderInfo(id, OrderInfo.Side.SELL, ask.getAsJsonArray()));
     return new JsonOrderBook(bids, asks);
   }
 

@@ -2,7 +2,7 @@ subprojects {
     apply plugin : 'application'
     apply plugin: 'com.bmuschko.docker-java-application'
 
-    processResources {
+    jar {
         exclude('logback.xml')
         exclude('defaults.conf')
     }

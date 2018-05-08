@@ -3,16 +3,14 @@ package com.blokaly.ceres.kafka;
 public interface Channel<T> {
 
   interface Subscription<T> {
-    String getId();
-    void onUpdate(T item);
+    void onUpdate(String topic, String key, T value);
     void add(Subscriber<T> subscriber);
     void remove(Subscriber<T> subscriber);
   }
 
   interface Subscriber<T> {
-    String getId();
-    void onSubscription(String subscriptionId, T item);
+    void onSubscription(String topic, String key, T value);
   }
 
-  Subscription<T> subscribe(String topic, Subscriber<T> subscriber);
+  Subscription<T> subscribe(Subscriber<T> subscriber, String... topics);
 }

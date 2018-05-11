@@ -53,6 +53,11 @@ public class BestTopOfBook implements OrderBook<IdBasedOrderInfo>, TopOfBook {
   }
 
   @Override
+  public long getLastSequence() {
+    return lastSequence;
+  }
+
+  @Override
   public Collection<? extends Level> getBids() {
     return null;
   }

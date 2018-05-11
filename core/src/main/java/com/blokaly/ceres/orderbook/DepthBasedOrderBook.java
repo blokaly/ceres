@@ -35,6 +35,11 @@ public class DepthBasedOrderBook implements OrderBook<DepthBasedOrderInfo>, TopO
     return symbol;
   }
 
+  @Override
+  public long getLastSequence() {
+    return lastSequence;
+  }
+
   public int getDepth() {
     return depth;
   }

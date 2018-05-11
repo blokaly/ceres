@@ -34,6 +34,11 @@ public class OrderBasedOrderBook implements OrderBook<IdBasedOrderInfo>, TopOfBo
   }
 
   @Override
+  public long getLastSequence() {
+    return lastSequence;
+  }
+
+  @Override
   public Collection<? extends Level> getBids() {
     return bids.values();
   }

@@ -1,0 +1,17 @@
+dependencies {
+    compile project(':gateways')
+    compile project(':kafka:kclient')
+    compile project(':kafka:kstream')
+    compile "com.pusher:pusher-java-client:1.8.0"
+}
+
+mainClassName = 'com.blokaly.ceres.bitstamp.BinanceService'
+applicationName = "binancefh"
+version = 1.0
+
+docker {
+    javaApplication {
+        baseImage = 'blokaly/java8:latest'
+        tag = "${dockerRepo}/ceres-${applicationName}:${version}"
+    }
+}

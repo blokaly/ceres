@@ -2,6 +2,9 @@ allprojects {
     repositories {
         jcenter()
         mavenCentral()
+        maven {
+            url  "https://dl.bintray.com/blokaly/pusher"
+        }
     }
 
     group = 'com.blokaly.ceres'

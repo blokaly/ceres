@@ -13,6 +13,6 @@ public class RefreshCallbackHandler implements CommandCallbackHandler<L2UpdateEv
     JsonObject update = json.getAsJsonObject();
     String productId = update.get("product_id").getAsString();
     JsonArray changes = update.getAsJsonArray("changes");
-    return L2UpdateEvent.parse(System.currentTimeMillis(), productId, changes);
+    return L2UpdateEvent.parse(System.nanoTime(), productId, changes);
   }
 }

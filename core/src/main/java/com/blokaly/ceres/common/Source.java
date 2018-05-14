@@ -17,7 +17,8 @@ public enum Source {
   ANXPRO("ANXP", 5),
   KRAKEN("KRAK", 6),
   COINMARKETCAP("CMCP", 7),
-  BINANCE("BIAN", 8)
+  BINANCE("BIAN", 8),
+  QUOINEX("QUIN", 9)
   ;
 
   private static final Map<String, Source> CODE_MAP = new HashMap<String, Source>();

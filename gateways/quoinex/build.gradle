@@ -5,8 +5,8 @@ dependencies {
     compile "com.pusher:pusher-java-client:1.8.1.1"
 }
 
-mainClassName = 'com.blokaly.ceres.bitstamp.BitstampService'
-applicationName = "bitstampfh"
+mainClassName = 'com.blokaly.ceres.quoinex.QuoinexService'
+applicationName = "quoinexfh"
 version = 1.0
 
 docker {

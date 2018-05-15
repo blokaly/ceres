@@ -19,7 +19,8 @@ public enum Source {
   COINMARKETCAP("CMCP", 7),
   BINANCE("BIAN", 8),
   QUOINEX("QUIN", 9),
-  HUOBIPRO("HOBI", 10)
+  HUOBIPRO("HOBI", 10),
+  CEX("CEXO", 10)
   ;
 
   private static final Map<String, Source> CODE_MAP = new HashMap<String, Source>();

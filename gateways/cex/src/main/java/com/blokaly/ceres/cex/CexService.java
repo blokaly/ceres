@@ -1,14 +1,15 @@
-package com.blokaly.ceres.huobi;
+package com.blokaly.ceres.cex;
 
 import com.blokaly.ceres.binding.BootstrapService;
 import com.blokaly.ceres.binding.CeresModule;
+import com.blokaly.ceres.cex.callback.*;
+import com.blokaly.ceres.cex.event.AbstractEvent;
+import com.blokaly.ceres.cex.event.EventType;
 import com.blokaly.ceres.common.CommonConfigs;
+import com.blokaly.ceres.common.PairSymbol;
 import com.blokaly.ceres.common.Services;
 import com.blokaly.ceres.common.Source;
 import com.blokaly.ceres.data.SymbolFormatter;
-import com.blokaly.ceres.huobi.callback.*;
-import com.blokaly.ceres.huobi.event.EventType;
-import com.blokaly.ceres.huobi.event.WSEvent;
 import com.blokaly.ceres.kafka.HBProducer;
 import com.blokaly.ceres.kafka.KafkaCommonModule;
 import com.blokaly.ceres.kafka.KafkaStreamModule;
@@ -29,19 +30,19 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-public class HuobiService extends BootstrapService {
-  private final Provider<HuobiClient> provider;
+public class CexService extends BootstrapService {
+  private final Provider<CexClient> provider;
   private final KafkaStreams streams;
 
   @Inject
-  public HuobiService(Provider<HuobiClient> provider, @Named("Throttled") KafkaStreams streams) {
+  public CexService(Provider<CexClient> provider, @Named("Throttled") KafkaStreams streams) {
     this.provider = provider;
     this.streams = streams;
   }
 
   @Override
   protected void startUp() throws Exception {
-    LOGGER.info("starting huobi client...");
+    LOGGER.info("starting cex client...");
     provider.get().connect();
 
     waitFor(3);
@@ -51,13 +52,13 @@ public class HuobiService extends BootstrapService {
 
   @Override
   protected void shutDown() throws Exception {
-    LOGGER.info("stopping huobi client...");
+    LOGGER.info("stopping cex client...");
     provider.get().close();
     LOGGER.info("stopping kafka streams...");
     streams.close();
   }
 
-  public static class HuobiModule extends CeresModule {
+  public static class CexModule extends CeresModule {
 
     @Override
     protected void configure() {
@@ -70,7 +71,7 @@ public class HuobiService extends BootstrapService {
 
       bindAllCallbacks();
       bind(MessageHandler.class).to(MessageHandlerImpl.class).in(Singleton.class);
-      bindExpose(HuobiClient.class).toProvider(HuobiClientProvider.class).in(Singleton.class);
+      bindExpose(CexClient.class).toProvider(CexClientProvider.class).in(Singleton.class);
     }
 
     @Provides
@@ -84,33 +85,39 @@ public class HuobiService extends BootstrapService {
     @Exposed
     public Gson provideGson(Map<EventType, CommandCallbackHandler> handlers) {
       GsonBuilder builder = new GsonBuilder();
-      builder.registerTypeAdapter(WSEvent.class, new EventAdapter(handlers));
+      builder.registerTypeAdapter(AbstractEvent.class, new EventAdapter(handlers));
       return builder.create();
     }
 
     @Provides
     @Singleton
     @Exposed
-    public Map<String, PriceBasedOrderBook> provideOrderBooks(Config config) {
+    public Map<PairSymbol, PriceBasedOrderBook> provideOrderBooks(Config config) {
       List<String> symbols = config.getStringList("symbols");
       String source = Source.valueOf(config.getString(CommonConfigs.APP_SOURCE).toUpperCase()).getCode();
-      return symbols.stream().collect(Collectors.toMap(sym->sym, sym -> {
-        String symbol = SymbolFormatter.normalise(sym);
-        String pair = symbol.endsWith("usdt") ? symbol.replace("usdt", "usd") : symbol;
-        return new PriceBasedOrderBook(symbol, pair + "." + source);
+      return symbols.stream().collect(Collectors.toMap(this::parseSymbol, sym -> {
+        PairSymbol pairSymbol = parseSymbol(sym);
+        String code = pairSymbol.getCode();
+        return new PriceBasedOrderBook(code, code + "." + source);
       }));
+    }
+
+    private PairSymbol parseSymbol(String symbol) {
+      String[] syms = symbol.split("/");
+      return SymbolFormatter.normalise(syms[0], syms[1]);
     }
 
     private void bindAllCallbacks() {
       MapBinder<EventType, CommandCallbackHandler> binder = MapBinder.newMapBinder(binder(), EventType.class, CommandCallbackHandler.class);
+      binder.addBinding(EventType.CONNECTED).to(ConnectedCallbackHandler.class);
+      binder.addBinding(EventType.AUTH).to(AuthCallbackHandler.class);
+      binder.addBinding(EventType.SUBSCRIBE).to(SnapshotCallbackHandler.class);
+      binder.addBinding(EventType.UPDATE).to(MDUpdateCallbackHandler.class);
       binder.addBinding(EventType.PING).to(PingCallbackHandler.class);
-      binder.addBinding(EventType.PONG).to(PongCallbackHandler.class);
-      binder.addBinding(EventType.SUBSCRIBED).to(SubscribedCallbackHandler.class);
-      binder.addBinding(EventType.TICK).to(SnapshotCallbackHandler.class);
     }
   }
 
   public static void main(String[] args) {
-    Services.start(new HuobiModule());
+    Services.start(new CexModule());
   }
 }

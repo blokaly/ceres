@@ -96,7 +96,8 @@ public class HuobiService extends BootstrapService {
       String source = Source.valueOf(config.getString(CommonConfigs.APP_SOURCE).toUpperCase()).getCode();
       return symbols.stream().collect(Collectors.toMap(sym->sym, sym -> {
         String symbol = SymbolFormatter.normalise(sym);
-        return new PriceBasedOrderBook(symbol, symbol + "." + source);
+        String pair = symbol.endsWith("usdt") ? symbol.replace("usdt", "usd") : symbol;
+        return new PriceBasedOrderBook(symbol, pair + "." + source);
       }));
     }
 

@@ -7,7 +7,6 @@ dependencies {
 
 mainClassName = 'com.blokaly.ceres.kraken.KrakenService'
 applicationName = "krakenfh"
-version = 1.0
 
 docker {
     javaApplication {

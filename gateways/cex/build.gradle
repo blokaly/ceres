@@ -7,7 +7,6 @@ dependencies {
 
 mainClassName = 'com.blokaly.ceres.cex.CexService'
 applicationName = "cexfh"
-version = 1.0
 
 docker {
     javaApplication {

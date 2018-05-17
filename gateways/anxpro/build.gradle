@@ -7,7 +7,6 @@ dependencies {
 
 mainClassName = 'com.blokaly.ceres.anx.AnxService'
 applicationName = "anxfh"
-version = 1.0
 
 docker {
     javaApplication {

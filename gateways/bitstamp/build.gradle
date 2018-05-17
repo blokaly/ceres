@@ -7,7 +7,6 @@ dependencies {
 
 mainClassName = 'com.blokaly.ceres.bitstamp.BitstampService'
 applicationName = "bitstampfh"
-version = 1.0
 
 docker {
     javaApplication {

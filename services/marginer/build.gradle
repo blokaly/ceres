@@ -5,7 +5,6 @@ dependencies {
 
 mainClassName = 'com.blokaly.ceres.marginer.MarginerService'
 applicationName = "marginer"
-version = 1.0
 
 docker {
     javaApplication {

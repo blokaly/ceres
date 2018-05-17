@@ -27,9 +27,6 @@ allprojects {
 subprojects {
     sourceCompatibility = 1.8
     targetCompatibility = 1.8
-    ext {
-        dockerRepo = project.hasProperty('dockerRepo') ? project.getProperty('dockerRepo') : 'blokaly'
-    }
 }
 
 

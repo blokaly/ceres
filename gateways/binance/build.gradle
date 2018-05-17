@@ -7,7 +7,6 @@ dependencies {
 
 mainClassName = 'com.blokaly.ceres.binance.BinanceService'
 applicationName = "binancefh"
-version = 1.0
 
 docker {
     javaApplication {

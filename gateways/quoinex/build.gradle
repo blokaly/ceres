@@ -7,7 +7,6 @@ dependencies {
 
 mainClassName = 'com.blokaly.ceres.quoinex.QuoinexService'
 applicationName = "quoinexfh"
-version = 1.0
 
 docker {
     javaApplication {

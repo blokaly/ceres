@@ -5,7 +5,6 @@ dependencies {
 
 mainClassName = 'com.blokaly.ceres.coinmarketcap.CoinMarketCapService'
 applicationName = "cmcapfh"
-version = 1.0
 memoryUsage = "512m"
 
 docker {

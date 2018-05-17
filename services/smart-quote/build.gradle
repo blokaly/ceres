@@ -5,7 +5,6 @@ dependencies {
 
 mainClassName = 'com.blokaly.ceres.quote.SmartQuoteService'
 applicationName = "smart-quote"
-version = 1.0
 
 docker {
     javaApplication {

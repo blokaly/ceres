@@ -7,7 +7,6 @@ dependencies {
 
 mainClassName = 'com.blokaly.ceres.huobi.HuobiService'
 applicationName = "huobifh"
-version = 1.0
 
 docker {
     javaApplication {

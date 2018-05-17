@@ -5,6 +5,8 @@ import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
+import java.util.zip.Inflater;
+import java.util.zip.InflaterInputStream;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
@@ -62,6 +64,12 @@ public class GzipUtils {
   public static String inflate(InputStream in) throws IOException {
     GZIPInputStream gis = new GZIPInputStream(in);
     byte[] bytes = toByteArray(gis);
+    return new String(bytes, UTF_8);
+  }
+
+  public static String inflateRaw(byte[] compressed) throws IOException {
+    InflaterInputStream iis = new InflaterInputStream(new ByteArrayInputStream(compressed), new Inflater(true));
+    byte[] bytes = toByteArray(iis);
     return new String(bytes, UTF_8);
   }
 

@@ -2,13 +2,12 @@ allprojects {
     repositories {
         jcenter()
         mavenCentral()
-        maven {
-            url  "https://dl.bintray.com/blokaly/pusher"
-        }
+        maven { url  "https://dl.bintray.com/blokaly/pusher" }
+        maven { url  "https://github.com/finfabrik/java-client" }
     }
 
     group = 'com.blokaly.ceres'
-    version = '1.0'
+    version = "${version}"
 
     apply plugin : 'idea'
     apply plugin : 'java'

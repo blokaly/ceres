@@ -5,7 +5,6 @@ dependencies {
 
 mainClassName = 'com.blokaly.ceres.persist.StreamPersistService'
 applicationName = "stream-persister"
-version = 1.0
 
 docker {
     javaApplication {

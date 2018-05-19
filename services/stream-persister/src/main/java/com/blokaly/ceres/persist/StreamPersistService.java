@@ -1,6 +1,6 @@
 package com.blokaly.ceres.persist;
 
-import com.blokaly.ceres.binding.BootstrapService;
+import com.blokaly.ceres.binding.AwaitExecutionService;
 import com.blokaly.ceres.binding.CeresModule;
 import com.blokaly.ceres.common.Services;
 import com.blokaly.ceres.influxdb.InfluxdbModule;
@@ -10,7 +10,7 @@ import org.influxdb.dto.Pong;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class StreamPersistService extends BootstrapService {
+public class StreamPersistService extends AwaitExecutionService {
     private static Logger LOGGER = LoggerFactory.getLogger(StreamPersistService.class);
     private InfluxDB influxDB;
     private final TestPersister testPersister;
@@ -29,7 +29,6 @@ public class StreamPersistService extends BootstrapService {
             LOGGER.info("Influxdb connection OK");
         }
         testPersister.startUp();
-        awaitTerminated();
     }
 
     @Override

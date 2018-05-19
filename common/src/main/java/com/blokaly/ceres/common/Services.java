@@ -35,6 +35,9 @@ public class Services {
       for (Class<? extends Service> service : services) {
         binder.addBinding().to(service);
       }
+      if (services.isEmpty()) {
+        throw new IllegalStateException("No ceres service found");
+      }
       bind(HealthCheckRegister.class).asEagerSingleton();
     }
 

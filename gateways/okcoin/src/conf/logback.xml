@@ -1,0 +1,52 @@
+<configuration scan="true">
+
+    <contextListener class="ch.qos.logback.classic.jul.LevelChangePropagator">
+        <resetJUL>true</resetJUL>
+    </contextListener>
+
+    <appender name="MainFile" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${log.root}/${log.name}.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>${log.name}/${log.name}-%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+            <maxFileSize>500MB</maxFileSize>
+            <maxHistory>14</maxHistory>
+        </rollingPolicy>
+        <encoder>
+            <charset>UTF-8</charset>
+            <pattern>%d{yyyy-MM-dd'T'HH:mm:ss.SSSZ}[%level][%.10thread]  %logger{32} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <appender name="MonitorFile" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${log.root}/${log.name}-monitor.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>${log.name}/${log.name}-monitor-%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+            <maxFileSize>500MB</maxFileSize>
+            <maxHistory>14</maxHistory>
+        </rollingPolicy>
+        <encoder>
+            <charset>UTF-8</charset>
+            <pattern>%d{yyyy-MM-dd'T'HH:mm:ss.SSSZ}[%level][%.10thread]  %logger{32} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <appender name="AsyncFile" class="ch.qos.logback.classic.AsyncAppender">
+        <queueSize>500</queueSize>
+        <discardingThreshold>0</discardingThreshold>
+        <appender-ref ref="MainFile" />
+    </appender>
+
+    <appender name="AsyncMonitor" class="ch.qos.logback.classic.AsyncAppender">
+        <discardingThreshold>0</discardingThreshold>
+        <appender-ref ref="MonitorFile" />
+    </appender>
+
+    <logger name="com.blokaly.monitor" level="INFO" additivity="false">
+        <appender-ref ref="AsyncMonitor" />
+    </logger>
+
+    <root level="INFO">
+        <appender-ref ref="AsyncFile" />
+    </root>
+
+</configuration>

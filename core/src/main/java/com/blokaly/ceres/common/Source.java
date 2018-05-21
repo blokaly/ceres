@@ -21,7 +21,8 @@ public enum Source {
   QUOINEX("QUIN", 9),
   HUOBIPRO("HOBI", 10),
   CEX("CEXO", 11),
-  BITTREX("BTRX", 12)
+  BITTREX("BTRX", 12),
+  OKCOIN("OKCN", 13)
   ;
 
   private static final Map<String, Source> CODE_MAP = new HashMap<String, Source>();

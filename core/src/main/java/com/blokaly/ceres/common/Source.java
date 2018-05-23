@@ -22,7 +22,8 @@ public enum Source {
   HUOBIPRO("HOBI", 10),
   CEX("CEXO", 11),
   BITTREX("BTRX", 12),
-  OKCOIN("OKCN", 13)
+  OKCOIN("OKCN", 13),
+  OKEX("OKEX", 14)
   ;
 
   private static final Map<String, Source> CODE_MAP = new HashMap<String, Source>();

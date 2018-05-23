@@ -5,7 +5,6 @@ import com.blokaly.ceres.binding.CeresModule;
 import com.blokaly.ceres.common.CommonConfigs;
 import com.blokaly.ceres.common.Services;
 import com.blokaly.ceres.common.Source;
-import com.blokaly.ceres.data.SymbolFormatter;
 import com.blokaly.ceres.kafka.HBProducer;
 import com.blokaly.ceres.kafka.KafkaCommonModule;
 import com.blokaly.ceres.kafka.KafkaStreamModule;
@@ -57,7 +56,7 @@ public class OKCoinService extends BootstrapService {
     streams.close();
   }
 
-  public static class HuobiModule extends CeresModule {
+  public static class OKCoinModule extends CeresModule {
 
     @Override
     protected void configure() {
@@ -109,6 +108,6 @@ public class OKCoinService extends BootstrapService {
   }
 
   public static void main(String[] args) {
-    Services.start(new HuobiModule());
+    Services.start(new OKCoinModule());
   }
 }

@@ -28,11 +28,15 @@ public class EventAdapter implements JsonDeserializer<ChannelEvent> {
       if ("addChannel".equals(channel)) {
         return context.deserialize(data, SubscribedEvent.class);
       } else {
-        long sequence = data.get("timestamp").getAsLong();
-        JsonArray emtptyArray = new JsonArray();
-        JsonArray bids = data.has("bids") ? data.get("bids").getAsJsonArray() : emtptyArray;
-        JsonArray asks = data.has("asks") ? data.get("asks").getAsJsonArray() : emtptyArray;
-        return MDUpdateEvent.parse(channel, sequence, bids, asks);
+        if (data.has("result") && !data.get("result").getAsBoolean()) {
+          return context.deserialize(data, ErrorEvent.class);
+        } else {
+          long sequence = data.get("timestamp").getAsLong();
+          JsonArray emtptyArray = new JsonArray();
+          JsonArray bids = data.has("bids") ? data.get("bids").getAsJsonArray() : emtptyArray;
+          JsonArray asks = data.has("asks") ? data.get("asks").getAsJsonArray() : emtptyArray;
+          return MDUpdateEvent.parse(channel, sequence, bids, asks);
+        }
       }
     } else {
       return context.deserialize(data, ErrorEvent.class);

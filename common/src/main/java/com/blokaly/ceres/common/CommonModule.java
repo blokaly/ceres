@@ -12,6 +12,7 @@ import com.google.inject.Singleton;
 import com.typesafe.config.Config;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.bridge.SLF4JBridgeHandler;
 
 import java.io.FileNotFoundException;
 import java.io.PrintStream;
@@ -28,6 +29,7 @@ public class CommonModule extends AbstractModule {
     install(new DumpAndShutdownModule());
     bind(Thread.UncaughtExceptionHandler.class).to(ExceptionLoggingHandler.class).in(Singleton.class);
     bind(Config.class).toProvider(Configs::getConfig).in(Singleton.class);
+    bind(JulRedirect.class).asEagerSingleton();
     bind(StdRedirect.class).asEagerSingleton();
   }
 
@@ -84,4 +86,14 @@ public class CommonModule extends AbstractModule {
     }
   }
 
+  @Singleton
+  public static class JulRedirect {
+    public JulRedirect() {
+      // Optionally remove existing handlers attached to j.u.l root logger
+      SLF4JBridgeHandler.removeHandlersForRootLogger();
+
+      // add SLF4JBridgeHandler to j.u.l's root logger
+      SLF4JBridgeHandler.install();
+    }
+  }
 }

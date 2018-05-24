@@ -1,7 +1,6 @@
 package com.blokaly.ceres.bitstamp;
 
 import com.blokaly.ceres.bitstamp.event.DiffBookEvent;
-import com.blokaly.ceres.orderbook.PriceBasedOrderBook;
 import com.google.gson.Gson;
 import com.pusher.client.Client;
 import com.pusher.client.channel.ChannelEventListener;
@@ -10,8 +9,6 @@ import com.pusher.client.connection.ConnectionState;
 import com.pusher.client.connection.ConnectionStateChange;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.concurrent.ExecutorService;
 
 public class PusherClient implements ConnectionEventListener, ChannelEventListener {
 

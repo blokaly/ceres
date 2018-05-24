@@ -2,12 +2,11 @@ dependencies {
     compile project(':gateways')
     compile project(':kafka:kclient')
     compile project(':kafka:kstream')
-    compile "com.pusher:pusher-java-client:1.8.0"
+    compile "com.pusher:pusher-java-client:1.8.1.1"
 }
 
 mainClassName = 'com.blokaly.ceres.bitstamp.BitstampService'
 applicationName = "bitstampfh"
-version = 1.0
 
 docker {
     javaApplication {

@@ -2,6 +2,7 @@ package com.blokaly.ceres.kafka;
 
 import com.blokaly.ceres.common.CommonConfigs;
 import com.google.inject.Inject;
+import com.google.inject.Singleton;
 import com.typesafe.config.Config;
 import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerRecord;
@@ -10,6 +11,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.annotation.PreDestroy;
 
+@Singleton
 public class StringProducer {
   private static Logger LOGGER = LoggerFactory.getLogger(StringProducer.class);
   private final Producer<String, String> producer;

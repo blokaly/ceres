@@ -7,7 +7,6 @@ dependencies {
 
 mainClassName = 'com.blokaly.ceres.bitfinex.BitfinexService'
 applicationName = "bitfinexfh"
-version = 1.0
 
 docker {
     javaApplication {

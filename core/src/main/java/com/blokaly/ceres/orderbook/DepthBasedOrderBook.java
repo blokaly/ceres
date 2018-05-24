@@ -35,6 +35,11 @@ public class DepthBasedOrderBook implements OrderBook<DepthBasedOrderInfo>, TopO
     return symbol;
   }
 
+  @Override
+  public long getLastSequence() {
+    return lastSequence;
+  }
+
   public int getDepth() {
     return depth;
   }
@@ -106,7 +111,12 @@ public class DepthBasedOrderBook implements OrderBook<DepthBasedOrderInfo>, TopO
     if (order.getDepth() >= levels.length) {
       return;
     }
-    levels[order.getDepth()].update(order.getPrice(), order.getQuantity());
+    PriceLevel level = levels[order.getDepth()];
+    if (level == null) {
+      levels[order.getDepth()] = new PriceLevel(order.getPrice(), order.getQuantity());
+    } else {
+      level.update(order.getPrice(), order.getQuantity());
+    }
   }
 
   private PriceLevel[] sidedLevels(OrderInfo.Side side) {

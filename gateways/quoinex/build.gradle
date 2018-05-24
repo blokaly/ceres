@@ -1,0 +1,16 @@
+dependencies {
+    compile project(':gateways')
+    compile project(':kafka:kclient')
+    compile project(':kafka:kstream')
+    compile "com.pusher:pusher-java-client:1.8.1.1"
+}
+
+mainClassName = 'com.blokaly.ceres.quoinex.QuoinexService'
+applicationName = "quoinexfh"
+
+docker {
+    javaApplication {
+        baseImage = 'blokaly/java8:latest'
+        tag = "${dockerRepo}/ceres-${applicationName}:${version}"
+    }
+}

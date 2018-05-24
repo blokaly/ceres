@@ -1,0 +1,14 @@
+dependencies {
+    compile project(':services')
+    compile project(':kafka:kclient')
+}
+
+mainClassName = 'com.blokaly.ceres.simulation.SimulatorService'
+applicationName = "simulator"
+
+docker {
+    javaApplication {
+        baseImage = 'blokaly/java8:latest'
+        tag = "${dockerRepo}/ceres-${applicationName}:${version}"
+    }
+}

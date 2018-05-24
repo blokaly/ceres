@@ -14,6 +14,6 @@ public class SnapshotCallbackHandler implements CommandCallbackHandler<SnapshotE
     String productId = jsonObject.get("product_id").getAsString();
     JsonArray bids = jsonObject.get("bids").getAsJsonArray();
     JsonArray asks = jsonObject.get("asks").getAsJsonArray();
-    return SnapshotEvent.parse(System.currentTimeMillis(), productId, bids, asks);
+    return SnapshotEvent.parse(System.nanoTime(), productId, bids, asks);
   }
 }

@@ -1,0 +1,5 @@
+dependencies {
+    compile project(':influxdb')
+    compile 'org.influxdb:influxdb-java:2.9'
+}
+

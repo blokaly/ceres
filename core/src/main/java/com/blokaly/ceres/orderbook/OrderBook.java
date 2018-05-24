@@ -16,6 +16,7 @@ public interface OrderBook<T extends OrderInfo> {
     void processSnapshot(MarketDataSnapshot<T> snapshot);
     void processIncrementalUpdate(MarketDataIncremental<T> incremental);
     String getSymbol();
+    long getLastSequence();
     Collection<? extends Level> getBids();
     Collection<? extends Level> getAsks();
     void clear();

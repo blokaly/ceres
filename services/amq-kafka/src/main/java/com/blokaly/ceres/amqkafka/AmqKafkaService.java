@@ -2,7 +2,6 @@ package com.blokaly.ceres.amqkafka;
 
 import com.blokaly.ceres.activemq.ActiveMQCommonModule;
 import com.blokaly.ceres.activemq.QueueConsumer;
-import com.blokaly.ceres.common.CommonModule;
 import com.blokaly.ceres.common.Services;
 import com.blokaly.ceres.kafka.KafkaCommonModule;
 import com.google.common.util.concurrent.AbstractService;
@@ -48,7 +47,6 @@ public class AmqKafkaService extends AbstractService {
 
     @Override
     protected void configure() {
-      install(new CommonModule());
       install(new KafkaCommonModule());
       install(new ActiveMQCommonModule());
 

@@ -7,7 +7,6 @@ dependencies {
 
 mainClassName = 'com.blokaly.ceres.quote.ValidatorService'
 applicationName = "quote-validaor"
-version = 1.0
 
 docker {
     javaApplication {

@@ -7,7 +7,6 @@ dependencies {
 
 mainClassName = 'com.blokaly.ceres.gdax.GdaxService'
 applicationName = "gdaxfh"
-version = 1.0
 
 docker {
     javaApplication {

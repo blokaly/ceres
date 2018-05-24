@@ -1,0 +1,14 @@
+dependencies {
+    compile project(':services')
+    compile project(':influxdb:influxdb-client')
+}
+
+mainClassName = 'com.blokaly.ceres.persist.StreamPersistService'
+applicationName = "stream-persister"
+
+docker {
+    javaApplication {
+        baseImage = 'blokaly/java8:latest'
+        tag = "${dockerRepo}/ceres-${applicationName}:${version}"
+    }
+}

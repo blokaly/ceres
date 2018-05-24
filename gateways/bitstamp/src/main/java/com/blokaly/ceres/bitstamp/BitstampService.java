@@ -27,72 +27,75 @@ import java.util.concurrent.ExecutorService;
 import java.util.stream.Collectors;
 
 public class BitstampService extends BootstrapService {
-    private final List<PusherClient> clients;
-    private final KafkaStreams streams;
+  private final List<PusherClient> clients;
+  private final KafkaStreams streams;
 
-    @Inject
-    public BitstampService(List<PusherClient> clients, @Named("Throttled") KafkaStreams streams) {
-        this.clients = clients;
-        this.streams = streams;
-    }
+  @Inject
+  public BitstampService(List<PusherClient> clients, @Named("Throttled") KafkaStreams streams) {
+    this.clients = clients;
+    this.streams = streams;
+  }
+
+  @Override
+  protected void startUp() throws Exception {
+    LOGGER.info("starting pusher client...");
+    clients.forEach(PusherClient::start);
+
+    waitFor(3);
+    LOGGER.info("starting kafka streams...");
+    streams.start();
+  }
+
+  @Override
+  protected void shutDown() throws Exception {
+    LOGGER.info("stopping pusher client...");
+    clients.forEach(PusherClient::stop);
+
+    LOGGER.info("stopping kafka streams...");
+    streams.close();
+  }
+
+  public static class BitstampModule extends CeresModule {
 
     @Override
-    protected void startUp() throws Exception {
-        LOGGER.info("starting pusher client...");
-        clients.forEach(PusherClient::start);
+    protected void configure() {
+      install(new KafkaCommonModule());
+      install(new KafkaStreamModule());
+      bindExpose(ToBProducer.class);
+      bind(HBProducer.class).asEagerSingleton();
 
-        waitFor(3);
-        LOGGER.info("starting kafka streams...");
-        streams.start();
+      expose(StreamsBuilder.class).annotatedWith(Names.named("Throttled"));
+      expose(KafkaStreams.class).annotatedWith(Names.named("Throttled"));
+
     }
 
-    @Override
-    protected void shutDown() throws Exception {
-        LOGGER.info("stopping pusher client...");
-        clients.forEach(PusherClient::stop);
-        LOGGER.info("stopping kafka streams...");
-        streams.close();
+    @Provides
+    @Singleton
+    @Exposed
+    public List<PusherClient> providePusherClients(Config config, Gson gson, ToBProducer producer, @SingleThread Provider<ExecutorService> provider) {
+      PusherOptions options = new PusherOptions();
+      String source = Source.valueOf(config.getString(CommonConfigs.APP_SOURCE).toUpperCase()).getCode();
+      return config.getConfig("symbols").entrySet().stream()
+          .map(item -> {
+            String symbol = SymbolFormatter.normalise(item.getKey());
+            OrderBookHandler handler = new OrderBookHandler(new PriceBasedOrderBook(symbol, symbol + "." + source), producer, gson, provider.get());
+            String subId = (String) item.getValue().unwrapped();
+            return new PusherClient(new Pusher(subId, options), handler, gson);
+          })
+          .collect(Collectors.toList());
     }
 
-    public static class BitstampModule extends CeresModule {
-
-        @Override
-        protected void configure() {
-            install(new KafkaCommonModule());
-            install(new KafkaStreamModule());
-            bindExpose(ToBProducer.class);
-            bind(HBProducer.class).asEagerSingleton();
-            expose(StreamsBuilder.class).annotatedWith(Names.named("Throttled"));
-            expose(KafkaStreams.class).annotatedWith(Names.named("Throttled"));
-        }
-
-        @Provides
-        @Singleton
-        @Exposed
-        public List<PusherClient> providePusherClients(Config config, Gson gson, ToBProducer producer, @SingleThread Provider<ExecutorService> provider) {
-            PusherOptions options = new PusherOptions();
-            String source = Source.valueOf(config.getString(CommonConfigs.APP_SOURCE).toUpperCase()).getCode();
-            return config.getConfig("symbols").entrySet().stream()
-                .map(item -> {
-                    String symbol = SymbolFormatter.normalise(item.getKey());
-                    OrderBookHandler handler = new OrderBookHandler(new PriceBasedOrderBook(symbol, symbol + "." + source), producer, gson, provider.get());
-                    String subId = (String) item.getValue().unwrapped();
-                    return new PusherClient(new Pusher(subId, options), handler, gson);
-                })
-                .collect(Collectors.toList());
-        }
-
-        @Provides
-        @Singleton
-        public Gson provideGson() {
-            GsonBuilder builder = new GsonBuilder();
-            builder.registerTypeAdapter(OrderBookEvent.class, new OrderBookEventAdapter());
-            builder.registerTypeAdapter(DiffBookEvent.class, new DiffBookEventAdapter());
-            return builder.create();
-        }
+    @Provides
+    @Singleton
+    public Gson provideGson() {
+      GsonBuilder builder = new GsonBuilder();
+      builder.registerTypeAdapter(OrderBookEvent.class, new OrderBookEventAdapter());
+      builder.registerTypeAdapter(DiffBookEvent.class, new DiffBookEventAdapter());
+      return builder.create();
     }
+  }
 
-    public static void main(String[] args) {
-        Services.start(new BitstampModule());
-    }
+  public static void main(String[] args) {
+    Services.start(new BitstampModule());
+  }
 }

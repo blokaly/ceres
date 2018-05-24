@@ -5,13 +5,14 @@ import com.blokaly.ceres.data.IdBasedOrderInfo;
 import com.blokaly.ceres.data.MarketDataIncremental;
 import com.blokaly.ceres.data.MarketDataSnapshot;
 import com.blokaly.ceres.data.OrderInfo;
-import com.blokaly.ceres.proto.OrderBookProto;
 import com.google.common.collect.Maps;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.Map;
+import java.util.NavigableMap;
 
 public class OrderBasedOrderBook implements OrderBook<IdBasedOrderInfo>, TopOfBook {
   private static final Logger LOGGER = LoggerFactory.getLogger(OrderBasedOrderBook.class);
@@ -31,6 +32,11 @@ public class OrderBasedOrderBook implements OrderBook<IdBasedOrderInfo>, TopOfBo
   @Override
   public String getSymbol() {
     return symbol;
+  }
+
+  @Override
+  public long getLastSequence() {
+    return lastSequence;
   }
 
   @Override
@@ -186,16 +192,6 @@ public class OrderBasedOrderBook implements OrderBook<IdBasedOrderInfo>, TopOfBo
       level.addOrChange(orderId, order.getQuantity());
     }
 
-  }
-
-  private List<OrderBookProto.Level> translateSide(OrderInfo.Side side, int depth) {
-    NavigableMap<DecimalNumber, PriceLevel> levels = sidedLevels(side);
-    return levels.values().stream().limit(depth).map(level -> {
-      OrderBookProto.Level.Builder builder = OrderBookProto.Level.newBuilder();
-      builder.setPrice(level.getPrice().toString());
-      builder.setSize(level.getQuantity().toString());
-      return builder.build();
-    }).collect(Collectors.toList());
   }
 
   public static final class PriceLevel implements OrderBook.Level {

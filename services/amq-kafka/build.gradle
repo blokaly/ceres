@@ -6,7 +6,6 @@ dependencies {
 
 mainClassName = 'com.blokaly.ceres.amqkafka.AmqKafkaService'
 applicationName = "amq-kafka"
-version = 1.0
 
 docker {
     javaApplication {

@@ -1,0 +1,16 @@
+dependencies {
+    compile project(':gateways')
+    compile project(':kafka:kclient')
+    compile project(':kafka:kstream')
+    compile "microsoft.aspnet:signalr-client-sdk:1.0.4"
+}
+
+mainClassName = 'com.blokaly.ceres.bittrex.BittrexService'
+applicationName = "bittrexfh"
+
+docker {
+    javaApplication {
+        baseImage = 'blokaly/java8:latest'
+        tag = "${dockerRepo}/ceres-${applicationName}:${version}"
+    }
+}

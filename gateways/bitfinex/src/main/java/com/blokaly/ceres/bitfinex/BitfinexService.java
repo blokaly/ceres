@@ -5,6 +5,7 @@ import com.blokaly.ceres.binding.CeresModule;
 import com.blokaly.ceres.bitfinex.callback.*;
 import com.blokaly.ceres.bitfinex.event.AbstractEvent;
 import com.blokaly.ceres.bitfinex.event.EventType;
+import com.blokaly.ceres.common.CommonConfigs;
 import com.blokaly.ceres.common.Services;
 import com.blokaly.ceres.kafka.HBProducer;
 import com.blokaly.ceres.kafka.KafkaCommonModule;
@@ -76,7 +77,7 @@ public class BitfinexService extends BootstrapService {
     @Provides
     @Exposed
     public URI provideUri(Config config) throws Exception {
-      return new URI(config.getString("app.ws.url"));
+      return new URI(config.getString(CommonConfigs.WS_URL));
     }
 
     @Provides

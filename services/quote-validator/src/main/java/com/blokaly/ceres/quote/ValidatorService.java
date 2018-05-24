@@ -37,7 +37,6 @@ public class ValidatorService extends BootstrapService {
   protected void startUp() throws Exception {
     LOGGER.info("Web server starting...");
     server.start();
-
     store.start();
   }
 
@@ -45,7 +44,6 @@ public class ValidatorService extends BootstrapService {
   protected void shutDown() throws Exception {
     LOGGER.info("Web server stopping...");
     server.stop();
-
     store.stop();
   }
 
@@ -53,7 +51,6 @@ public class ValidatorService extends BootstrapService {
 
     @Override
     protected void configure() {
-      install(new CommonModule());
       install(new KafkaCommonModule());
       install(new RedisModule());
       install(new UndertowModule(new HandlerModule() {
@@ -63,8 +60,6 @@ public class ValidatorService extends BootstrapService {
         }
       }));
 
-      expose(Config.class);
-      expose(ExecutorService.class).annotatedWith(SingleThread.class);
       expose(RedisClient.class);
       expose(JedisProvider.class);
       expose(Undertow.class);
